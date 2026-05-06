@@ -18,12 +18,12 @@
 </p>
 
 > **Monitor the current thing. Your dashboard for the internet.**
-> Build a deck, pack it with columns, refresh on demand. Each column is a plugin: X, Bluesky, Reddit, Hacker News, Lobsters, GitHub (trending / issues / PRs / stars / forks / backlinks / search / releases), Farcaster, Mastodon, YouTube, RSS, Google News, Bing, Substack, LinkedIn, Facebook, Instagram, Apple + Google Play reviews, on-chain wallet activity, and the six biggest Chinese platforms (Weibo / Zhihu / Douyin / Bilibili / Toutiao / Baidu).
+> Build a deck, pack it with columns, refresh on demand. Each column is a plugin: X, Bluesky, Reddit, Hacker News, Lobsters, GitHub (trending / issues / PRs / stars / forks / backlinks / search / releases), Farcaster, Mastodon, YouTube, RSS, Google News, Bing, Substack, LinkedIn, Facebook, Instagram, Apple + Google Play reviews, on-chain wallet activity, Polymarket prediction markets, and the six biggest Chinese platforms (Weibo / Zhihu / Douyin / Bilibili / Toutiao / Baidu).
 
 ### What it does
 
 - You name a deck. Minitor packs it with whatever you're watching.
-- 34 column types out of the box — social feeds, news, GitHub, app reviews, on-chain transactions, Chinese hot boards.
+- 35 column types out of the box — social feeds, news, GitHub, app reviews, on-chain transactions, prediction markets, Chinese hot boards.
 - Refresh per column or auto-fetch on creation. Load more pages 10 at a time.
 - ⌘K command palette over every deck, column, and action. Drag to reorder.
 - Local-first by default — embedded PGlite, no Postgres install needed.
@@ -41,7 +41,7 @@ git clone https://github.com/aaronjmars/minitor.git && cd minitor
 
 The launcher checks Node, picks the right package manager (npm / pnpm / yarn / bun based on lockfile), installs deps, copies `.env.example` → `.env.local` if missing, runs DB migrations against PGlite, and starts the dev server at `http://localhost:3000`. Re-running it just starts the server.
 
-For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https://console.x.ai/)** into `XAI_API_KEY` in `.env.local`. Keyless columns (Reddit, HN, RSS, Google News, Bing, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions) work out of the box with no keys.
+For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https://console.x.ai/)** into `XAI_API_KEY` in `.env.local`. Keyless columns (Reddit, HN, Lobsters, Bluesky, Mastodon, RSS, Google News, Bing, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions, Polymarket) work out of the box with no keys.
 
 **Other launcher subcommands:**
 
@@ -63,7 +63,7 @@ For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https:
 | **News & web** (5) | `bing` (Web search), `google-news`, `news-search`, `rss`, `lobsters` |
 | **Long-form & video** (3) | `substack`, `youtube`, `linkedin` |
 | **Mention monitors** (2) | `facebook`, `instagram` |
-| **Apps & on-chain** (3) | `apple-reviews`, `play-reviews`, `wallet-tx` |
+| **Apps & on-chain** (4) | `apple-reviews`, `play-reviews`, `wallet-tx`, `polymarket` |
 | **China hot boards** (6) | `weibo-hot`, `zhihu-hot`, `douyin-hot`, `bilibili-hot`, `toutiao`, `baidu-hot` |
 
 Full plugin manifest: [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/manifest.ts). Add a new source by copying [`lib/columns/plugins/_template/`](lib/columns/plugins/_template/) — see [`lib/columns/README.md`](lib/columns/README.md) for the full contract.

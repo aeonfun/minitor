@@ -38,6 +38,7 @@ import { meta as githubForks } from "./github-forks/plugin";
 import { meta as githubReleases } from "./github-releases/plugin";
 import { meta as bluesky } from "./bluesky/plugin";
 import { meta as lobsters } from "./lobsters/plugin";
+import { meta as polymarket } from "./polymarket/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -74,6 +75,7 @@ export const PLUGIN_METAS = [
   githubReleases,
   bluesky,
   lobsters,
+  polymarket,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
