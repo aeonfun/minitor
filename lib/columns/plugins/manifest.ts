@@ -39,6 +39,7 @@ import { meta as githubReleases } from "./github-releases/plugin";
 import { meta as bluesky } from "./bluesky/plugin";
 import { meta as lobsters } from "./lobsters/plugin";
 import { meta as polymarket } from "./polymarket/plugin";
+import { meta as stackOverflow } from "./stack-overflow/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -76,6 +77,7 @@ export const PLUGIN_METAS = [
   bluesky,
   lobsters,
   polymarket,
+  stackOverflow,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(

@@ -43,6 +43,7 @@ import { server as githubReleases } from "@/lib/columns/plugins/github-releases/
 import { server as bluesky } from "@/lib/columns/plugins/bluesky/server";
 import { server as lobsters } from "@/lib/columns/plugins/lobsters/server";
 import { server as polymarket } from "@/lib/columns/plugins/polymarket/server";
+import { server as stackOverflow } from "@/lib/columns/plugins/stack-overflow/server";
 
 const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "x-search": xSearch,
@@ -80,6 +81,7 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   bluesky,
   lobsters,
   polymarket,
+  "stack-overflow": stackOverflow,
 };
 
 // Parity check — runs once at server module init. Throws loudly rather than
