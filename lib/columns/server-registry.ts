@@ -44,6 +44,7 @@ import { server as bluesky } from "@/lib/columns/plugins/bluesky/server";
 import { server as lobsters } from "@/lib/columns/plugins/lobsters/server";
 import { server as polymarket } from "@/lib/columns/plugins/polymarket/server";
 import { server as stackOverflow } from "@/lib/columns/plugins/stack-overflow/server";
+import { server as huggingface } from "@/lib/columns/plugins/huggingface/server";
 
 const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "x-search": xSearch,
@@ -82,6 +83,7 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   lobsters,
   polymarket,
   "stack-overflow": stackOverflow,
+  huggingface,
 };
 
 // Parity check — runs once at server module init. Throws loudly rather than

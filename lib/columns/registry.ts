@@ -48,6 +48,7 @@ import { column as bluesky } from "@/lib/columns/plugins/bluesky/client";
 import { column as lobsters } from "@/lib/columns/plugins/lobsters/client";
 import { column as polymarket } from "@/lib/columns/plugins/polymarket/client";
 import { column as stackOverflow } from "@/lib/columns/plugins/stack-overflow/client";
+import { column as huggingface } from "@/lib/columns/plugins/huggingface/client";
 
 // Keyed by id rather than positional — "use client" boundary means we can't
 // read `column.id` reliably from a server context anyway, so the id has to
@@ -89,6 +90,7 @@ const COLUMNS_BY_ID: Record<string, AnyColumnUI> = {
   lobsters,
   polymarket,
   "stack-overflow": stackOverflow,
+  huggingface,
 };
 
 // Pre-built ordered list, indexed by manifest order. Built once at module init.
