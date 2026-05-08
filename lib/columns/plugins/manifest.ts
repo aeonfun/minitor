@@ -40,6 +40,7 @@ import { meta as bluesky } from "./bluesky/plugin";
 import { meta as lobsters } from "./lobsters/plugin";
 import { meta as polymarket } from "./polymarket/plugin";
 import { meta as stackOverflow } from "./stack-overflow/plugin";
+import { meta as huggingface } from "./huggingface/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -78,6 +79,7 @@ export const PLUGIN_METAS = [
   lobsters,
   polymarket,
   stackOverflow,
+  huggingface,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
