@@ -104,6 +104,7 @@ function ItemRenderer({ item }: ItemRendererProps<ArxivMeta>) {
   const arxivId = m?.arxivId ?? "";
   const pdfUrl = m?.pdfUrl;
   const isRevision = !!m?.isRevision;
+  const comment = m?.comment ?? "";
 
   return (
     <div className="group/item block border-b border-border px-3.5 py-3 transition-colors hover:bg-surface/60">
@@ -173,6 +174,11 @@ function ItemRenderer({ item }: ItemRendererProps<ArxivMeta>) {
       {abstract && (
         <p className="mt-1.5 text-[12.5px] leading-snug text-muted-foreground/90">
           {truncate(abstract, 280)}
+        </p>
+      )}
+      {comment && (
+        <p className="mt-1 text-[11.5px] italic leading-snug text-muted-foreground/75">
+          {truncate(comment, 140)}
         </p>
       )}
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
