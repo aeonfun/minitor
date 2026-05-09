@@ -41,6 +41,7 @@ import { meta as lobsters } from "./lobsters/plugin";
 import { meta as polymarket } from "./polymarket/plugin";
 import { meta as stackOverflow } from "./stack-overflow/plugin";
 import { meta as huggingface } from "./huggingface/plugin";
+import { meta as arxiv } from "./arxiv/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -80,6 +81,7 @@ export const PLUGIN_METAS = [
   polymarket,
   stackOverflow,
   huggingface,
+  arxiv,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
