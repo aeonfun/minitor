@@ -35,6 +35,7 @@ export interface ArxivMeta {
   publishedAt: string;
   updatedAt: string;
   isRevision: boolean;
+  comment?: string;
 }
 
 const CATEGORY_LABELS: Record<(typeof CATEGORIES)[number], string> = {

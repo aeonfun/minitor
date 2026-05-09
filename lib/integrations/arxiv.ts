@@ -44,6 +44,12 @@ export interface ArxivMeta {
   // Distinguishes a freshly published paper from a v2/v3 revision — useful
   // for picking out genuinely new work in `updated` mode.
   isRevision: boolean;
+  // Free-form `<arxiv:comment>` from the Atom entry. Authors typically use it
+  // for venue acceptance ("Accepted to ICML 2026", "SIGGRAPH 2026"), code
+  // links ("Code: https://github.com/..."), or page count ("33 pages"). ~56%
+  // of recent cs.LG entries populate it; the renderer hides the line when
+  // empty.
+  comment?: string;
 }
 
 const NAMED_ENTITIES: Record<string, string> = {
@@ -188,6 +194,7 @@ function mapEntry(entry: string): FeedItem<ArxivMeta> | null {
   const abstract = clean(getTag(entry, "summary"));
   const authors = extractAuthors(entry);
   const { primary, all } = extractCategories(entry);
+  const comment = clean(getTag(entry, "arxiv:comment"));
 
   const publishedRaw = getTag(entry, "published").trim();
   const updatedRaw = getTag(entry, "updated").trim();
@@ -243,6 +250,7 @@ function mapEntry(entry: string): FeedItem<ArxivMeta> | null {
         ? new Date(updatedMs).toISOString()
         : new Date(createdMs).toISOString(),
       isRevision,
+      comment: comment || undefined,
     },
   };
 }
