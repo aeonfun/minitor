@@ -42,6 +42,7 @@ import { meta as polymarket } from "./polymarket/plugin";
 import { meta as stackOverflow } from "./stack-overflow/plugin";
 import { meta as huggingface } from "./huggingface/plugin";
 import { meta as arxiv } from "./arxiv/plugin";
+import { meta as devto } from "./devto/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -82,6 +83,7 @@ export const PLUGIN_METAS = [
   stackOverflow,
   huggingface,
   arxiv,
+  devto,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(

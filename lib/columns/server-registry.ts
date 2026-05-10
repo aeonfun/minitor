@@ -46,6 +46,7 @@ import { server as polymarket } from "@/lib/columns/plugins/polymarket/server";
 import { server as stackOverflow } from "@/lib/columns/plugins/stack-overflow/server";
 import { server as huggingface } from "@/lib/columns/plugins/huggingface/server";
 import { server as arxiv } from "@/lib/columns/plugins/arxiv/server";
+import { server as devto } from "@/lib/columns/plugins/devto/server";
 
 const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "x-search": xSearch,
@@ -86,6 +87,7 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "stack-overflow": stackOverflow,
   huggingface,
   arxiv,
+  devto,
 };
 
 // Parity check — runs once at server module init. Throws loudly rather than
