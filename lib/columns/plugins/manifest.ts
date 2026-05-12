@@ -44,6 +44,7 @@ import { meta as huggingface } from "./huggingface/plugin";
 import { meta as arxiv } from "./arxiv/plugin";
 import { meta as devto } from "./devto/plugin";
 import { meta as githubActions } from "./github-actions/plugin";
+import { meta as npm } from "./npm/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -86,6 +87,7 @@ export const PLUGIN_METAS = [
   arxiv,
   devto,
   githubActions,
+  npm,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
