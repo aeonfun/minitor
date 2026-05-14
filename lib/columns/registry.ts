@@ -54,6 +54,7 @@ import { column as devto } from "@/lib/columns/plugins/devto/client";
 import { column as githubActions } from "@/lib/columns/plugins/github-actions/client";
 import { column as npm } from "@/lib/columns/plugins/npm/client";
 import { column as pypi } from "@/lib/columns/plugins/pypi/client";
+import { column as crates } from "@/lib/columns/plugins/crates/client";
 
 // Keyed by id rather than positional — "use client" boundary means we can't
 // read `column.id` reliably from a server context anyway, so the id has to
@@ -101,6 +102,7 @@ const COLUMNS_BY_ID: Record<string, AnyColumnUI> = {
   "github-actions": githubActions,
   npm,
   pypi,
+  crates,
 };
 
 // Pre-built ordered list, indexed by manifest order. Built once at module init.
