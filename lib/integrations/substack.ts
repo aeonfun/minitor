@@ -21,7 +21,11 @@ import { identiconUrl } from "@/lib/utils";
 export type { SubstackMeta };
 
 export interface ParsedHandle {
+  // Display label — bare handle for `.substack.com` subdomains, full host for
+  // custom domains (e.g. `pluralistic.net`, `astralcodexten.com`).
   handle: string;
+  // Canonical hostname used for the feed URL and for `publication` in meta.
+  host: string;
   feedUrl: string;
 }
 
@@ -31,23 +35,45 @@ export function parseHandles(input: string): ParsedHandle[] {
   for (const raw of input.split(/[\s,]+/)) {
     const piece = raw.trim();
     if (!piece) continue;
-    const handle = handleFromInput(piece);
-    if (!handle || seen.has(handle)) continue;
-    seen.add(handle);
-    out.push({ handle, feedUrl: `https://${handle}.substack.com/feed` });
+    const parsed = handleFromInput(piece);
+    if (!parsed || seen.has(parsed.host)) continue;
+    seen.add(parsed.host);
+    out.push({ ...parsed, feedUrl: `https://${parsed.host}/feed` });
   }
   return out;
 }
 
-function handleFromInput(s: string): string | null {
+function handleFromInput(
+  s: string,
+): { handle: string; host: string } | null {
   const lower = s.toLowerCase();
-  // Full URL or bare host: extract the subdomain before .substack.com.
-  const urlMatch = lower.match(
+  // Full URL or bare host on .substack.com → bare handle, canonical host.
+  const subMatch = lower.match(
     /^(?:https?:\/\/)?([a-z0-9-]+)\.substack\.com\b/,
   );
-  if (urlMatch) return urlMatch[1];
+  if (subMatch) {
+    const handle = subMatch[1];
+    return { handle, host: `${handle}.substack.com` };
+  }
+  // Custom domain — many popular Substacks (astralcodexten.com,
+  // pluralistic.net, noahpinion.blog, every.to) live on their own
+  // hostname. They still expose `/feed` so the same fetch path works.
+  // Accept any URL or bare host with at least one dot in the body of the
+  // hostname; strip a leading `www.` for canonicalisation.
+  const urlMatch = lower.match(
+    /^(?:https?:\/\/)?(?:www\.)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)(?:[\/?#]|$)/,
+  );
+  if (urlMatch) {
+    const host = urlMatch[1];
+    // Defensive: reject `substack.com` bare (no publication) and anything
+    // ending in a leading `.` from the regex.
+    if (host === "substack.com" || host.startsWith(".")) return null;
+    return { handle: host, host };
+  }
   // Plain handle. Allow alphanumerics and hyphens; reject anything else.
-  if (/^[a-z0-9][a-z0-9-]*$/.test(lower)) return lower;
+  if (/^[a-z0-9][a-z0-9-]*$/.test(lower)) {
+    return { handle: lower, host: `${lower}.substack.com` };
+  }
   return null;
 }
 
@@ -91,11 +117,9 @@ export async function searchSubstackPublications(
   if (handles.length === 0) return [];
 
   const results = await Promise.allSettled(
-    handles.map(async ({ handle, feedUrl }) => {
+    handles.map(async ({ host, feedUrl }) => {
       const items = await fetchFeed(feedUrl, perFeed);
-      return items.map((item) =>
-        tagWithPublication(item, handle, feedUrl),
-      );
+      return items.map((item) => tagWithPublication(item, host, feedUrl));
     }),
   );
 
@@ -167,10 +191,10 @@ export async function searchSubstackByKeyword(
 
 function tagWithPublication(
   item: FeedItem,
-  handle: string,
+  host: string,
   feedUrl: string,
 ): FeedItem<SubstackMeta> {
-  const publication = `${handle}.substack.com`;
+  const publication = host;
   const prevMeta = item.meta as { source?: string; feedTitle?: string } | undefined;
   const feedTitle = prevMeta?.feedTitle ?? publication;
   const source = prevMeta?.source ?? feedTitle;

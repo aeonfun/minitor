@@ -18,16 +18,18 @@ function ConfigForm({ value, onChange }: ConfigFormProps<SubstackConfig>) {
         <Label htmlFor="sub-handles">Publications (optional)</Label>
         <Textarea
           id="sub-handles"
-          placeholder={"mattyglesias\nslowboring\nstratechery.com"}
+          placeholder={"mattyglesias\nslowboring\npluralistic.net"}
           value={value.handles}
           onChange={(e) => onChange({ ...value, handles: e.target.value })}
           rows={3}
         />
         <p className="text-xs text-muted-foreground">
           One per line, or comma-separated. Use the handle (
-          <code>mattyglesias</code>) or full URL (
-          <code>slowboring.substack.com</code>). Per-publication RSS is keyless.
-          Leave empty to search all of Substack via xAI web search.
+          <code>mattyglesias</code>), the full Substack URL (
+          <code>slowboring.substack.com</code>), or a custom-domain Substack (
+          <code>pluralistic.net</code>, <code>astralcodexten.com</code>) —
+          anything that exposes <code>/feed</code>. Per-publication RSS is
+          keyless. Leave empty to search all of Substack via xAI web search.
         </p>
       </div>
       <div className="grid gap-1.5">
