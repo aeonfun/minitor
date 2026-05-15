@@ -273,32 +273,35 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
   }
   const data = result.data;
 
-  const [{ maxDeckPos }] = await db
-    .select({ maxDeckPos: sql<number>`coalesce(max(${decks.position}), -1)` })
-    .from(decks);
-
   const deckId = nanoid();
   const deckName = `${data.deckName} (imported)`;
-  await db.insert(decks).values({
-    id: deckId,
-    name: deckName,
-    position: maxDeckPos + 1,
-  });
-
   const created: ImportedDeckColumn[] = [];
-  for (let i = 0; i < data.columns.length; i++) {
-    const c = data.columns[i];
-    const id = nanoid();
-    await db.insert(columns).values({
-      id,
-      deckId,
-      typeId: c.typeId,
-      title: c.title,
-      config: c.config,
-      position: i,
+
+  await db.transaction(async (tx) => {
+    const [{ maxDeckPos }] = await tx
+      .select({ maxDeckPos: sql<number>`coalesce(max(${decks.position}), -1)` })
+      .from(decks);
+
+    await tx.insert(decks).values({
+      id: deckId,
+      name: deckName,
+      position: maxDeckPos + 1,
     });
-    created.push({ id, typeId: c.typeId, title: c.title, config: c.config });
-  }
+
+    for (let i = 0; i < data.columns.length; i++) {
+      const c = data.columns[i];
+      const id = nanoid();
+      await tx.insert(columns).values({
+        id,
+        deckId,
+        typeId: c.typeId,
+        title: c.title,
+        config: c.config,
+        position: i,
+      });
+      created.push({ id, typeId: c.typeId, title: c.title, config: c.config });
+    }
+  });
 
   return { deckId, deckName, columns: created };
 }
