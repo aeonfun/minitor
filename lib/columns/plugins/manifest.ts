@@ -48,6 +48,7 @@ import { meta as npm } from "./npm/plugin";
 import { meta as pypi } from "./pypi/plugin";
 import { meta as crates } from "./crates/plugin";
 import { meta as producthunt } from "./producthunt/plugin";
+import { meta as githubDiscussions } from "./github-discussions/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -94,6 +95,7 @@ export const PLUGIN_METAS = [
   pypi,
   crates,
   producthunt,
+  githubDiscussions,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(

@@ -56,6 +56,7 @@ import { column as npm } from "@/lib/columns/plugins/npm/client";
 import { column as pypi } from "@/lib/columns/plugins/pypi/client";
 import { column as crates } from "@/lib/columns/plugins/crates/client";
 import { column as producthunt } from "@/lib/columns/plugins/producthunt/client";
+import { column as githubDiscussions } from "@/lib/columns/plugins/github-discussions/client";
 
 // Keyed by id rather than positional — "use client" boundary means we can't
 // read `column.id` reliably from a server context anyway, so the id has to
@@ -105,6 +106,7 @@ const COLUMNS_BY_ID: Record<string, AnyColumnUI> = {
   pypi,
   crates,
   producthunt,
+  "github-discussions": githubDiscussions,
 };
 
 // Pre-built ordered list, indexed by manifest order. Built once at module init.
