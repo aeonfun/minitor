@@ -50,6 +50,7 @@ import { meta as crates } from "./crates/plugin";
 import { meta as producthunt } from "./producthunt/plugin";
 import { meta as coingecko } from "./coingecko/plugin";
 import { meta as githubDiscussions } from "./github-discussions/plugin";
+import { meta as defillama } from "./defillama/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -98,6 +99,7 @@ export const PLUGIN_METAS = [
   producthunt,
   coingecko,
   githubDiscussions,
+  defillama,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
