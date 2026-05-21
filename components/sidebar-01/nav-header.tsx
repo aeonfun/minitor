@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Plus, Search, Upload } from "lucide-react";
+import { Download, Plus, Search, Share2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import { SidebarHeader } from "@/components/ui/sidebar";
 import { getColumnType } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import { focusColumn } from "@/components/sidebar-01/nav-decks";
+import { buildDeckShareUrl } from "@/lib/deck-share";
 
 interface Props {
   onAddDeck: () => void;
@@ -80,6 +81,31 @@ export function NavHeader({ onAddDeck, onAddColumn, onImportDeck }: Props) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Export failed";
       toast.error("Export failed", { description: msg });
+    }
+  }
+
+  async function handleShareActiveDeck() {
+    if (!activeDeck) return;
+    if (typeof window === "undefined") return;
+    try {
+      const json = await exportDeck(activeDeck.id);
+      const url = buildDeckShareUrl(json, {
+        origin: window.location.origin,
+        pathname: window.location.pathname,
+      });
+      const copied = await copyToClipboard(url);
+      if (copied) {
+        toast.success("Share link copied", { description: activeDeck.name });
+      } else {
+        toast.error("Could not copy to clipboard", {
+          description:
+            "Your browser blocked clipboard access — copy the URL from the console.",
+        });
+        console.log(url);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Share failed";
+      toast.error("Share failed", { description: msg });
     }
   }
 
@@ -180,6 +206,18 @@ export function NavHeader({ onAddDeck, onAddColumn, onImportDeck }: Props) {
               >
                 <Download className="mr-2 size-4" /> Export current deck (copy
                 JSON)
+              </CommandItem>
+            ) : null}
+            {activeDeck ? (
+              <CommandItem
+                value={`share-deck-${activeDeck.name}`}
+                onSelect={() => {
+                  setOpen(false);
+                  void handleShareActiveDeck();
+                }}
+              >
+                <Share2 className="mr-2 size-4" /> Share current deck (copy
+                URL)
               </CommandItem>
             ) : null}
             <CommandItem

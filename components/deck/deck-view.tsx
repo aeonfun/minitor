@@ -14,6 +14,11 @@ import {
 import { AppSidebar } from "@/components/sidebar-01/app-sidebar";
 import { Onboarding } from "@/components/onboarding/welcome";
 import { loadSnapshot } from "@/app/actions";
+import {
+  DECK_SHARE_HASH_KEY,
+  decodeDeckShareHash,
+  readDeckShareFragment,
+} from "@/lib/deck-share";
 
 export function DeckView() {
   const hydrated = useDeckStore((s) => s.hydrated);
@@ -42,6 +47,49 @@ export function DeckView() {
       cancelled = true;
     };
   }, []);
+
+  // Auto-import a deck from a #deck=... URL fragment after hydration. Runs once
+  // per page load: we clear the hash on success so refreshes don't re-import,
+  // and we clear it on failure so a malformed payload can't trap the user.
+  // Activation of the imported deck happens inside `importDeck` itself.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (typeof window === "undefined") return;
+    const fragment = readDeckShareFragment(window.location.hash);
+    if (!fragment) return;
+
+    const cleanHash = () => {
+      const stripped = window.location.hash
+        .replace(/^#/, "")
+        .split("&")
+        .filter((p) => !p.startsWith(`${DECK_SHARE_HASH_KEY}=`))
+        .join("&");
+      const next = stripped ? `${window.location.pathname}${window.location.search}#${stripped}` : `${window.location.pathname}${window.location.search}`;
+      window.history.replaceState(null, "", next);
+    };
+
+    const json = decodeDeckShareHash(fragment);
+    if (!json) {
+      toast.error("Shared deck link is invalid", {
+        description: "The URL fragment could not be decoded.",
+      });
+      cleanHash();
+      return;
+    }
+
+    useDeckStore
+      .getState()
+      .importDeck(json)
+      .then((result) => {
+        toast.success("Shared deck imported", { description: result.deckName });
+        cleanHash();
+      })
+      .catch((err) => {
+        const msg = err instanceof Error ? err.message : "Import failed";
+        toast.error("Shared deck import failed", { description: msg });
+        cleanHash();
+      });
+  }, [hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
