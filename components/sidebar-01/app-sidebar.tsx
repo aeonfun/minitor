@@ -8,6 +8,7 @@ import { NavHeader } from "@/components/sidebar-01/nav-header";
 import { NavStats } from "@/components/sidebar-01/nav-stats";
 import { RenameDialog } from "@/components/dialogs/rename-dialog";
 import { ImportDeckDialog } from "@/components/dialogs/import-deck-dialog";
+import { TemplatesDialog } from "@/components/dialogs/templates-dialog";
 import { AddColumnDialog } from "@/components/column/add-column-dialog";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 
@@ -19,6 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [newDeckOpen, setNewDeckOpen] = useState(false);
   const [addColOpen, setAddColOpen] = useState(false);
   const [importDeckOpen, setImportDeckOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
 
   return (
     <>
@@ -27,6 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           onAddDeck={() => setNewDeckOpen(true)}
           onAddColumn={() => setAddColOpen(true)}
           onImportDeck={() => setImportDeckOpen(true)}
+          onBrowseTemplates={() => setTemplatesOpen(true)}
         />
         <SidebarContent>
           <NavDecks />
@@ -54,6 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       )}
       <ImportDeckDialog open={importDeckOpen} onOpenChange={setImportDeckOpen} />
+      <TemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} />
     </>
   );
 }

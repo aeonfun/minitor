@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Plus, Search, Share2, Upload } from "lucide-react";
+import { Download, LayoutTemplate, Plus, Search, Share2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ interface Props {
   onAddDeck: () => void;
   onAddColumn: () => void;
   onImportDeck: () => void;
+  onBrowseTemplates: () => void;
 }
 
 async function copyToClipboard(text: string): Promise<boolean> {
@@ -53,7 +54,12 @@ async function copyToClipboard(text: string): Promise<boolean> {
   return ok;
 }
 
-export function NavHeader({ onAddDeck, onAddColumn, onImportDeck }: Props) {
+export function NavHeader({
+  onAddDeck,
+  onAddColumn,
+  onImportDeck,
+  onBrowseTemplates,
+}: Props) {
   const [open, setOpen] = useState(false);
   const decks = useDeckStore((s) => s.decks);
   const deckOrder = useDeckStore((s) => s.deckOrder);
@@ -228,6 +234,16 @@ export function NavHeader({ onAddDeck, onAddColumn, onImportDeck }: Props) {
               }}
             >
               <Upload className="mr-2 size-4" /> Import deck from JSON
+            </CommandItem>
+            <CommandItem
+              value="browse-templates"
+              onSelect={() => {
+                setOpen(false);
+                onBrowseTemplates();
+              }}
+            >
+              <LayoutTemplate className="mr-2 size-4" /> Browse starter
+              templates
             </CommandItem>
           </CommandGroup>
 

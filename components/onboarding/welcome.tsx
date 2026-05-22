@@ -1,8 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Layers,
+  LayoutTemplate,
+  Rocket,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +21,18 @@ import { cn } from "@/lib/utils";
 import { listColumnTypes, getColumnType } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import type { AnyColumnUI } from "@/lib/columns/types";
+import {
+  TEMPLATES,
+  templateAsImportJson,
+  type DeckTemplate,
+} from "@/lib/deck-templates";
+
+const TEMPLATE_ICONS: Record<DeckTemplate["iconName"], LucideIcon> = {
+  Sparkles,
+  Layers,
+  TrendingUp,
+  Rocket,
+};
 
 interface Suggestion {
   typeId: string;
@@ -65,11 +87,15 @@ export function Onboarding() {
   const addColumn = useDeckStore((s) => s.addColumn);
   const autoFetchColumn = useDeckStore((s) => s.autoFetchColumn);
   const setActiveDeck = useDeckStore((s) => s.setActiveDeck);
+  const importDeck = useDeckStore((s) => s.importDeck);
 
   const [deckName, setDeckName] = useState("Home");
   // Pre-select the first two suggestions — both are keyless so onboarding
   // works out of the box.
   const [picked, setPicked] = useState<Set<number>>(() => new Set([0, 1]));
+  const [templateLoadingId, setTemplateLoadingId] = useState<string | null>(
+    null,
+  );
 
   const types = useMemo(() => {
     const m = new Map<string, AnyColumnUI>();
@@ -99,6 +125,24 @@ export function Onboarding() {
       if (!type) continue;
       const { id: colId, ready } = addColumn(id, s.typeId, s.title, s.config);
       void autoFetchColumn(colId, type, ready);
+    }
+  }
+
+  async function applyTemplate(template: DeckTemplate) {
+    if (templateLoadingId) return;
+    setTemplateLoadingId(template.id);
+    try {
+      const result = await importDeck(templateAsImportJson(template));
+      toast.success(`Imported "${result.deckName}"`, {
+        description: `${result.columns.length} column${result.columns.length === 1 ? "" : "s"}`,
+      });
+      // importDeck sets activeDeckId to the new deck — the parent DeckView
+      // flips off the onboarding screen automatically once deckOrder grows.
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Template failed";
+      toast.error("Could not load template", { description: msg });
+    } finally {
+      setTemplateLoadingId(null);
     }
   }
 
@@ -149,11 +193,86 @@ export function Onboarding() {
           Welcome. Let&apos;s set up your first deck.
         </h1>
         <p className="mt-2 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-          A deck is a collection of columns, each monitoring a different source.
-          Name it below, then pick a few sources to start watching.
+          Start from a template below, or build a deck manually by picking
+          sources one by one.
         </p>
 
-        <div className="mt-8 space-y-5">
+        <section className="mt-6 rounded-lg border border-border bg-card p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <LayoutTemplate className="size-4 text-foreground/70" />
+              <Label className="text-[13px] font-medium">
+                Start from a template
+              </Label>
+            </div>
+            <span className="text-[11px] text-muted-foreground tabular-nums">
+              {TEMPLATES.length} templates
+            </span>
+          </div>
+          <p className="mt-1 text-[11.5px] text-muted-foreground">
+            One click to import a pre-built deck. You can rename, edit, or
+            delete it after.
+          </p>
+          <ul
+            role="list"
+            className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+          >
+            {TEMPLATES.map((template) => {
+              const Icon = TEMPLATE_ICONS[template.iconName];
+              const loading = templateLoadingId === template.id;
+              const disabled =
+                templateLoadingId !== null && templateLoadingId !== template.id;
+              return (
+                <li key={template.id}>
+                  <button
+                    type="button"
+                    onClick={() => void applyTemplate(template)}
+                    disabled={loading || disabled}
+                    className={cn(
+                      "group flex w-full items-stretch overflow-hidden rounded-md border bg-card text-left transition-all",
+                      "border-border hover:border-[oklab(0.263084_-0.00230259_0.0124794_/_0.22)]",
+                      (loading || disabled) && "cursor-not-allowed opacity-60",
+                    )}
+                  >
+                    <div
+                      className="flex w-10 shrink-0 items-center justify-center"
+                      style={{
+                        backgroundColor: `${template.accent}33`,
+                        color: template.accent,
+                      }}
+                    >
+                      <Icon className="size-4" strokeWidth={2.25} />
+                    </div>
+                    <div className="min-w-0 flex-1 px-2.5 py-2">
+                      <div
+                        className="truncate text-[12.5px] font-medium text-foreground"
+                        style={{ letterSpacing: "-0.005em" }}
+                      >
+                        {template.name}
+                      </div>
+                      <div className="truncate text-[11px] text-muted-foreground">
+                        {template.tagline}
+                      </div>
+                    </div>
+                    <div className="flex w-12 shrink-0 items-center justify-center pr-1.5 text-[10px] text-muted-foreground">
+                      {loading ? "…" : `${template.payload.columns.length} cols`}
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <div className="mt-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            or build manually
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <div className="mt-6 space-y-5">
           <section className="rounded-lg border border-border bg-card p-4">
             <div className="flex items-center gap-3">
               <div className="flex size-7 items-center justify-center rounded-full bg-foreground text-[12px] font-semibold text-primary-foreground">
