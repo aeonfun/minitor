@@ -28,6 +28,10 @@ export interface DeckTemplateColumn {
   title: string;
   config: Record<string, unknown>;
   alertKeywords?: string;
+  // Optional auto-refresh cadence in seconds. When set, the column re-fetches
+  // on this cadence after import. Allowed values are whitelisted server-side
+  // to {60, 300, 900, 3600}; anything else is dropped during importDeck.
+  refreshIntervalSeconds?: number;
 }
 
 export interface DeckTemplatePayload {

@@ -15,6 +15,13 @@
       "when": 1779148800000,
       "tag": "0001_alert_keywords",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779580800000,
+      "tag": "0002_refresh_interval",
+      "breakpoints": true
     }
   ]
 }
