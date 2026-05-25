@@ -20,6 +20,8 @@ import {
   reorderDecks as serverReorderDecks,
   updateColumnAlertKeywords as serverUpdateAlertKeywords,
   updateColumnConfig as serverUpdateConfig,
+  updateColumnRefreshInterval as serverUpdateRefreshInterval,
+  isAllowedRefreshInterval,
   type ImportedDeckResult,
   type Snapshot,
 } from "@/app/actions";
@@ -48,6 +50,10 @@ interface DeckState {
   ) => { id: string; ready: Promise<void> };
   updateColumnConfig: (columnId: string, config: Record<string, unknown>) => void;
   updateAlertKeywords: (columnId: string, alertKeywords: string) => void;
+  updateRefreshInterval: (
+    columnId: string,
+    refreshIntervalSeconds: number | null,
+  ) => void;
   renameColumn: (columnId: string, title: string) => void;
   removeColumn: (columnId: string) => void;
   reorderColumnsInDeck: (deckId: string, order: string[]) => void;
@@ -183,6 +189,32 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     );
   },
 
+  updateRefreshInterval: (columnId, refreshIntervalSeconds) => {
+    // Mirror the server-side allowlist locally so the optimistic state can't
+    // drift from what was actually persisted. Anything outside the allowlist
+    // collapses to manual-only (undefined / null on the wire).
+    const next = isAllowedRefreshInterval(refreshIntervalSeconds)
+      ? refreshIntervalSeconds
+      : null;
+    set((s) => {
+      const col = s.columns[columnId];
+      if (!col) return s;
+      return {
+        columns: {
+          ...s.columns,
+          [columnId]: {
+            ...col,
+            refreshIntervalSeconds: next ?? undefined,
+          },
+        },
+      };
+    });
+    fireAndLog(
+      "updateColumnRefreshInterval",
+      serverUpdateRefreshInterval(columnId, next),
+    );
+  },
+
   renameColumn: (columnId, title) => {
     set((s) => {
       const col = s.columns[columnId];
@@ -265,6 +297,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
           title: c.title,
           config: c.config,
           alertKeywords: c.alertKeywords,
+          refreshIntervalSeconds: c.refreshIntervalSeconds,
           items: [],
         };
       }

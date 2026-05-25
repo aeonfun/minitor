@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMemo } from "react";
 import {
   Bell,
+  Clock,
   GripVertical,
   Loader2,
   MoreHorizontal,
@@ -103,6 +104,52 @@ export function ColumnCard({ column }: { column: Column }) {
     return out;
   }, [alertTerms, column.items]);
   const matchCount = matchedItemIds.size;
+
+  // Auto-refresh tick — useRef snapshots so the interval closure always reads
+  // the latest typeId/config without forcing a tear-down on every config edit.
+  const typeIdRef = useRef(column.typeId);
+  const configRef = useRef(column.config);
+  typeIdRef.current = column.typeId;
+  configRef.current = column.config;
+
+  useEffect(() => {
+    const intervalSeconds = column.refreshIntervalSeconds;
+    if (!intervalSeconds || intervalSeconds <= 0) return;
+
+    let inFlight = false;
+    const tick = async () => {
+      // Pause while the tab is hidden so background tabs don't burn upstream
+      // rate limits. Re-checked each tick rather than via visibilitychange
+      // listener so the check stays colocated with the fetch decision.
+      if (
+        typeof document !== "undefined" &&
+        document.visibilityState !== "visible"
+      ) {
+        return;
+      }
+      if (inFlight) return;
+      inFlight = true;
+      try {
+        const { items } = await callColumnApi(
+          typeIdRef.current,
+          configRef.current,
+        );
+        await applyFetchedItems(column.id, items);
+      } catch (err) {
+        // Silent on auto-refresh so a flaky upstream doesn't spam toasts; the
+        // operator already has the manual refresh button to surface errors.
+        console.warn(
+          `[minitor] auto-refresh failed for column ${column.id}`,
+          err,
+        );
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    const handle = setInterval(tick, intervalSeconds * 1000);
+    return () => clearInterval(handle);
+  }, [applyFetchedItems, column.id, column.refreshIntervalSeconds]);
 
   async function onRefresh() {
     if (!type) return;
@@ -245,6 +292,25 @@ export function ColumnCard({ column }: { column: Column }) {
               </TooltipContent>
             </Tooltip>
           )}
+          {column.refreshIntervalSeconds !== undefined &&
+            column.refreshIntervalSeconds > 0 && (
+              <Tooltip>
+                <TooltipTrigger
+                  aria-label={`Auto-refreshing every ${formatRefreshLabel(column.refreshIntervalSeconds)}`}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-border"
+                >
+                  <Clock className="size-3" strokeWidth={2.5} />
+                  <span className="tabular-nums">
+                    {formatRefreshLabel(column.refreshIntervalSeconds)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  Auto-refreshes every{" "}
+                  {formatRefreshLabel(column.refreshIntervalSeconds)} while the
+                  tab is visible
+                </TooltipContent>
+              </Tooltip>
+            )}
           <Tooltip>
             <TooltipTrigger
               onClick={onRefresh}
@@ -397,6 +463,22 @@ function LoadingSkeleton() {
       ))}
     </div>
   );
+}
+
+// Short-form label for the clock badge: "1m" / "5m" / "15m" / "60m". Falls
+// back to a minute count for off-allowlist values so a future cadence option
+// (or a hand-edited deck import that slipped past the allowlist before this
+// build) still renders something useful instead of an empty pill.
+function formatRefreshLabel(seconds: number): string {
+  if (seconds >= 3600 && seconds % 3600 === 0) {
+    const hours = seconds / 3600;
+    return `${hours}h`;
+  }
+  if (seconds >= 60 && seconds % 60 === 0) {
+    const minutes = seconds / 60;
+    return `${minutes}m`;
+  }
+  return `${seconds}s`;
 }
 
 function SkeletonRow({ delay }: { delay: number }) {
