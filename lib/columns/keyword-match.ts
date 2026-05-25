@@ -49,3 +49,21 @@ export function itemMatchesAlertKeywords(
   }
   return false;
 }
+
+/**
+ * Like `itemMatchesAlertKeywords`, but returns the subset of `terms` that
+ * actually matched (in their original order). Empty array = no match. Used to
+ * tell a webhook consumer *which* keywords fired for each item.
+ */
+export function matchedAlertKeywords(item: FeedItem, terms: string[]): string[] {
+  if (terms.length === 0) return [];
+  const haystack = [
+    item.content,
+    item.author?.name ?? "",
+    item.author?.handle ?? "",
+    item.url ?? "",
+  ]
+    .join("\n")
+    .toLowerCase();
+  return terms.filter((t) => haystack.includes(t));
+}

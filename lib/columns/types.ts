@@ -149,6 +149,14 @@ export interface Column {
    */
   alertKeywords?: string;
   /**
+   * Optional https webhook URL. When set together with `alertKeywords`, the
+   * server POSTs a JSON payload here whenever a fetch brings in NEW items that
+   * match the alert keywords. Install-private (a webhook URL often embeds a
+   * secret token), so it is stored in the DB and never emitted into shared
+   * deck exports / share links — see `exportDeck`.
+   */
+  notifyWebhookUrl?: string;
+  /**
    * Optional auto-refresh cadence in seconds. When set, the column re-fetches
    * on that interval (paused while the tab is hidden so background tabs don't
    * burn upstream rate limits). When null/undefined, the column only refreshes

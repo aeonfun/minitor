@@ -24,6 +24,7 @@ export const columns = pgTable("columns", {
   title: text("title").notNull(),
   config: jsonb("config").notNull().default({}),
   alertKeywords: text("alert_keywords"),
+  notifyWebhookUrl: text("notify_webhook_url"),
   refreshIntervalSeconds: integer("refresh_interval_seconds"),
   position: integer("position").notNull().default(0),
   lastFetchedAt: timestamp("last_fetched_at", { withTimezone: true }),

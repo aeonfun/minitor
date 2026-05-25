@@ -20,6 +20,7 @@ import {
   reorderDecks as serverReorderDecks,
   updateColumnAlertKeywords as serverUpdateAlertKeywords,
   updateColumnConfig as serverUpdateConfig,
+  updateColumnWebhookUrl as serverUpdateWebhookUrl,
   updateColumnRefreshInterval as serverUpdateRefreshInterval,
   isAllowedRefreshInterval,
   type ImportedDeckResult,
@@ -50,6 +51,7 @@ interface DeckState {
   ) => { id: string; ready: Promise<void> };
   updateColumnConfig: (columnId: string, config: Record<string, unknown>) => void;
   updateAlertKeywords: (columnId: string, alertKeywords: string) => void;
+  updateWebhookUrl: (columnId: string, webhookUrl: string) => void;
   updateRefreshInterval: (
     columnId: string,
     refreshIntervalSeconds: number | null,
@@ -189,6 +191,24 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     );
   },
 
+  updateWebhookUrl: (columnId, webhookUrl) => {
+    const next = webhookUrl.trim();
+    set((s) => {
+      const col = s.columns[columnId];
+      if (!col) return s;
+      return {
+        columns: {
+          ...s.columns,
+          [columnId]: {
+            ...col,
+            notifyWebhookUrl: next.length === 0 ? undefined : next,
+          },
+        },
+      };
+    });
+    fireAndLog("updateColumnWebhookUrl", serverUpdateWebhookUrl(columnId, next));
+  },
+
   updateRefreshInterval: (columnId, refreshIntervalSeconds) => {
     // Mirror the server-side allowlist locally so the optimistic state can't
     // drift from what was actually persisted. Anything outside the allowlist
@@ -297,6 +317,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
           title: c.title,
           config: c.config,
           alertKeywords: c.alertKeywords,
+          notifyWebhookUrl: c.notifyWebhookUrl,
           refreshIntervalSeconds: c.refreshIntervalSeconds,
           items: [],
         };

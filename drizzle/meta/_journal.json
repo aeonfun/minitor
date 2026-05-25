@@ -22,6 +22,13 @@
       "when": 1779580800000,
       "tag": "0002_refresh_interval",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779667200000,
+      "tag": "0003_notify_webhook",
+      "breakpoints": true
     }
   ]
 }
