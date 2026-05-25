@@ -10,6 +10,16 @@ import { columns, decks, feedItems } from "@/lib/db/schema";
 import type { Column, Deck, FeedItem } from "@/lib/columns/types";
 import { MAX_ITEMS_PER_COLUMN } from "@/lib/columns/constants";
 import { ENV_KEYS, ENV_KEY_NAMES } from "@/lib/env-keys";
+import {
+  parseAlertKeywords,
+  matchedAlertKeywords,
+} from "@/lib/columns/keyword-match";
+import {
+  sendColumnWebhook,
+  validateWebhookUrl,
+  WEBHOOK_URL_MAX,
+  type WebhookMatch,
+} from "@/lib/columns/webhook";
 
 export interface Snapshot {
   decks: Record<string, Deck>;
@@ -80,6 +90,7 @@ export async function loadSnapshot(): Promise<Snapshot> {
       title: c.title,
       config: (c.config as Record<string, unknown>) ?? {},
       alertKeywords: c.alertKeywords ?? undefined,
+      notifyWebhookUrl: c.notifyWebhookUrl ?? undefined,
       items: [],
       lastFetchedAt: c.lastFetchedAt ? c.lastFetchedAt.toISOString() : undefined,
     };
@@ -179,6 +190,34 @@ export async function updateColumnAlertKeywords(
     .where(eq(columns.id, id));
 }
 
+/**
+ * Persist a column's alert-webhook URL. Pass an empty string to clear. The URL
+ * is validated server-side (https only, no localhost / private IP literals) so
+ * the dashboard can't be used to make the server POST to internal addresses.
+ * Throws on an invalid non-empty URL so the caller can surface the reason.
+ */
+export async function updateColumnWebhookUrl(
+  id: string,
+  webhookUrl: string,
+): Promise<void> {
+  const trimmed = webhookUrl.trim();
+  if (trimmed.length === 0) {
+    await db
+      .update(columns)
+      .set({ notifyWebhookUrl: null })
+      .where(eq(columns.id, id));
+    return;
+  }
+  const check = validateWebhookUrl(trimmed);
+  if (!check.ok) {
+    throw new Error(check.reason);
+  }
+  await db
+    .update(columns)
+    .set({ notifyWebhookUrl: check.url })
+    .where(eq(columns.id, id));
+}
+
 export async function renameColumn(id: string, title: string): Promise<void> {
   await db.update(columns).set({ title }).where(eq(columns.id, id));
 }
@@ -211,6 +250,10 @@ const importedColumnSchema = z.object({
   title: z.string().min(1).max(256),
   config: z.record(z.string(), z.unknown()),
   alertKeywords: z.string().max(512).optional(),
+  // Part of DeckExport v1 so a hand-authored or full-backup config can carry a
+  // webhook, but `exportDeck` deliberately never emits it (see below). Any value
+  // present on import is re-validated through the SSRF guard before persisting.
+  notifyWebhookUrl: z.string().max(WEBHOOK_URL_MAX).optional(),
 });
 
 const importedDeckSchema = z.object({
@@ -244,6 +287,11 @@ export async function exportDeck(deckId: string): Promise<string> {
     .where(eq(columns.deckId, deckId))
     .orderBy(asc(columns.position), asc(columns.createdAt));
 
+  // notifyWebhookUrl is intentionally NOT exported. A webhook URL is
+  // install-private (it commonly embeds a secret token, e.g. a Slack/Discord
+  // webhook), and the same exportDeck output feeds both the copy-JSON action
+  // and the public share link. Emitting it here would leak the secret to anyone
+  // the deck is shared with. Operators re-enter the webhook on import.
   const payload: DeckExport = {
     version: DECK_EXPORT_VERSION,
     deckName: deck.name,
@@ -264,6 +312,7 @@ export interface ImportedDeckColumn {
   title: string;
   config: Record<string, unknown>;
   alertKeywords?: string;
+  notifyWebhookUrl?: string;
 }
 
 export interface ImportedDeckResult {
@@ -314,6 +363,14 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
       const id = nanoid();
       const alertKeywords =
         c.alertKeywords && c.alertKeywords.length > 0 ? c.alertKeywords : null;
+      // Re-validate any imported webhook URL through the SSRF guard. A bad or
+      // internal-pointing URL is dropped (null), not fatal — the rest of the
+      // column still imports.
+      let notifyWebhookUrl: string | null = null;
+      if (c.notifyWebhookUrl && c.notifyWebhookUrl.trim().length > 0) {
+        const check = validateWebhookUrl(c.notifyWebhookUrl);
+        if (check.ok) notifyWebhookUrl = check.url;
+      }
       await tx.insert(columns).values({
         id,
         deckId,
@@ -321,6 +378,7 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
         title: c.title,
         config: c.config,
         alertKeywords,
+        notifyWebhookUrl,
         position: i,
       });
       created.push({
@@ -329,6 +387,7 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
         title: c.title,
         config: c.config,
         ...(alertKeywords ? { alertKeywords } : {}),
+        ...(notifyWebhookUrl ? { notifyWebhookUrl } : {}),
       });
     }
   });
@@ -342,8 +401,8 @@ export async function persistFetchedItems(
 ): Promise<{ newCount: number; lastFetchedAt: string }> {
   const fetchedAt = new Date();
 
-  // Gather existing ids to count "new" arrivals
-  let newCount = items.length;
+  // Gather existing ids to identify "new" arrivals
+  let newItems: FeedItem[] = items;
   if (items.length > 0) {
     const existing = await db
       .select({ id: feedItems.id })
@@ -358,7 +417,7 @@ export async function persistFetchedItems(
         ),
       );
     const existingIds = new Set(existing.map((r) => r.id));
-    newCount = items.filter((i) => !existingIds.has(i.id)).length;
+    newItems = items.filter((i) => !existingIds.has(i.id));
 
     await db
       .insert(feedItems)
@@ -394,7 +453,61 @@ export async function persistFetchedItems(
       )
   `);
 
-  return { newCount, lastFetchedAt: fetchedAt.toISOString() };
+  // Fire the alert webhook for NEW items that match the column's keywords.
+  // Keyed on new arrivals only, so a re-fetch of already-seen items never
+  // re-notifies. Bounded and non-throwing — never fails the persist.
+  await notifyColumnWebhookIfMatched(columnId, newItems);
+
+  return { newCount: newItems.length, lastFetchedAt: fetchedAt.toISOString() };
+}
+
+/**
+ * If the column has both an alert-webhook URL and alert keywords configured,
+ * POST the subset of `candidateItems` that match the keywords. No-op when
+ * either is unset or nothing matches. The send is bounded (5s) and swallows
+ * its own errors, so this never affects the fetch result.
+ */
+async function notifyColumnWebhookIfMatched(
+  columnId: string,
+  candidateItems: FeedItem[],
+): Promise<void> {
+  if (candidateItems.length === 0) return;
+
+  const [col] = await db
+    .select({
+      title: columns.title,
+      typeId: columns.typeId,
+      alertKeywords: columns.alertKeywords,
+      notifyWebhookUrl: columns.notifyWebhookUrl,
+    })
+    .from(columns)
+    .where(eq(columns.id, columnId));
+
+  if (!col?.notifyWebhookUrl || !col.alertKeywords) return;
+
+  const terms = parseAlertKeywords(col.alertKeywords);
+  if (terms.length === 0) return;
+
+  const matches: WebhookMatch[] = [];
+  for (const item of candidateItems) {
+    const matchedKeywords = matchedAlertKeywords(item, terms);
+    if (matchedKeywords.length === 0) continue;
+    matches.push({
+      id: item.id,
+      url: item.url,
+      text: item.content,
+      matchedKeywords,
+    });
+  }
+  if (matches.length === 0) return;
+
+  await sendColumnWebhook(col.notifyWebhookUrl, {
+    columnId,
+    columnTitle: col.title,
+    typeId: col.typeId,
+    matches,
+    timestamp: new Date().toISOString(),
+  });
 }
 
 const ENV_LOCAL_PATH = join(process.cwd(), ".env.local");

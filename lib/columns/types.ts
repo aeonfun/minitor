@@ -148,6 +148,14 @@ export interface Column {
    * server fetchers, so it works with every plugin without per-plugin opt-in.
    */
   alertKeywords?: string;
+  /**
+   * Optional https webhook URL. When set together with `alertKeywords`, the
+   * server POSTs a JSON payload here whenever a fetch brings in NEW items that
+   * match the alert keywords. Install-private (a webhook URL often embeds a
+   * secret token), so it is stored in the DB and never emitted into shared
+   * deck exports / share links — see `exportDeck`.
+   */
+  notifyWebhookUrl?: string;
   items: FeedItem[];
   lastFetchedAt?: string;
 }

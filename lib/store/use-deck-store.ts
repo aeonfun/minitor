@@ -20,6 +20,7 @@ import {
   reorderDecks as serverReorderDecks,
   updateColumnAlertKeywords as serverUpdateAlertKeywords,
   updateColumnConfig as serverUpdateConfig,
+  updateColumnWebhookUrl as serverUpdateWebhookUrl,
   type ImportedDeckResult,
   type Snapshot,
 } from "@/app/actions";
@@ -48,6 +49,7 @@ interface DeckState {
   ) => { id: string; ready: Promise<void> };
   updateColumnConfig: (columnId: string, config: Record<string, unknown>) => void;
   updateAlertKeywords: (columnId: string, alertKeywords: string) => void;
+  updateWebhookUrl: (columnId: string, webhookUrl: string) => void;
   renameColumn: (columnId: string, title: string) => void;
   removeColumn: (columnId: string) => void;
   reorderColumnsInDeck: (deckId: string, order: string[]) => void;
@@ -183,6 +185,24 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     );
   },
 
+  updateWebhookUrl: (columnId, webhookUrl) => {
+    const next = webhookUrl.trim();
+    set((s) => {
+      const col = s.columns[columnId];
+      if (!col) return s;
+      return {
+        columns: {
+          ...s.columns,
+          [columnId]: {
+            ...col,
+            notifyWebhookUrl: next.length === 0 ? undefined : next,
+          },
+        },
+      };
+    });
+    fireAndLog("updateColumnWebhookUrl", serverUpdateWebhookUrl(columnId, next));
+  },
+
   renameColumn: (columnId, title) => {
     set((s) => {
       const col = s.columns[columnId];
@@ -265,6 +285,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
           title: c.title,
           config: c.config,
           alertKeywords: c.alertKeywords,
+          notifyWebhookUrl: c.notifyWebhookUrl,
           items: [],
         };
       }

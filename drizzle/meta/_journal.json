@@ -15,6 +15,13 @@
       "when": 1779148800000,
       "tag": "0001_alert_keywords",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779235200000,
+      "tag": "0002_notify_webhook",
+      "breakpoints": true
     }
   ]
 }

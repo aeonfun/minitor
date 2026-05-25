@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Webhook } from "lucide-react";
 
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { getColumnType } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import { parseAlertKeywords } from "@/lib/columns/keyword-match";
+import { validateWebhookUrl, WEBHOOK_URL_MAX } from "@/lib/columns/webhook";
 import type { Column } from "@/lib/columns/types";
 
 interface Props {
@@ -32,10 +33,14 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   const type = getColumnType(column.typeId);
   const updateColumnConfig = useDeckStore((s) => s.updateColumnConfig);
   const updateAlertKeywords = useDeckStore((s) => s.updateAlertKeywords);
+  const updateWebhookUrl = useDeckStore((s) => s.updateWebhookUrl);
 
   const [draft, setDraft] = useState<Record<string, unknown>>(column.config);
   const [alertDraft, setAlertDraft] = useState<string>(
     column.alertKeywords ?? "",
+  );
+  const [webhookDraft, setWebhookDraft] = useState<string>(
+    column.notifyWebhookUrl ?? "",
   );
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
@@ -43,22 +48,44 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
     if (open) {
       setDraft(column.config);
       setAlertDraft(column.alertKeywords ?? "");
+      setWebhookDraft(column.notifyWebhookUrl ?? "");
     }
   }
 
   if (!type) return null;
 
+  const parsedPreview = parseAlertKeywords(alertDraft);
+  const previewCount = parsedPreview.length;
+  const keywordsPresent = previewCount > 0;
+
+  // Validate only when the field is shown (keywords present) and non-empty.
+  const trimmedWebhook = webhookDraft.trim();
+  const webhookValidation =
+    keywordsPresent && trimmedWebhook.length > 0
+      ? validateWebhookUrl(trimmedWebhook)
+      : null;
+  const webhookError =
+    webhookValidation && !webhookValidation.ok ? webhookValidation.reason : null;
+
   function save() {
+    if (webhookError) return;
     updateColumnConfig(column.id, draft);
-    const next = alertDraft.slice(0, ALERT_KEYWORDS_MAX);
-    if (next !== (column.alertKeywords ?? "")) {
-      updateAlertKeywords(column.id, next);
+    const nextKw = alertDraft.slice(0, ALERT_KEYWORDS_MAX);
+    if (nextKw !== (column.alertKeywords ?? "")) {
+      updateAlertKeywords(column.id, nextKw);
+    }
+    // Only persist the webhook when keywords are set (a webhook with no
+    // keywords can never fire). When keywords are absent the field is hidden
+    // and we leave any stored webhook untouched (dormant), so re-adding
+    // keywords later reactivates it.
+    if (keywordsPresent) {
+      const nextWebhook = webhookDraft.trim();
+      if (nextWebhook !== (column.notifyWebhookUrl ?? "")) {
+        updateWebhookUrl(column.id, nextWebhook);
+      }
     }
     onOpenChange(false);
   }
-
-  const parsedPreview = parseAlertKeywords(alertDraft);
-  const previewCount = parsedPreview.length;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -102,13 +129,49 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               )}
             </p>
           </div>
+
+          {keywordsPresent && (
+            <div className="grid gap-1.5">
+              <Label
+                htmlFor="alert-webhook"
+                className="flex items-center gap-1.5"
+              >
+                <Webhook className="size-3.5" />
+                Alert webhook URL
+                <span className="text-[11px] font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              </Label>
+              <Input
+                id="alert-webhook"
+                type="url"
+                inputMode="url"
+                placeholder="https://hooks.example.com/…"
+                value={webhookDraft}
+                maxLength={WEBHOOK_URL_MAX}
+                aria-invalid={webhookError ? true : undefined}
+                onChange={(e) => setWebhookDraft(e.target.value)}
+              />
+              {webhookError ? (
+                <p className="text-xs text-destructive">{webhookError}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  POST to this URL when alert keywords match new items. HTTPS
+                  only. Sent server-side; not included in deck exports or share
+                  links.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={save}>Save</Button>
+          <Button onClick={save} disabled={Boolean(webhookError)}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
