@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Clock, Webhook } from "lucide-react";
+import { Bell, Clock, EyeOff, Filter, Webhook } from "lucide-react";
 
 import {
   Dialog,
@@ -61,6 +61,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   const updateAlertKeywords = useDeckStore((s) => s.updateAlertKeywords);
   const updateWebhookUrl = useDeckStore((s) => s.updateWebhookUrl);
   const updateRefreshInterval = useDeckStore((s) => s.updateRefreshInterval);
+  const updateFilters = useDeckStore((s) => s.updateFilters);
 
   const [draft, setDraft] = useState<Record<string, unknown>>(column.config);
   const [alertDraft, setAlertDraft] = useState<string>(
@@ -72,6 +73,12 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   const [refreshDraft, setRefreshDraft] = useState<string>(
     refreshIntervalToOption(column.refreshIntervalSeconds),
   );
+  const [filterDraft, setFilterDraft] = useState<string>(
+    column.filterKeywords ?? "",
+  );
+  const [excludeDraft, setExcludeDraft] = useState<string>(
+    column.excludeKeywords ?? "",
+  );
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
@@ -80,6 +87,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
       setAlertDraft(column.alertKeywords ?? "");
       setWebhookDraft(column.notifyWebhookUrl ?? "");
       setRefreshDraft(refreshIntervalToOption(column.refreshIntervalSeconds));
+      setFilterDraft(column.filterKeywords ?? "");
+      setExcludeDraft(column.excludeKeywords ?? "");
     }
   }
 
@@ -88,6 +97,9 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   const parsedPreview = parseAlertKeywords(alertDraft);
   const previewCount = parsedPreview.length;
   const keywordsPresent = previewCount > 0;
+
+  const filterTermCount = parseAlertKeywords(filterDraft).length;
+  const excludeTermCount = parseAlertKeywords(excludeDraft).length;
 
   // Validate only when the field is shown (keywords present) and non-empty.
   const trimmedWebhook = webhookDraft.trim();
@@ -120,6 +132,14 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
     const currentRefresh = column.refreshIntervalSeconds ?? null;
     if (nextRefresh !== currentRefresh) {
       updateRefreshInterval(column.id, nextRefresh);
+    }
+    const nextFilter = filterDraft.slice(0, ALERT_KEYWORDS_MAX);
+    const nextExclude = excludeDraft.slice(0, ALERT_KEYWORDS_MAX);
+    if (
+      nextFilter !== (column.filterKeywords ?? "") ||
+      nextExclude !== (column.excludeKeywords ?? "")
+    ) {
+      updateFilters(column.id, nextFilter, nextExclude);
     }
     onOpenChange(false);
   }
@@ -230,6 +250,62 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <p className="text-xs text-muted-foreground">
               Auto-refresh pauses while the browser tab is hidden so background
               tabs don&rsquo;t burn upstream rate limits.
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="filter-keywords" className="flex items-center gap-1.5">
+              <Filter className="size-3.5" />
+              Show only
+              <span className="text-[11px] font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </Label>
+            <Input
+              id="filter-keywords"
+              placeholder="release, launch, vulnerability"
+              value={filterDraft}
+              maxLength={ALERT_KEYWORDS_MAX}
+              onChange={(e) => setFilterDraft(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Comma- or space-separated. When set, the column hides items that
+              match none of these terms (in title, body, or link).
+              {filterTermCount > 0 && (
+                <>
+                  {" "}
+                  Parsed {filterTermCount} term{filterTermCount === 1 ? "" : "s"}.
+                </>
+              )}
+            </p>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="exclude-keywords" className="flex items-center gap-1.5">
+              <EyeOff className="size-3.5" />
+              Hide items matching
+              <span className="text-[11px] font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </Label>
+            <Input
+              id="exclude-keywords"
+              placeholder="airdrop, giveaway"
+              value={excludeDraft}
+              maxLength={ALERT_KEYWORDS_MAX}
+              onChange={(e) => setExcludeDraft(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Items matching any of these terms are hidden. Exclude wins over
+              &ldquo;show only&rdquo; when an item matches both.
+              {excludeTermCount > 0 && (
+                <>
+                  {" "}
+                  Parsed {excludeTermCount} term{excludeTermCount === 1 ? "" : "s"}.
+                </>
+              )}
             </p>
           </div>
         </div>

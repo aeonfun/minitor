@@ -92,6 +92,8 @@ export async function loadSnapshot(): Promise<Snapshot> {
       alertKeywords: c.alertKeywords ?? undefined,
       notifyWebhookUrl: c.notifyWebhookUrl ?? undefined,
       refreshIntervalSeconds: c.refreshIntervalSeconds ?? undefined,
+      filterKeywords: c.filterKeywords ?? undefined,
+      excludeKeywords: c.excludeKeywords ?? undefined,
       items: [],
       lastFetchedAt: c.lastFetchedAt ? c.lastFetchedAt.toISOString() : undefined,
     };
@@ -254,6 +256,29 @@ export async function updateColumnRefreshInterval(
     .where(eq(columns.id, id));
 }
 
+/**
+ * Persist a column's include/exclude item filters. Pass empty strings to clear
+ * either side. Both are bounded to 512 chars (same budget as alert keywords) so
+ * a paste can't bloat storage; the UI never silently rejects, it just truncates.
+ * Unlike the webhook URL these are not secrets — they round-trip through deck
+ * export / import / share links.
+ */
+export async function updateColumnFilters(
+  id: string,
+  filterKeywords: string,
+  excludeKeywords: string,
+): Promise<void> {
+  const include = filterKeywords.slice(0, 512);
+  const exclude = excludeKeywords.slice(0, 512);
+  await db
+    .update(columns)
+    .set({
+      filterKeywords: include.length === 0 ? null : include,
+      excludeKeywords: exclude.length === 0 ? null : exclude,
+    })
+    .where(eq(columns.id, id));
+}
+
 export async function renameColumn(id: string, title: string): Promise<void> {
   await db.update(columns).set({ title }).where(eq(columns.id, id));
 }
@@ -294,6 +319,10 @@ const importedColumnSchema = z.object({
   // in importDeck so a tampered or hand-edited payload can't smuggle a 1-second
   // poll past the server-side guard.
   refreshIntervalSeconds: z.number().int().positive().optional(),
+  // Optional include/exclude item filters. Not secrets, so (unlike the webhook)
+  // they are emitted by exportDeck and round-trip through share links.
+  filterKeywords: z.string().max(512).optional(),
+  excludeKeywords: z.string().max(512).optional(),
 });
 
 const importedDeckSchema = z.object({
@@ -323,6 +352,8 @@ export async function exportDeck(deckId: string): Promise<string> {
       config: columns.config,
       alertKeywords: columns.alertKeywords,
       refreshIntervalSeconds: columns.refreshIntervalSeconds,
+      filterKeywords: columns.filterKeywords,
+      excludeKeywords: columns.excludeKeywords,
     })
     .from(columns)
     .where(eq(columns.deckId, deckId))
@@ -345,6 +376,8 @@ export async function exportDeck(deckId: string): Promise<string> {
       ...(isAllowedRefreshInterval(c.refreshIntervalSeconds)
         ? { refreshIntervalSeconds: c.refreshIntervalSeconds }
         : {}),
+      ...(c.filterKeywords ? { filterKeywords: c.filterKeywords } : {}),
+      ...(c.excludeKeywords ? { excludeKeywords: c.excludeKeywords } : {}),
     })),
   };
   return JSON.stringify(payload, null, 2);
@@ -358,6 +391,8 @@ export interface ImportedDeckColumn {
   alertKeywords?: string;
   notifyWebhookUrl?: string;
   refreshIntervalSeconds?: number;
+  filterKeywords?: string;
+  excludeKeywords?: string;
 }
 
 export interface ImportedDeckResult {
@@ -421,6 +456,14 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
       )
         ? c.refreshIntervalSeconds
         : null;
+      const filterKeywords =
+        c.filterKeywords && c.filterKeywords.length > 0
+          ? c.filterKeywords.slice(0, 512)
+          : null;
+      const excludeKeywords =
+        c.excludeKeywords && c.excludeKeywords.length > 0
+          ? c.excludeKeywords.slice(0, 512)
+          : null;
       await tx.insert(columns).values({
         id,
         deckId,
@@ -430,6 +473,8 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
         alertKeywords,
         notifyWebhookUrl,
         refreshIntervalSeconds,
+        filterKeywords,
+        excludeKeywords,
         position: i,
       });
       created.push({
@@ -440,6 +485,8 @@ export async function importDeck(json: string): Promise<ImportedDeckResult> {
         ...(alertKeywords ? { alertKeywords } : {}),
         ...(notifyWebhookUrl ? { notifyWebhookUrl } : {}),
         ...(refreshIntervalSeconds !== null ? { refreshIntervalSeconds } : {}),
+        ...(filterKeywords ? { filterKeywords } : {}),
+        ...(excludeKeywords ? { excludeKeywords } : {}),
       });
     }
   });

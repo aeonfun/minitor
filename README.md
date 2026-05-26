@@ -25,6 +25,7 @@
 - You name a deck. Minitor packs it with whatever you're watching.
 - 47 column types out of the box — social feeds, news, GitHub (including CI runs and Discussions), Hugging Face, arXiv, DEV.to, Product Hunt, npm + PyPI + crates.io packages, app reviews, on-chain transactions, prediction markets, CoinGecko prices, DeFiLlama TVL, Chinese hot boards.
 - Refresh per column or auto-fetch on creation. Load more pages 10 at a time.
+- Shape the signal per column — highlight items with alert keywords, or filter the feed to "show only" / "hide" by keyword so a firehose column shows just what matters.
 - ⌘K command palette over every deck, column, and action. Drag to reorder.
 - Local-first by default — embedded PGlite, no Postgres install needed.
 

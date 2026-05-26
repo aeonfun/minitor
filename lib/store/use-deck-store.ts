@@ -22,6 +22,7 @@ import {
   updateColumnConfig as serverUpdateConfig,
   updateColumnWebhookUrl as serverUpdateWebhookUrl,
   updateColumnRefreshInterval as serverUpdateRefreshInterval,
+  updateColumnFilters as serverUpdateFilters,
   isAllowedRefreshInterval,
   type ImportedDeckResult,
   type Snapshot,
@@ -55,6 +56,11 @@ interface DeckState {
   updateRefreshInterval: (
     columnId: string,
     refreshIntervalSeconds: number | null,
+  ) => void;
+  updateFilters: (
+    columnId: string,
+    filterKeywords: string,
+    excludeKeywords: string,
   ) => void;
   renameColumn: (columnId: string, title: string) => void;
   removeColumn: (columnId: string) => void;
@@ -235,6 +241,29 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     );
   },
 
+  updateFilters: (columnId, filterKeywords, excludeKeywords) => {
+    const nextInclude = filterKeywords.slice(0, 512);
+    const nextExclude = excludeKeywords.slice(0, 512);
+    set((s) => {
+      const col = s.columns[columnId];
+      if (!col) return s;
+      return {
+        columns: {
+          ...s.columns,
+          [columnId]: {
+            ...col,
+            filterKeywords: nextInclude.length === 0 ? undefined : nextInclude,
+            excludeKeywords: nextExclude.length === 0 ? undefined : nextExclude,
+          },
+        },
+      };
+    });
+    fireAndLog(
+      "updateColumnFilters",
+      serverUpdateFilters(columnId, nextInclude, nextExclude),
+    );
+  },
+
   renameColumn: (columnId, title) => {
     set((s) => {
       const col = s.columns[columnId];
@@ -319,6 +348,8 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
           alertKeywords: c.alertKeywords,
           notifyWebhookUrl: c.notifyWebhookUrl,
           refreshIntervalSeconds: c.refreshIntervalSeconds,
+          filterKeywords: c.filterKeywords,
+          excludeKeywords: c.excludeKeywords,
           items: [],
         };
       }

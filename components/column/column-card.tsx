@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import {
   Bell,
   Clock,
+  Filter,
   GripVertical,
   Loader2,
   MoreHorizontal,
@@ -95,14 +96,40 @@ export function ColumnCard({ column }: { column: Column }) {
     () => parseAlertKeywords(column.alertKeywords),
     [column.alertKeywords],
   );
+  const includeTerms = useMemo(
+    () => parseAlertKeywords(column.filterKeywords),
+    [column.filterKeywords],
+  );
+  const excludeTerms = useMemo(
+    () => parseAlertKeywords(column.excludeKeywords),
+    [column.excludeKeywords],
+  );
+  const filtersActive = includeTerms.length > 0 || excludeTerms.length > 0;
+
+  // Apply include/exclude filters client-side. Include = keep only items
+  // matching at least one term; exclude = drop items matching any term, and
+  // exclude wins when an item matches both. Reuses the alert-keyword matcher so
+  // filter semantics (author + content + url, case-insensitive substring) stay
+  // identical to the highlight behaviour operators already know.
+  const visibleItems = useMemo(() => {
+    if (!filtersActive) return column.items;
+    return column.items.filter((it) => {
+      if (includeTerms.length > 0 && !itemMatchesAlertKeywords(it, includeTerms))
+        return false;
+      if (excludeTerms.length > 0 && itemMatchesAlertKeywords(it, excludeTerms))
+        return false;
+      return true;
+    });
+  }, [filtersActive, column.items, includeTerms, excludeTerms]);
+
   const matchedItemIds = useMemo(() => {
     if (alertTerms.length === 0) return new Set<string>();
     const out = new Set<string>();
-    for (const it of column.items) {
+    for (const it of visibleItems) {
       if (itemMatchesAlertKeywords(it, alertTerms)) out.add(it.id);
     }
     return out;
-  }, [alertTerms, column.items]);
+  }, [alertTerms, visibleItems]);
   const matchCount = matchedItemIds.size;
 
   // Auto-refresh tick — useRef snapshots so the interval closure always reads
@@ -292,6 +319,28 @@ export function ColumnCard({ column }: { column: Column }) {
               </TooltipContent>
             </Tooltip>
           )}
+          {filtersActive && (
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={`Filtered: showing ${visibleItems.length} of ${column.items.length} items`}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-400/15 px-2 py-0.5 text-[11px] font-medium text-sky-700 ring-1 ring-sky-400/40 dark:text-sky-300"
+              >
+                <Filter className="size-3" strokeWidth={2.5} />
+                <span className="tabular-nums">
+                  {visibleItems.length}/{column.items.length}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                Showing {visibleItems.length} of {column.items.length}
+                {includeTerms.length > 0 && (
+                  <> · only: {includeTerms.join(", ")}</>
+                )}
+                {excludeTerms.length > 0 && (
+                  <> · hiding: {excludeTerms.join(", ")}</>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          )}
           {column.refreshIntervalSeconds !== undefined &&
             column.refreshIntervalSeconds > 0 && (
               <Tooltip>
@@ -361,18 +410,22 @@ export function ColumnCard({ column }: { column: Column }) {
             )
           ) : (
             <div>
-              {column.items.map((item) =>
-                matchedItemIds.has(item.id) ? (
-                  <div
-                    key={item.id}
-                    data-alert-match="true"
-                    className="relative bg-yellow-50/40 ring-1 ring-inset ring-yellow-400/50 dark:bg-yellow-400/[0.06]"
-                  >
-                    <ItemRenderer item={item} />
-                  </div>
-                ) : (
-                  <ItemRenderer key={item.id} item={item} />
-                ),
+              {visibleItems.length === 0 ? (
+                <FilteredEmptyState totalCount={column.items.length} />
+              ) : (
+                visibleItems.map((item) =>
+                  matchedItemIds.has(item.id) ? (
+                    <div
+                      key={item.id}
+                      data-alert-match="true"
+                      className="relative bg-yellow-50/40 ring-1 ring-inset ring-yellow-400/50 dark:bg-yellow-400/[0.06]"
+                    >
+                      <ItemRenderer item={item} />
+                    </div>
+                  ) : (
+                    <ItemRenderer key={item.id} item={item} />
+                  ),
+                )
               )}
               {paginated && nextCursor !== null && (
                 <button
@@ -447,6 +500,19 @@ function EmptyState({
         )}
         Refresh
       </Button>
+    </div>
+  );
+}
+
+function FilteredEmptyState({ totalCount }: { totalCount: number }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+      <Filter className="size-5 text-muted-foreground/60" />
+      <div className="text-sm font-medium">No items match the filter</div>
+      <div className="text-xs text-muted-foreground">
+        {totalCount} item{totalCount === 1 ? "" : "s"} hidden. Adjust the
+        column&rsquo;s filters in Configure.
+      </div>
     </div>
   );
 }

@@ -32,6 +32,11 @@ export interface DeckTemplateColumn {
   // on this cadence after import. Allowed values are whitelisted server-side
   // to {60, 300, 900, 3600}; anything else is dropped during importDeck.
   refreshIntervalSeconds?: number;
+  // Optional include/exclude item filters (comma/space-separated). Let a
+  // starter template ship a pre-focused column — e.g. a security feed that
+  // only surfaces items mentioning "CVE". Round-trip through importDeck.
+  filterKeywords?: string;
+  excludeKeywords?: string;
 }
 
 export interface DeckTemplatePayload {

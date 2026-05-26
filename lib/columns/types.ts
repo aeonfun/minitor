@@ -164,6 +164,22 @@ export interface Column {
    * to {60, 300, 900, 3600}; any other input is treated as manual-only.
    */
   refreshIntervalSeconds?: number;
+  /**
+   * Optional comma/semicolon/space-separated include filter. When set, the
+   * column shows ONLY items whose author, content, or URL matches at least one
+   * term (same matcher as `alertKeywords`). Empty/unset = show everything.
+   * Purely client-side — never sent to server fetchers, so it works with every
+   * plugin without per-plugin opt-in. Unlike `notifyWebhookUrl` this is not a
+   * secret, so it round-trips through deck export / import / share links.
+   */
+  filterKeywords?: string;
+  /**
+   * Optional comma/semicolon/space-separated exclude filter. Items matching any
+   * term are hidden. Applied AFTER `filterKeywords`, so exclude wins: an item
+   * that matches both an include and an exclude term is hidden. Client-side and
+   * exported, same as `filterKeywords`.
+   */
+  excludeKeywords?: string;
   items: FeedItem[];
   lastFetchedAt?: string;
 }
