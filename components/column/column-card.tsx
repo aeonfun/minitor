@@ -6,6 +6,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { useMemo } from "react";
 import {
   Bell,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Filter,
   GripVertical,
@@ -50,6 +52,8 @@ export function ColumnCard({ column }: { column: Column }) {
   const applyFetchedItems = useDeckStore((s) => s.applyFetchedItems);
   const renameColumn = useDeckStore((s) => s.renameColumn);
   const isAutoFetchingRaw = useDeckStore((s) => s.autoFetchingIds.has(column.id));
+  const isCollapsed = useDeckStore((s) => s.collapsedColumnIds.has(column.id));
+  const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
 
   const [isFetchingRaw, setIsFetching] = useState(false);
   const isFetching = useMinDuration(isFetchingRaw, BEAM_MIN_DURATION_MS);
@@ -246,6 +250,85 @@ export function ColumnCard({ column }: { column: Column }) {
 
   const beamActive = isFetching || isAutoFetching;
 
+  // Collapsed view: render a narrow 48px vertical strip instead of the full
+  // 360px column. The strip keeps brand-accent + icon + a rotated title so the
+  // operator can still see what they collapsed, plus refresh-state and match
+  // badges so a column quietly accumulating alerts isn't invisible. Clicking
+  // anywhere on the strip (except the dnd drag distance threshold) re-expands.
+  // Auto-refresh and item-state computations continue normally — only the body
+  // is hidden, so the moment the operator expands they see the live state.
+  if (isCollapsed) {
+    return (
+      <div
+        ref={setNodeRef}
+        id={`column-${column.id}`}
+        style={style}
+        data-beam-active={beamActive ? "true" : "false"}
+        data-beam-variant="fetch"
+        className={cn(
+          "beam-frame group/col-collapsed relative flex h-full w-12 shrink-0 snap-start cursor-pointer flex-col items-center overflow-hidden rounded-lg border border-border bg-card shadow-[0_4px_12px_-10px_rgba(0,0,0,0.10)] transition-all hover:-translate-y-0.5 hover:bg-surface/40 hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,0.18)] sm:snap-none",
+          isDragging &&
+            "cursor-grabbing shadow-[0_24px_60px_-20px_rgba(0,0,0,0.32)] ring-1 ring-foreground/10",
+        )}
+        onClick={() => toggleColumnCollapsed(column.id)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleColumnCollapsed(column.id);
+          }
+        }}
+        aria-label={`Expand ${column.title}`}
+        title={`Expand ${column.title}`}
+        {...attributes}
+        {...listeners}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${type.accent}, transparent)`,
+          }}
+        />
+        <div
+          className="mt-2.5 flex size-7 shrink-0 items-center justify-center rounded-md ring-1 ring-black/5"
+          style={{ backgroundColor: `${type.accent}33`, color: type.accent }}
+        >
+          <Icon className="size-4" strokeWidth={2.25} />
+        </div>
+        <div className="my-2 flex flex-1 w-full items-center justify-center overflow-hidden">
+          <div
+            className="origin-center -rotate-90 truncate text-[12.5px] font-medium leading-tight text-foreground"
+            style={{ width: "200px", letterSpacing: "-0.01em" }}
+          >
+            {column.title}
+          </div>
+        </div>
+        <div className="mb-2 flex flex-col items-center gap-1.5">
+          {beamActive && (
+            <Loader2
+              aria-label="Fetching"
+              className="size-3 animate-spin text-muted-foreground"
+            />
+          )}
+          {matchCount > 0 && (
+            <span
+              aria-label={`${matchCount} alert match${matchCount === 1 ? "" : "es"}`}
+              className="inline-flex items-center justify-center rounded-full bg-yellow-400/15 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-yellow-700 ring-1 ring-yellow-400/40 dark:text-yellow-300"
+            >
+              {matchCount}
+            </span>
+          )}
+          <ChevronRight
+            className="size-4 text-muted-foreground/70 transition-colors group-hover/col-collapsed:text-foreground"
+            aria-hidden
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div
@@ -375,6 +458,17 @@ export function ColumnCard({ column }: { column: Column }) {
               )}
             </TooltipTrigger>
             <TooltipContent side="bottom">Refresh</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              onClick={() => toggleColumnCollapsed(column.id)}
+              title="Collapse"
+              aria-label="Collapse column"
+              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]"
+            >
+              <ChevronLeft className="size-4" />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Collapse</TooltipContent>
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger
