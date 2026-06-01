@@ -51,9 +51,18 @@ interface DeckState {
    * switching decks restores the last tab the operator picked in this session.
    */
   selectedTabByDeck: Record<string, string>;
+  /**
+   * Per-column collapsed view state. NOT persisted — same as autoFetchingIds
+   * and selectedTabByDeck, this is purely an in-session UI shape and clears on
+   * reload so every deck opens with all columns at full width. Membership in
+   * the set means the column renders as a 48px vertical strip; absence means
+   * the standard 360px column.
+   */
+  collapsedColumnIds: Set<string>;
 
   hydrate: (snapshot: Snapshot) => void;
   setSelectedTab: (deckId: string, tab: string) => void;
+  toggleColumnCollapsed: (columnId: string) => void;
 
   addDeck: (name: string) => string;
   renameDeck: (deckId: string, name: string) => void;
@@ -149,6 +158,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
   columns: {},
   autoFetchingIds: new Set<string>(),
   selectedTabByDeck: {},
+  collapsedColumnIds: new Set<string>(),
 
   hydrate: (snapshot) =>
     set((s) => ({
@@ -166,6 +176,14 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     set((s) => ({
       selectedTabByDeck: { ...s.selectedTabByDeck, [deckId]: tab },
     })),
+
+  toggleColumnCollapsed: (columnId) =>
+    set((s) => {
+      const next = new Set(s.collapsedColumnIds);
+      if (next.has(columnId)) next.delete(columnId);
+      else next.add(columnId);
+      return { collapsedColumnIds: next };
+    }),
 
   addDeck: (name) => {
     const id = nanoid();
@@ -198,7 +216,15 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       const deckOrder = s.deckOrder.filter((id) => id !== deckId);
       let activeDeckId = s.activeDeckId;
       if (activeDeckId === deckId) activeDeckId = deckOrder[0] ?? null;
-      return { decks, columns: cols, deckOrder, activeDeckId };
+      const collapsed = new Set(s.collapsedColumnIds);
+      for (const cid of deck.columnIds) collapsed.delete(cid);
+      return {
+        decks,
+        columns: cols,
+        deckOrder,
+        activeDeckId,
+        collapsedColumnIds: collapsed,
+      };
     });
     fireAndLog("deleteDeck", serverDeleteDeck(deckId));
   },
@@ -372,7 +398,9 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
           };
         }
       }
-      return { columns: cols, decks };
+      const collapsed = new Set(s.collapsedColumnIds);
+      collapsed.delete(columnId);
+      return { columns: cols, decks, collapsedColumnIds: collapsed };
     });
     fireAndLog("deleteColumn", serverDeleteColumn(columnId));
   },
