@@ -274,8 +274,6 @@ export function ColumnCard({ column }: { column: Column }) {
             "cursor-grabbing shadow-[0_24px_60px_-20px_rgba(0,0,0,0.32)] ring-1 ring-foreground/10",
         )}
         onClick={() => toggleColumnCollapsed(column.id)}
-        role="button"
-        tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
