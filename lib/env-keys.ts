@@ -44,6 +44,14 @@ export const ENV_KEYS: EnvKeySpec[] = [
     signupUrl: "https://github.com/settings/tokens",
     required: false,
   },
+  {
+    key: "COINGECKO_DEMO_API_KEY",
+    label: "CoinGecko (Demo)",
+    description:
+      "Optional — raises CoinGecko column rate limits beyond the keyless ~10–30 calls/min ceiling. Free Demo plan works.",
+    signupUrl: "https://www.coingecko.com/en/developers/dashboard",
+    required: false,
+  },
 ];
 
 export const ENV_KEY_NAMES = new Set(ENV_KEYS.map((k) => k.key));

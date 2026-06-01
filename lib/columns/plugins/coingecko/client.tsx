@@ -66,8 +66,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CoingeckoConfig>) {
       )}
       <p className="text-xs text-muted-foreground">
         Keyless by default. For higher rate limits, set{" "}
-        <code>COINGECKO_DEMO_API_KEY</code> in <code>.env.local</code> (the
-        free Demo plan is fine).
+        <code>COINGECKO_DEMO_API_KEY</code> in Settings · API keys (the free
+        Demo plan is fine).
       </p>
     </div>
   );

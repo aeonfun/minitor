@@ -56,6 +56,6 @@ export const meta: PluginMeta<CoingeckoConfig, CoingeckoMeta> = {
     paginated: true,
     requiresEnv: [],
     rateLimitHint:
-      "Keyless: ~10–30 calls/min. Set COINGECKO_DEMO_API_KEY in .env.local for higher limits.",
+      "Keyless: ~10–30 calls/min. Set COINGECKO_DEMO_API_KEY for higher limits.",
   },
 };
