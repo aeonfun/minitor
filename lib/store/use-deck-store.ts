@@ -59,10 +59,21 @@ interface DeckState {
    * the standard 360px column.
    */
   collapsedColumnIds: Set<string>;
+  /**
+   * Per-column quick-search query. NOT persisted — view state only, clears on
+   * reload. Distinct from `filterKeywords` / `excludeKeywords` (those are saved
+   * column config that survive reload and travel with the deck on export); this
+   * is the ephemeral "type to find" input rendered inline below the column
+   * header. Absent or empty string = search inactive. Substring match runs on
+   * top of include/exclude — search narrows what's already visible, never
+   * widens past what the persisted filters allow.
+   */
+  searchByColumn: Record<string, string>;
 
   hydrate: (snapshot: Snapshot) => void;
   setSelectedTab: (deckId: string, tab: string) => void;
   toggleColumnCollapsed: (columnId: string) => void;
+  setColumnSearch: (columnId: string, query: string) => void;
 
   addDeck: (name: string) => string;
   renameDeck: (deckId: string, name: string) => void;
@@ -160,6 +171,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
   autoFetchingIds: new Set<string>(),
   selectedTabByDeck: {},
   collapsedColumnIds: new Set<string>(),
+  searchByColumn: {},
 
   hydrate: (snapshot) =>
     set((s) => ({
@@ -184,6 +196,21 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       if (next.has(columnId)) next.delete(columnId);
       else next.add(columnId);
       return { collapsedColumnIds: next };
+    }),
+
+  setColumnSearch: (columnId, query) =>
+    set((s) => {
+      // Trim and cap so a runaway paste can't slow the substring scan or blow
+      // up the rendered input. 256 chars is far more than any realistic
+      // operator query — anything longer is almost certainly accidental.
+      const trimmed = query.slice(0, 256);
+      const next = { ...s.searchByColumn };
+      if (trimmed.length === 0) {
+        delete next[columnId];
+      } else {
+        next[columnId] = trimmed;
+      }
+      return { searchByColumn: next };
     }),
 
   addDeck: (name) => {
@@ -219,12 +246,15 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       if (activeDeckId === deckId) activeDeckId = deckOrder[0] ?? null;
       const collapsed = new Set(s.collapsedColumnIds);
       for (const cid of deck.columnIds) collapsed.delete(cid);
+      const searchByColumn = { ...s.searchByColumn };
+      for (const cid of deck.columnIds) delete searchByColumn[cid];
       return {
         decks,
         columns: cols,
         deckOrder,
         activeDeckId,
         collapsedColumnIds: collapsed,
+        searchByColumn,
       };
     });
     fireAndLog("deleteDeck", serverDeleteDeck(deckId));
@@ -401,7 +431,9 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       }
       const collapsed = new Set(s.collapsedColumnIds);
       collapsed.delete(columnId);
-      return { columns: cols, decks, collapsedColumnIds: collapsed };
+      const searchByColumn = { ...s.searchByColumn };
+      delete searchByColumn[columnId];
+      return { columns: cols, decks, collapsedColumnIds: collapsed, searchByColumn };
     });
     fireAndLog("deleteColumn", serverDeleteColumn(columnId));
   },

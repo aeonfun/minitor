@@ -16,8 +16,10 @@ import {
   MoreHorizontal,
   Pencil,
   RefreshCw,
+  Search,
   Settings2,
   Trash2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -40,6 +42,7 @@ import { useMinDuration } from "@/hooks/use-min-duration";
 import { BEAM_MIN_DURATION_MS } from "@/lib/columns/constants";
 import {
   itemMatchesAlertKeywords,
+  itemMatchesSearchQuery,
   parseAlertKeywords,
 } from "@/lib/columns/keyword-match";
 import type { Column } from "@/lib/columns/types";
@@ -57,6 +60,10 @@ export function ColumnCard({ column }: { column: Column }) {
   const isAutoFetchingRaw = useDeckStore((s) => s.autoFetchingIds.has(column.id));
   const isCollapsed = useDeckStore((s) => s.collapsedColumnIds.has(column.id));
   const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
+  const searchQuery = useDeckStore((s) => s.searchByColumn[column.id] ?? "");
+  const setColumnSearch = useDeckStore((s) => s.setColumnSearch);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isFetchingRaw, setIsFetching] = useState(false);
   const isFetching = useMinDuration(isFetchingRaw, BEAM_MIN_DURATION_MS);
@@ -118,7 +125,7 @@ export function ColumnCard({ column }: { column: Column }) {
   // exclude wins when an item matches both. Reuses the alert-keyword matcher so
   // filter semantics (author + content + url, case-insensitive substring) stay
   // identical to the highlight behaviour operators already know.
-  const visibleItems = useMemo(() => {
+  const filteredItems = useMemo(() => {
     if (!filtersActive) return column.items;
     return column.items.filter((it) => {
       if (includeTerms.length > 0 && !itemMatchesAlertKeywords(it, includeTerms))
@@ -129,6 +136,17 @@ export function ColumnCard({ column }: { column: Column }) {
     });
   }, [filtersActive, column.items, includeTerms, excludeTerms]);
 
+  // Quick-search runs on top of include/exclude — view-state-only narrowing.
+  // Empty query passes through, so a closed search bar has zero cost. Search
+  // never widens past the persisted-filter results, matching the operator's
+  // mental model: filters decide what the column *contains*, search decides
+  // what they're looking at *right now* inside that subset.
+  const searchActive = searchQuery.trim().length > 0;
+  const visibleItems = useMemo(() => {
+    if (!searchActive) return filteredItems;
+    return filteredItems.filter((it) => itemMatchesSearchQuery(it, searchQuery));
+  }, [filteredItems, searchActive, searchQuery]);
+
   const matchedItemIds = useMemo(() => {
     if (alertTerms.length === 0) return new Set<string>();
     const out = new Set<string>();
@@ -138,6 +156,19 @@ export function ColumnCard({ column }: { column: Column }) {
     return out;
   }, [alertTerms, visibleItems]);
   const matchCount = matchedItemIds.size;
+
+  // Auto-open the search row when a query already exists on mount — covers
+  // the case where the operator collapsed/expanded a column or switched tabs
+  // and the search state was preserved in-session. Closing collapses the row
+  // visually but never clears the query, so re-opening shows what they last
+  // typed (until they reload or manually clear).
+  useEffect(() => {
+    if (searchActive && !searchOpen) setSearchOpen(true);
+    // intentionally only react to searchActive flipping true — don't auto-
+    // close when the operator clears the query mid-type; let them keep the
+    // input visible to keep typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchActive]);
 
   // Auto-refresh tick — useRef snapshots so the interval closure always reads
   // the latest typeId/config without forcing a tear-down on every config edit.
@@ -313,6 +344,12 @@ export function ColumnCard({ column }: { column: Column }) {
               className="size-3 animate-spin text-muted-foreground"
             />
           )}
+          {searchActive && (
+            <Search
+              aria-label={`Search active: "${searchQuery}"`}
+              className="size-3 text-emerald-600 dark:text-emerald-400"
+            />
+          )}
           {matchCount > 0 && (
             <span
               aria-label={`${matchCount} alert match${matchCount === 1 ? "" : "es"}`}
@@ -406,22 +443,38 @@ export function ColumnCard({ column }: { column: Column }) {
           {filtersActive && (
             <Tooltip>
               <TooltipTrigger
-                aria-label={`Filtered: showing ${visibleItems.length} of ${column.items.length} items`}
+                aria-label={`Filtered: showing ${filteredItems.length} of ${column.items.length} items`}
                 className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-400/15 px-2 py-0.5 text-[11px] font-medium text-sky-700 ring-1 ring-sky-400/40 dark:text-sky-300"
               >
                 <Filter className="size-3" strokeWidth={2.5} />
                 <span className="tabular-nums">
-                  {visibleItems.length}/{column.items.length}
+                  {filteredItems.length}/{column.items.length}
                 </span>
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                Showing {visibleItems.length} of {column.items.length}
+                Showing {filteredItems.length} of {column.items.length}
                 {includeTerms.length > 0 && (
                   <> · only: {includeTerms.join(", ")}</>
                 )}
                 {excludeTerms.length > 0 && (
                   <> · hiding: {excludeTerms.join(", ")}</>
                 )}
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {searchActive && (
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={`Search: ${visibleItems.length} of ${filteredItems.length} match "${searchQuery}"`}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-400/40 dark:text-emerald-300"
+              >
+                <Search className="size-3" strokeWidth={2.5} />
+                <span className="tabular-nums">
+                  {visibleItems.length}/{filteredItems.length}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {visibleItems.length} match{visibleItems.length === 1 ? "" : "es"} for &ldquo;{searchQuery}&rdquo;
               </TooltipContent>
             </Tooltip>
           )}
@@ -444,6 +497,34 @@ export function ColumnCard({ column }: { column: Column }) {
                 </TooltipContent>
               </Tooltip>
             )}
+          <Tooltip>
+            <TooltipTrigger
+              onClick={() => {
+                setSearchOpen((open) => {
+                  const next = !open;
+                  if (next) {
+                    // Focus on next tick so the input mounts before we ask
+                    // for focus. requestAnimationFrame is the cheapest hook
+                    // for "after this render commits".
+                    requestAnimationFrame(() => searchInputRef.current?.focus());
+                  }
+                  return next;
+                });
+              }}
+              title="Search items"
+              aria-label={searchOpen ? "Close search" : "Search items"}
+              aria-pressed={searchOpen}
+              className={cn(
+                "inline-flex size-8 items-center justify-center rounded-full transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]",
+                searchActive
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-muted-foreground",
+              )}
+            >
+              <Search className="size-4" />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Search items</TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger
               onClick={onRefresh}
@@ -511,6 +592,50 @@ export function ColumnCard({ column }: { column: Column }) {
           </DropdownMenu>
         </div>
 
+        {searchOpen && (
+          <div className="flex items-center gap-1.5 border-b border-border bg-surface/40 px-2 py-1.5">
+            <Search className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setColumnSearch(column.id, e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setColumnSearch(column.id, "");
+                  setSearchOpen(false);
+                }
+              }}
+              placeholder="Find in column…"
+              aria-label="Search items in this column"
+              maxLength={256}
+              className="flex-1 min-w-0 bg-transparent text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+            {searchActive && (
+              <button
+                type="button"
+                onClick={() => {
+                  setColumnSearch(column.id, "");
+                  searchInputRef.current?.focus();
+                }}
+                aria-label="Clear search"
+                className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+              >
+                <X className="size-3" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(false)}
+              aria-label="Close search"
+              className="inline-flex shrink-0 items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+            >
+              Esc
+            </button>
+          </div>
+        )}
+
         <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {column.items.length === 0 ? (
             isFetching || isAutoFetching ? (
@@ -521,7 +646,17 @@ export function ColumnCard({ column }: { column: Column }) {
           ) : (
             <div>
               {visibleItems.length === 0 ? (
-                <FilteredEmptyState totalCount={column.items.length} />
+                searchActive ? (
+                  <SearchEmptyState
+                    query={searchQuery}
+                    onClear={() => {
+                      setColumnSearch(column.id, "");
+                      searchInputRef.current?.focus();
+                    }}
+                  />
+                ) : (
+                  <FilteredEmptyState totalCount={column.items.length} />
+                )
               ) : (
                 visibleItems.map((item) =>
                   matchedItemIds.has(item.id) ? (
@@ -623,6 +758,31 @@ function FilteredEmptyState({ totalCount }: { totalCount: number }) {
         {totalCount} item{totalCount === 1 ? "" : "s"} hidden. Adjust the
         column&rsquo;s filters in Configure.
       </div>
+    </div>
+  );
+}
+
+function SearchEmptyState({
+  query,
+  onClear,
+}: {
+  query: string;
+  onClear: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+      <Search className="size-5 text-muted-foreground/60" />
+      <div className="text-sm font-medium">No matches for &ldquo;{query}&rdquo;</div>
+      <div className="text-xs text-muted-foreground">
+        Search is a view-only narrowing on top of the column&rsquo;s filters.
+      </div>
+      <button
+        type="button"
+        onClick={onClear}
+        className="mt-1 text-xs font-medium text-emerald-700 underline-offset-2 hover:underline dark:text-emerald-300"
+      >
+        Clear search
+      </button>
     </div>
   );
 }
