@@ -78,7 +78,12 @@ export async function loadSnapshot(): Promise<Snapshot> {
   const decksById: Record<string, Deck> = {};
   const deckOrder: string[] = [];
   for (const d of deckRows) {
-    decksById[d.id] = { id: d.id, name: d.name, columnIds: [] };
+    decksById[d.id] = {
+      id: d.id,
+      name: d.name,
+      columnIds: [],
+      color: d.color ?? undefined,
+    };
     deckOrder.push(d.id);
   }
 
@@ -132,6 +137,24 @@ export async function createDeck(id: string, name: string): Promise<void> {
 
 export async function renameDeck(id: string, name: string): Promise<void> {
   await db.update(decks).set({ name }).where(eq(decks.id, id));
+}
+
+/**
+ * Persist a deck's color label. Pass an empty string or an invalid hex to
+ * clear (the normalizer treats both the same way — the UI validates before
+ * calling). Validation is server-authoritative so a hand-edited payload
+ * can never bypass the hex check. Mirrors `updateColumnColor` exactly —
+ * the deck-level analog of the column color labels from PR #61.
+ */
+export async function updateDeckColor(
+  id: string,
+  color: string,
+): Promise<void> {
+  // Same hex shape as columns — reuse the canonical column normalizer so
+  // the two label surfaces (deck-level + per-column) can never drift on
+  // case-folding or shorthand acceptance.
+  const normalized = normalizeColumnColor(color);
+  await db.update(decks).set({ color: normalized }).where(eq(decks.id, id));
 }
 
 export async function deleteDeck(id: string): Promise<void> {
@@ -535,6 +558,12 @@ const importedColumnSchema = z.object({
 const importedDeckSchema = z.object({
   version: z.literal(DECK_EXPORT_VERSION),
   deckName: z.string().min(1).max(128),
+  // Optional deck-level color label (6-char hex `#rrggbb`). Additive to v1 —
+  // exports created before deck color labels existed simply omit this field
+  // and import as a deck with `color = null`. Same drop-not-fail contract
+  // as column color: a malformed value is dropped to null in importDeck via
+  // `normalizeColumnColor`, never aborts the entire deck import.
+  deckColor: z.string().max(64).optional(),
   exportedAt: z.string().optional(),
   columns: z.array(importedColumnSchema).max(64),
 });
@@ -577,6 +606,7 @@ export async function exportDeck(deckId: string): Promise<string> {
   const payload: DeckExport = {
     version: DECK_EXPORT_VERSION,
     deckName: deck.name,
+    ...(deck.color ? { deckColor: deck.color } : {}),
     exportedAt: new Date().toISOString(),
     columns: cols.map((c) => ({
       typeId: c.typeId,
@@ -614,6 +644,14 @@ export interface ImportedDeckColumn {
 export interface ImportedDeckResult {
   deckId: string;
   deckName: string;
+  /**
+   * Color label applied to the freshly created deck during import — present
+   * when the export payload included a valid `deckColor`, absent otherwise.
+   * The store reads this to seed the optimistic deck-row insert so the
+   * sidebar dot renders the imported deck's color immediately, without
+   * waiting for the next loadSnapshot round-trip.
+   */
+  deckColor?: string;
   columns: ImportedDeckColumn[];
 }
 
@@ -646,16 +684,26 @@ export async function importDeck(
   const deckId = nanoid();
   const deckName = `${data.deckName} (${nameSuffix})`;
   const created: ImportedDeckColumn[] = [];
+  // Hoisted out of the transaction so the post-tx return shape can carry it
+  // back to the client store without an extra round-trip.
+  let deckColorPersisted: string | null = null;
 
   await db.transaction(async (tx) => {
     const [{ maxDeckPos }] = await tx
       .select({ maxDeckPos: sql<number>`coalesce(max(${decks.position}), -1)` })
       .from(decks);
 
+    // Re-validate any imported deck color through the same hex normalizer the
+    // server action uses for direct writes — drops non-`#rrggbb` strings to
+    // null rather than aborting the entire import (same drop-not-fail contract
+    // as the column-level color field).
+    deckColorPersisted = normalizeColumnColor(data.deckColor ?? null);
+
     await tx.insert(decks).values({
       id: deckId,
       name: deckName,
       position: maxDeckPos + 1,
+      color: deckColorPersisted,
     });
 
     for (let i = 0; i < data.columns.length; i++) {
@@ -738,7 +786,12 @@ export async function importDeck(
   // which route through this same path). Fire-and-forget — never fails import.
   await captureDeckSnapshot(deckId);
 
-  return { deckId, deckName, columns: created };
+  return {
+    deckId,
+    deckName,
+    ...(deckColorPersisted ? { deckColor: deckColorPersisted } : {}),
+    columns: created,
+  };
 }
 
 const DECK_SNAPSHOT_CAP = 5;

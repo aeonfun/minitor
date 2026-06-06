@@ -219,4 +219,18 @@ export interface Deck {
   id: string;
   name: string;
   columnIds: string[];
+  /**
+   * Optional 6-char hex color label (e.g. `#f97316`). When set, the deck
+   * renders a colored dot in the sidebar header (replacing the brand
+   * active/inactive dot) and in the deck-view top bar — letting operators
+   * apply a group-level color code at the deck level for at-a-glance
+   * identification across a long sidebar (markets orange, dev blue,
+   * social purple, etc.). The deck-level analog of `Column.color`
+   * (column color labels, PR #61). Round-trips through deck export /
+   * import / share links / version-history snapshots as the optional
+   * `deckColor` field of the v1 schema (additive — old exports omit it
+   * and import as null). Server-validated to `/^#[0-9a-f]{6}$/i` and
+   * normalized to lowercase; anything that doesn't match is dropped.
+   */
+  color?: string;
 }

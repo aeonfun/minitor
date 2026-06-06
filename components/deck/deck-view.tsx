@@ -129,6 +129,14 @@ export function DeckView() {
           <SidebarTrigger className="size-8 shrink-0" />
           <div className="h-5 w-px shrink-0 bg-border" />
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3.5">
+            {activeDeck?.color ? (
+              <span
+                aria-hidden
+                title={`Deck color: ${activeDeck.color}`}
+                className="inline-block size-2.5 shrink-0 rounded-full ring-1 ring-black/10"
+                style={{ backgroundColor: activeDeck.color }}
+              />
+            ) : null}
             <span
               className="pb-1 font-serif text-[18px] leading-[1.2] italic text-foreground sm:text-[20px]"
               style={{ letterSpacing: "-0.01em" }}

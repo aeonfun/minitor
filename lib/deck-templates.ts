@@ -58,6 +58,13 @@ export interface DeckTemplateColumn {
 export interface DeckTemplatePayload {
   version: typeof DECK_TEMPLATE_VERSION;
   deckName: string;
+  // Optional deck-level color label (6-char hex `#rrggbb`). Let a multi-category
+  // starter template ship pre-tagged with a deck-identity color (e.g. the
+  // markets pack ships orange, the dev pack ships blue) so the sidebar dot
+  // is meaningful from first import. Round-trips through importDeck — the
+  // same hex normalizer used for the per-column color drops it to null if
+  // the template ships a malformed value, never aborts the import.
+  deckColor?: string;
   columns: DeckTemplateColumn[];
 }
 
