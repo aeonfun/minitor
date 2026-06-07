@@ -14,6 +14,7 @@ export const decks = pgTable("decks", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   position: integer("position").notNull().default(0),
+  color: text("color"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

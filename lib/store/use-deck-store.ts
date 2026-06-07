@@ -17,6 +17,7 @@ import {
   persistFetchedItems as serverPersistItems,
   renameColumn as serverRenameColumn,
   renameDeck as serverRenameDeck,
+  updateDeckColor as serverUpdateDeckColor,
   reorderColumnsInDeck as serverReorderColumns,
   reorderDecks as serverReorderDecks,
   updateColumnAlertKeywords as serverUpdateAlertKeywords,
@@ -81,6 +82,7 @@ interface DeckState {
 
   addDeck: (name: string) => string;
   renameDeck: (deckId: string, name: string) => void;
+  updateDeckColor: (deckId: string, color: string) => void;
   deleteDeck: (deckId: string) => void;
   reorderDecks: (order: string[]) => void;
   setActiveDeck: (deckId: string) => void;
@@ -157,6 +159,7 @@ function importedDeckPatch(
         id: result.deckId,
         name: result.deckName,
         columnIds: result.columns.map((c) => c.id),
+        color: result.deckColor,
       },
     },
     deckOrder: [...s.deckOrder, result.deckId],
@@ -240,6 +243,23 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       return { decks: { ...s.decks, [deckId]: { ...deck, name } } };
     });
     fireAndLog("renameDeck", serverRenameDeck(deckId, name));
+  },
+
+  updateDeckColor: (deckId, color) => {
+    // Mirror the server normalizer client-side so the optimistic write
+    // and the persisted write agree: empty/invalid → undefined (cleared);
+    // valid hex → canonical lowercased `#rrggbb`. Reuses the same
+    // `normalizeColumnColor` import the column color action uses so the
+    // two surfaces can never drift on case-folding or shorthand acceptance.
+    const normalized = normalizeColumnColor(color) ?? undefined;
+    set((s) => {
+      const deck = s.decks[deckId];
+      if (!deck) return s;
+      return {
+        decks: { ...s.decks, [deckId]: { ...deck, color: normalized } },
+      };
+    });
+    fireAndLog("updateDeckColor", serverUpdateDeckColor(deckId, color));
   },
 
   deleteDeck: (deckId) => {

@@ -64,6 +64,13 @@
       "when": 1780099200000,
       "tag": "0008_column_color",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1780185600000,
+      "tag": "0009_deck_color",
+      "breakpoints": true
     }
   ]
 }

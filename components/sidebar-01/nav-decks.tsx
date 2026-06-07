@@ -4,6 +4,7 @@ import {
   ChevronDown,
   History,
   MoreHorizontal,
+  Palette,
   Pencil,
   Plus,
   Trash2,
@@ -37,6 +38,7 @@ import { useDeckStore } from "@/lib/store/use-deck-store";
 import { RenameDialog } from "@/components/dialogs/rename-dialog";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { VersionHistoryDialog } from "@/components/dialogs/version-history-dialog";
+import { DeckColorDialog } from "@/components/dialogs/deck-color-dialog";
 import { AddColumnDialog } from "@/components/column/add-column-dialog";
 
 export function focusColumn(columnId: string) {
@@ -52,6 +54,7 @@ export function NavDecks() {
   const columns = useDeckStore((s) => s.columns);
   const setActiveDeck = useDeckStore((s) => s.setActiveDeck);
   const renameDeck = useDeckStore((s) => s.renameDeck);
+  const updateDeckColor = useDeckStore((s) => s.updateDeckColor);
   const deleteDeck = useDeckStore((s) => s.deleteDeck);
   const renameColumn = useDeckStore((s) => s.renameColumn);
   const removeColumn = useDeckStore((s) => s.removeColumn);
@@ -62,6 +65,7 @@ export function NavDecks() {
   const [deleteDeckId, setDeleteDeckId] = useState<string | null>(null);
   const [deleteColumnId, setDeleteColumnId] = useState<string | null>(null);
   const [historyDeckId, setHistoryDeckId] = useState<string | null>(null);
+  const [colorDeckId, setColorDeckId] = useState<string | null>(null);
 
   // Per-deck explicit open overrides. Decks not in this map fall back to
   // "open if active". Once the user toggles a deck, the override sticks.
@@ -95,11 +99,29 @@ export function NavDecks() {
                 )}
                 render={<CollapsibleTrigger />}
               >
+                {/*
+                  Deck identity dot. When the operator has tagged the deck
+                  with a color, the dot renders in that color regardless of
+                  the active-deck state (the tag is the operator's intent and
+                  shouldn't get swapped out for the brand color just because
+                  this is the currently active deck). Inactive untagged decks
+                  fade the dot to keep the active deck distinguishable; the
+                  active-untagged deck uses the brand color.
+                */}
                 <span
                   className={cn(
                     "inline-block size-1.5 rounded-full",
-                    isActive ? "bg-[color:var(--brand)]" : "bg-sidebar-foreground/30",
+                    !deck.color
+                      && (isActive ? "bg-[color:var(--brand)]" : "bg-sidebar-foreground/30"),
                   )}
+                  style={
+                    deck.color
+                      ? {
+                          backgroundColor: deck.color,
+                          opacity: isActive ? 1 : 0.65,
+                        }
+                      : undefined
+                  }
                 />
                 <span className="truncate normal-case tracking-normal">
                   {deck.name}
@@ -202,6 +224,12 @@ export function NavDecks() {
                     <Pencil className="mr-2 size-4" />
                     <span className="whitespace-nowrap">Rename deck</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setColorDeckId(deckId)}>
+                    <Palette className="mr-2 size-4" />
+                    <span className="whitespace-nowrap">
+                      {deck.color ? "Change color" : "Set color"}
+                    </span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setHistoryDeckId(deckId)}>
                     <History className="mr-2 size-4" />
                     <span className="whitespace-nowrap">Version history</span>
@@ -275,6 +303,15 @@ export function NavDecks() {
         deckId={historyDeckId}
         open={historyDeckId !== null}
         onOpenChange={(o) => !o && setHistoryDeckId(null)}
+      />
+      <DeckColorDialog
+        open={colorDeckId !== null}
+        onOpenChange={(o) => !o && setColorDeckId(null)}
+        deckName={colorDeckId ? (decks[colorDeckId]?.name ?? "deck") : "deck"}
+        initialColor={colorDeckId ? decks[colorDeckId]?.color : undefined}
+        onSubmit={(next) => {
+          if (colorDeckId) updateDeckColor(colorDeckId, next);
+        }}
       />
     </>
   );
