@@ -5,6 +5,12 @@ import type { PluginMeta } from "@/lib/columns/types";
 export const schema = z.object({
   mode: z.enum(["top", "gainers", "chains"]).default("top"),
   category: z.string().default(""),
+  // Gainers mode only: drop any protocol with TVL below this floor before
+  // sorting by 24h % change. Without a floor, a $500 microcap that doubled
+  // overnight reads as +100% and crowds out a $1B protocol that grew 5%.
+  // Default $1M mirrors the threshold DeFiLlama applies on its own gainers
+  // leaderboard. `0` disables the floor (every protocol included).
+  minTvlUsd: z.number().nonnegative().default(1_000_000),
 });
 
 export type DefillamaConfig = z.infer<typeof schema>;

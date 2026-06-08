@@ -18,6 +18,7 @@ const fetch: ServerFetcher<DefillamaConfig, DefillamaMeta> = async (
     config.category,
     PAGE_SIZE,
     page,
+    config.minTvlUsd,
   );
   return {
     items: r.items,

@@ -21,6 +21,7 @@ import { meta, type DefillamaConfig, type DefillamaMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
   const chainsMode = value.mode === "chains";
+  const gainersMode = value.mode === "gainers";
   return (
     <div className="grid gap-3">
       <div className="grid gap-1.5">
@@ -61,6 +62,34 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
             <code>lending</code> matches both <code>Lending</code> and{" "}
             <code>Cross-Chain Lending</code>). Leave empty to see every
             category.
+          </p>
+        </div>
+      )}
+      {gainersMode && (
+        <div className="grid gap-1.5">
+          <Label htmlFor="dl-min-tvl">Minimum TVL (USD)</Label>
+          <Input
+            id="dl-min-tvl"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            step={100000}
+            value={value.minTvlUsd}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const n = raw === "" ? 0 : Number(raw);
+              onChange({
+                ...value,
+                minTvlUsd: Number.isFinite(n) && n >= 0 ? n : 0,
+              });
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Drops protocols below this TVL before sorting — without a floor, a
+            $500 microcap that doubled overnight reads as +100% and outranks a
+            $1B protocol that grew 5%. Default <code>$1M</code> mirrors
+            DeFiLlama&apos;s own gainers page. Set <code>0</code> to include
+            every protocol.
           </p>
         </div>
       )}

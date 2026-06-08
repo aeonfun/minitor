@@ -188,6 +188,7 @@ export async function fetchDefillamaPage(
   category: string,
   limit: number,
   page: number,
+  minTvlUsd = 0,
 ): Promise<{ items: FeedItem<DefillamaMeta>[]; hasMore: boolean }> {
   const cat = parseCategoryFilter(category);
 
@@ -212,10 +213,20 @@ export async function fetchDefillamaPage(
     .filter((a): a is FeedItem<DefillamaMeta> => a !== null)
     .filter((a) => matchesCategory(a, cat));
 
+  // Gainers mode only: apply a TVL floor before sorting. /protocols ships
+  // every entry DeFiLlama has ever indexed, including ~$50 microcaps; without
+  // a floor a doubling-from-noise protocol shows as +100% and outranks real
+  // movers like a $1B chain that grew 5%. Top mode keeps the full list (it's
+  // a TVL leaderboard — small entries naturally sort to later pages).
+  const filtered =
+    mode === "gainers" && minTvlUsd > 0
+      ? mapped.filter((a) => (a.meta?.tvlUsd ?? 0) >= minTvlUsd)
+      : mapped;
+
   if (mode === "gainers") {
     // Sort by 24h TVL change desc. Ties broken by absolute TVL so a $50M
     // protocol jumping 20% ranks above a $50k protocol jumping 20%.
-    mapped.sort((a, b) => {
+    filtered.sort((a, b) => {
       const da = a.meta?.tvlChange24h ?? 0;
       const db = b.meta?.tvlChange24h ?? 0;
       if (db !== da) return db - da;
@@ -224,11 +235,11 @@ export async function fetchDefillamaPage(
   } else {
     // top mode — sort by TVL desc. The endpoint is normally pre-sorted but the
     // category filter can reorder pages if categories don't sort identically.
-    mapped.sort((a, b) => (b.meta?.tvlUsd ?? 0) - (a.meta?.tvlUsd ?? 0));
+    filtered.sort((a, b) => (b.meta?.tvlUsd ?? 0) - (a.meta?.tvlUsd ?? 0));
   }
 
   const perPage = Math.max(limit, 30);
   const start = page * perPage;
-  const slice = mapped.slice(start, start + perPage);
-  return { items: slice.slice(0, limit), hasMore: mapped.length > start + perPage };
+  const slice = filtered.slice(start, start + perPage);
+  return { items: slice.slice(0, limit), hasMore: filtered.length > start + perPage };
 }
