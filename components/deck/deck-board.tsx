@@ -45,6 +45,12 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  // True while a dnd-kit drag (pointer or keyboard) is in progress. The
+  // window-level keyboard-nav listener reads this to stand down during a
+  // keyboard drag, so the arrows/Escape that dnd-kit's KeyboardSensor uses to
+  // move and drop a column aren't also consumed as column navigation.
+  const draggingRef = useRef(false);
+
   // Build the unique, stable list of tab groups present in this deck. Sorted
   // by the column position they first appear in, so the operator's reorder is
   // the visual order of the tabs. Recomputed only when the deck's column list
@@ -132,6 +138,10 @@ export function DeckBoard({ deckId }: { deckId: string }) {
       // Modifier keys belong to the browser/OS (Ctrl-J = downloads, ⌘K = …),
       // so let those through and only act on plain key presses.
       if (e.ctrlKey || e.metaKey || e.altKey) return;
+      // A dnd-kit keyboard drag is active: its drag handle is a <button>, not
+      // a text field, so the text-editable guard below wouldn't catch it. Let
+      // the KeyboardSensor own the arrows/Escape until the drag drops or cancels.
+      if (draggingRef.current) return;
       const target = e.target as HTMLElement | null;
       if (target) {
         const tag = target.tagName;
@@ -240,6 +250,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   }
 
   function handleDragEnd(ev: DragEndEvent) {
+    draggingRef.current = false;
     if (!deck) return;
     const { active, over } = ev;
     if (!over || active.id === over.id) return;
@@ -297,7 +308,13 @@ export function DeckBoard({ deckId }: { deckId: string }) {
             sensors={sensors}
             collisionDetection={closestCenter}
             modifiers={[restrictToHorizontalAxis]}
+            onDragStart={() => {
+              draggingRef.current = true;
+            }}
             onDragEnd={handleDragEnd}
+            onDragCancel={() => {
+              draggingRef.current = false;
+            }}
           >
             <SortableContext
               items={visibleColumnIds}
