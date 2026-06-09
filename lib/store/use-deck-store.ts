@@ -95,6 +95,26 @@ interface DeckState {
    * collapse always shows. Width re-applies on expand from the in-memory map.
    */
   widthByColumn: Record<string, ColumnWidth>;
+  /**
+   * Currently-focused column id for keyboard navigation. NOT persisted — same
+   * lifetime as `collapsedColumnIds`/`searchByColumn`. `null` means no column
+   * is focused, in which case `j` focuses the first visible column and `k`
+   * focuses the last. Clicking a column sets focus to it so the mouse and
+   * keyboard agree on what's selected. Cleared when the focused column is
+   * removed or its deck is deleted so the keyboard listener can't operate on
+   * a stale id.
+   */
+  focusedColumnId: string | null;
+  /**
+   * One-shot signal that asks the matching column to open its inline search
+   * row and focus the input. Set by the `/` keyboard shortcut, cleared by the
+   * column the moment it acts on it. Modelled as a column id rather than a
+   * boolean so it stays correct under fast-typing: pressing `/` twice on
+   * different columns lands on the second one, not the first. Distinct from
+   * `searchByColumn` (the actual query text) — opening the row doesn't write
+   * a query, and writing a query doesn't open the row.
+   */
+  pendingSearchOpen: string | null;
 
   hydrate: (snapshot: Snapshot) => void;
   setSelectedTab: (deckId: string, tab: string) => void;
@@ -107,6 +127,23 @@ interface DeckState {
    * width" action and treat a re-click as toggling back to normal.
    */
   setColumnWidth: (columnId: string, width: ColumnWidth | null) => void;
+  /**
+   * Set keyboard focus to a column, or pass `null` to clear focus (e.g. on
+   * Escape). A no-op when the requested id is already focused.
+   */
+  setFocusedColumn: (columnId: string | null) => void;
+  /**
+   * Ask the matching column to open its inline search row and focus the
+   * input. Triggered by the `/` shortcut on the focused column. A no-op when
+   * called with `null` (nothing focused yet).
+   */
+  requestSearchOpen: (columnId: string | null) => void;
+  /**
+   * Called by the column once it has acted on the pending-search-open signal,
+   * to clear it. A no-op when the signal is already cleared or points at a
+   * different column.
+   */
+  clearPendingSearchOpen: (columnId: string) => void;
 
   addDeck: (name: string) => string;
   renameDeck: (deckId: string, name: string) => void;
@@ -212,6 +249,8 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
   selectedTabByDeck: {},
   collapsedColumnIds: new Set<string>(),
   searchByColumn: {},
+  focusedColumnId: null,
+  pendingSearchOpen: null,
   widthByColumn: {},
 
   hydrate: (snapshot) =>
@@ -273,6 +312,19 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       return s;
     }),
 
+  setFocusedColumn: (columnId) =>
+    set((s) => (s.focusedColumnId === columnId ? s : { focusedColumnId: columnId })),
+
+  requestSearchOpen: (columnId) =>
+    set((s) => {
+      if (columnId === null) return s;
+      if (s.pendingSearchOpen === columnId) return s;
+      return { pendingSearchOpen: columnId };
+    }),
+
+  clearPendingSearchOpen: (columnId) =>
+    set((s) => (s.pendingSearchOpen === columnId ? { pendingSearchOpen: null } : s)),
+
   addDeck: (name) => {
     const id = nanoid();
     set((s) => ({
@@ -327,6 +379,14 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       for (const cid of deck.columnIds) delete searchByColumn[cid];
       const widthByColumn = { ...s.widthByColumn };
       for (const cid of deck.columnIds) delete widthByColumn[cid];
+      const focusedColumnId =
+        s.focusedColumnId && deck.columnIds.includes(s.focusedColumnId)
+          ? null
+          : s.focusedColumnId;
+      const pendingSearchOpen =
+        s.pendingSearchOpen && deck.columnIds.includes(s.pendingSearchOpen)
+          ? null
+          : s.pendingSearchOpen;
       return {
         decks,
         columns: cols,
@@ -335,6 +395,8 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
         collapsedColumnIds: collapsed,
         searchByColumn,
         widthByColumn,
+        focusedColumnId,
+        pendingSearchOpen,
       };
     });
     fireAndLog("deleteDeck", serverDeleteDeck(deckId));
@@ -630,12 +692,18 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       delete searchByColumn[columnId];
       const widthByColumn = { ...s.widthByColumn };
       delete widthByColumn[columnId];
+      const focusedColumnId =
+        s.focusedColumnId === columnId ? null : s.focusedColumnId;
+      const pendingSearchOpen =
+        s.pendingSearchOpen === columnId ? null : s.pendingSearchOpen;
       return {
         columns: cols,
         decks,
         collapsedColumnIds: collapsed,
         searchByColumn,
         widthByColumn,
+        focusedColumnId,
+        pendingSearchOpen,
       };
     });
     fireAndLog("deleteColumn", serverDeleteColumn(columnId));

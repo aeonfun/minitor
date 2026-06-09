@@ -32,6 +32,11 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     (s) => s.selectedTabByDeck[deckId] ?? TAB_GROUP_ALL,
   );
   const setSelectedTab = useDeckStore((s) => s.setSelectedTab);
+  const focusedColumnId = useDeckStore((s) => s.focusedColumnId);
+  const setFocusedColumn = useDeckStore((s) => s.setFocusedColumn);
+  const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
+  const requestSearchOpen = useDeckStore((s) => s.requestSearchOpen);
+  const setColumnSearch = useDeckStore((s) => s.setColumnSearch);
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -113,6 +118,118 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
+
+  // Keyboard navigation — `j`/`k` move focus between visible columns, `/`
+  // opens the focused column's inline search, `c` toggles collapse on the
+  // focused column, and `Escape` clears focus + the focused column's search.
+  // Matches the shortcuts operators already have in muscle memory from Linear,
+  // GitHub issues, and most terminal dashboards. We attach to `window` so the
+  // listener is alive regardless of where focus lands inside the deck — but
+  // we bail out as soon as the active element is text-editable, so typing
+  // into a column's search box or the configure dialog never gets intercepted.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // Modifier keys belong to the browser/OS (Ctrl-J = downloads, ⌘K = …),
+      // so let those through and only act on plain key presses.
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          tag === "SELECT" ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+      }
+      if (visibleColumnIds.length === 0) return;
+      const currentIndex = focusedColumnId
+        ? visibleColumnIds.indexOf(focusedColumnId)
+        : -1;
+      switch (e.key) {
+        case "j":
+        case "ArrowRight": {
+          // No focus yet → first; otherwise → next, wrapping to first.
+          const next =
+            currentIndex < 0 || currentIndex === visibleColumnIds.length - 1
+              ? visibleColumnIds[0]
+              : visibleColumnIds[currentIndex + 1];
+          setFocusedColumn(next);
+          // Scroll the newly-focused column into view in the horizontal
+          // scroller so j-spamming past the right edge doesn't strand the
+          // focus ring off-screen. Same idea for `k` past the left edge.
+          requestAnimationFrame(() => {
+            document.getElementById(`column-${next}`)?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+              inline: "nearest",
+            });
+          });
+          e.preventDefault();
+          break;
+        }
+        case "k":
+        case "ArrowLeft": {
+          const prev =
+            currentIndex < 0 || currentIndex === 0
+              ? visibleColumnIds[visibleColumnIds.length - 1]
+              : visibleColumnIds[currentIndex - 1];
+          setFocusedColumn(prev);
+          requestAnimationFrame(() => {
+            document.getElementById(`column-${prev}`)?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+              inline: "nearest",
+            });
+          });
+          e.preventDefault();
+          break;
+        }
+        case "/": {
+          // No-op when nothing is focused. Pressing `/` first then `j` would
+          // be a worse default than pressing `j` first then `/` — surfacing
+          // a search bar on a column the operator hasn't picked is the wrong
+          // direction. They press `j` to pick a column, then `/` to search it.
+          if (!focusedColumnId) return;
+          requestSearchOpen(focusedColumnId);
+          e.preventDefault();
+          break;
+        }
+        case "c": {
+          if (!focusedColumnId) return;
+          toggleColumnCollapsed(focusedColumnId);
+          e.preventDefault();
+          break;
+        }
+        case "Escape": {
+          // Two-step clear: first Escape press clears the focused column's
+          // search (if active), second clears the focus ring itself. Lets the
+          // operator stay focused on a column while exiting search-mode, then
+          // step out of the column entirely on the next press.
+          if (focusedColumnId && setColumnSearch) {
+            // ColumnCard owns the searchOpen UI state and its own onKeyDown
+            // already handles Escape inside the input. This Escape fires when
+            // focus is OUTSIDE the input but the column is focused — clearing
+            // the persisted query is the symmetric action.
+            setColumnSearch(focusedColumnId, "");
+          }
+          setFocusedColumn(null);
+          break;
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    visibleColumnIds,
+    focusedColumnId,
+    setFocusedColumn,
+    toggleColumnCollapsed,
+    requestSearchOpen,
+    setColumnSearch,
+  ]);
 
   if (!deck) {
     return (

@@ -75,6 +75,10 @@ export function ColumnCard({ column }: { column: Column }) {
   // owns its own 48px strip and the saved width re-applies on expand.
   const columnWidth = useDeckStore((s) => s.widthByColumn[column.id] ?? null);
   const setColumnWidth = useDeckStore((s) => s.setColumnWidth);
+  const isFocused = useDeckStore((s) => s.focusedColumnId === column.id);
+  const setFocusedColumn = useDeckStore((s) => s.setFocusedColumn);
+  const pendingSearchOpen = useDeckStore((s) => s.pendingSearchOpen);
+  const clearPendingSearchOpen = useDeckStore((s) => s.clearPendingSearchOpen);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -182,6 +186,17 @@ export function ColumnCard({ column }: { column: Column }) {
     // input visible to keep typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchActive]);
+
+  // React to the `/` keyboard shortcut routed via the store. The deck-board
+  // listener sets `pendingSearchOpen` to this column's id; we open the search
+  // row, focus the input, then clear the signal so a future `/` keypress
+  // re-fires cleanly.
+  useEffect(() => {
+    if (pendingSearchOpen !== column.id) return;
+    setSearchOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+    clearPendingSearchOpen(column.id);
+  }, [pendingSearchOpen, column.id, clearPendingSearchOpen]);
 
   // Auto-refresh tick — useRef snapshots so the interval closure always reads
   // the latest typeId/config without forcing a tear-down on every config edit.
@@ -329,8 +344,14 @@ export function ColumnCard({ column }: { column: Column }) {
           "beam-frame group/col-collapsed relative flex h-full w-12 shrink-0 snap-start cursor-pointer flex-col items-center overflow-hidden rounded-lg border border-border bg-card shadow-[0_4px_12px_-10px_rgba(0,0,0,0.10)] transition-all hover:-translate-y-0.5 hover:bg-surface/40 hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,0.18)] sm:snap-none",
           isDragging &&
             "cursor-grabbing shadow-[0_24px_60px_-20px_rgba(0,0,0,0.32)] ring-1 ring-foreground/10",
+          isFocused && "ring-2 ring-[color:var(--brand)]/60",
         )}
-        onClick={() => toggleColumnCollapsed(column.id)}
+        onClick={() => {
+          // Mouse + keyboard agree on what's focused: a click sets focus to
+          // this column AND performs the click's normal action (expand).
+          setFocusedColumn(column.id);
+          toggleColumnCollapsed(column.id);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -413,7 +434,9 @@ export function ColumnCard({ column }: { column: Column }) {
           widthClass,
           isDragging &&
             "cursor-grabbing shadow-[0_24px_60px_-20px_rgba(0,0,0,0.32)] ring-1 ring-foreground/10",
+          isFocused && "ring-2 ring-[color:var(--brand)]/60",
         )}
+        onClick={() => setFocusedColumn(column.id)}
       >
         <div
           className={cn(
