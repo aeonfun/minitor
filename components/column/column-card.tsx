@@ -79,6 +79,10 @@ export function ColumnCard({ column }: { column: Column }) {
   const setFocusedColumn = useDeckStore((s) => s.setFocusedColumn);
   const pendingSearchOpen = useDeckStore((s) => s.pendingSearchOpen);
   const clearPendingSearchOpen = useDeckStore((s) => s.clearPendingSearchOpen);
+  const isPendingRefresh = useDeckStore((s) =>
+    s.pendingRefreshIds.has(column.id),
+  );
+  const clearPendingRefresh = useDeckStore((s) => s.clearPendingRefresh);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -266,6 +270,25 @@ export function ColumnCard({ column }: { column: Column }) {
       setIsFetching(false);
     }
   }
+
+  // React to the deck-header "Refresh all" button + the `r` / Shift-`R`
+  // keyboard shortcuts routed via the store. Each column drains its own id
+  // from `pendingRefreshIds` on receipt so the Set converges to empty once
+  // every targeted column has fired. While `isFetching` is true (an in-flight
+  // refresh) we leave the id in the Set; the effect re-fires the moment the
+  // current fetch completes and the operator's intent is honoured without
+  // racing two parallel fetches against the same column. `onRefreshRef`
+  // captures the latest `onRefresh` without forcing the effect to re-run on
+  // every render (it would otherwise depend on a fresh function reference and
+  // tear down its own subscription mid-tick).
+  const onRefreshRef = useRef(onRefresh);
+  onRefreshRef.current = onRefresh;
+  useEffect(() => {
+    if (!isPendingRefresh) return;
+    if (isFetching) return;
+    clearPendingRefresh(column.id);
+    void onRefreshRef.current();
+  }, [isPendingRefresh, isFetching, column.id, clearPendingRefresh]);
 
   async function onLoadMore() {
     if (!paginated) return;

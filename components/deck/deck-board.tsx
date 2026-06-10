@@ -33,6 +33,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   );
   const setSelectedTab = useDeckStore((s) => s.setSelectedTab);
   const focusedColumnId = useDeckStore((s) => s.focusedColumnId);
+  const requestRefreshColumns = useDeckStore((s) => s.requestRefreshColumns);
   const setFocusedColumn = useDeckStore((s) => s.setFocusedColumn);
   const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
   const requestSearchOpen = useDeckStore((s) => s.requestSearchOpen);
@@ -127,16 +128,20 @@ export function DeckBoard({ deckId }: { deckId: string }) {
 
   // Keyboard navigation — `j`/`k` move focus between visible columns, `/`
   // opens the focused column's inline search, `c` toggles collapse on the
-  // focused column, and `Escape` clears focus + the focused column's search.
-  // Matches the shortcuts operators already have in muscle memory from Linear,
-  // GitHub issues, and most terminal dashboards. We attach to `window` so the
-  // listener is alive regardless of where focus lands inside the deck — but
-  // we bail out as soon as the active element is text-editable, so typing
-  // into a column's search box or the configure dialog never gets intercepted.
+  // focused column, `r` refreshes the focused column, Shift-`R` refreshes
+  // every visible column in the active tab, and `Escape` clears focus + the
+  // focused column's search. Matches the shortcuts operators already have in
+  // muscle memory from Linear, GitHub issues, and most terminal dashboards.
+  // We attach to `window` so the listener is alive regardless of where focus
+  // lands inside the deck — but we bail out as soon as the active element is
+  // text-editable, so typing into a column's search box or the configure
+  // dialog never gets intercepted.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // Modifier keys belong to the browser/OS (Ctrl-J = downloads, ⌘K = …),
-      // so let those through and only act on plain key presses.
+      // so let those through and only act on plain key presses. Shift is the
+      // one exception: `Shift-R` is a deliberate "refresh everything" verb
+      // that needs to stay distinguishable from lower-case `r` (refresh one).
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       // A dnd-kit keyboard drag is active: its drag handle is a <button>, not
       // a text field, so the text-editable guard below wouldn't catch it. Let
@@ -213,6 +218,25 @@ export function DeckBoard({ deckId }: { deckId: string }) {
           e.preventDefault();
           break;
         }
+        case "r":
+        case "R": {
+          // Shift-R refreshes every visible column in the active tab (mirror
+          // of the deck-header "Refresh all" button, but scoped to what the
+          // operator is actually looking at — collapsed columns in the active
+          // tab are still visibleColumnIds and get refreshed; columns hidden
+          // by a different tab filter are not). Lowercase `r` refreshes only
+          // the focused column — a quieter, surgical verb to use after a
+          // `j`/`k` walk lands on a stale-looking feed.
+          if (e.shiftKey) {
+            if (visibleColumnIds.length === 0) return;
+            requestRefreshColumns(visibleColumnIds);
+          } else {
+            if (!focusedColumnId) return;
+            requestRefreshColumns([focusedColumnId]);
+          }
+          e.preventDefault();
+          break;
+        }
         case "Escape": {
           // Two-step clear: first Escape press clears the focused column's
           // search (if active), second clears the focus ring itself. Lets the
@@ -239,6 +263,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     toggleColumnCollapsed,
     requestSearchOpen,
     setColumnSearch,
+    requestRefreshColumns,
   ]);
 
   if (!deck) {
