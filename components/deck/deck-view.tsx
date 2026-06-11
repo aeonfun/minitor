@@ -179,16 +179,18 @@ export function DeckView() {
                 <TooltipTrigger
                   onClick={() => {
                     // Only enqueue the columns the deck-board actually mounts
-                    // for the active tab (shared getVisibleColumnIds). Columns
-                    // hidden by a tab filter never mount, so their pending ids
-                    // would never drain — the spinner would stick on forever
-                    // and switching tabs later would fire surprise refreshes.
-                    const { columns, selectedTabByDeck } =
+                    // for the active tab AND the active color filter (shared
+                    // getVisibleColumnIds). Columns hidden by either filter
+                    // never mount, so their pending ids would never drain —
+                    // the spinner would stick on forever and toggling the
+                    // filter later would fire surprise refreshes.
+                    const { columns, selectedTabByDeck, activeColorFilter } =
                       useDeckStore.getState();
                     const ids = getVisibleColumnIds(
                       activeDeck,
                       columns,
                       selectedTabByDeck[activeDeck.id] ?? TAB_GROUP_ALL,
+                      activeColorFilter[activeDeck.id] ?? null,
                     );
                     if (ids.length === 0) return;
                     requestRefreshColumns(ids);

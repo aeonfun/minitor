@@ -42,6 +42,10 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
   const requestSearchOpen = useDeckStore((s) => s.requestSearchOpen);
   const setColumnSearch = useDeckStore((s) => s.setColumnSearch);
+  const activeColorFilter = useDeckStore(
+    (s) => s.activeColorFilter[deckId] ?? null,
+  );
+  const setColorFilter = useDeckStore((s) => s.setColorFilter);
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -84,14 +88,62 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     }
   }, [selectedTab, tabGroups, deckId, setSelectedTab]);
 
-  // Tab-filter + pinned-first ordering lives in `getVisibleColumnIds`, shared
-  // with the deck-header "Refresh all" button so the set of columns that
-  // mount here and the set of columns a deck-wide refresh targets can never
-  // drift apart (an enqueued-but-unmounted column would never drain its
-  // pending-refresh id).
+  // Distinct column colors present in this deck, ordered by first appearance
+  // in `deck.columnIds` so the filter row is stable across renders and
+  // matches the visual order of the columns. Recomputed only when the deck's
+  // column list or any column's color changes. Used both to decide whether to
+  // show the filter row at all (`< 2` = hidden) and to render the chips.
+  const usedColors = useMemo(() => {
+    if (!deck) return [] as string[];
+    const seen = new Set<string>();
+    const ordered: string[] = [];
+    for (const id of deck.columnIds) {
+      const col = columns[id];
+      const c = col?.color;
+      if (!c || seen.has(c)) continue;
+      seen.add(c);
+      ordered.push(c);
+    }
+    return ordered;
+  }, [deck, columns]);
+
+  // Cheap rollup so the chips don't each re-walk the deck. Done before the
+  // render so the All count and per-color counts share the same single pass.
+  const colorCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    if (!deck) return counts;
+    for (const id of deck.columnIds) {
+      const c = columns[id]?.color;
+      if (!c) continue;
+      counts[c] = (counts[c] ?? 0) + 1;
+    }
+    return counts;
+  }, [deck, columns]);
+
+  // If the active filter color is no longer present in any column (operator
+  // recolored everything, or deleted the last column carrying that color),
+  // clear it silently so the operator doesn't end up staring at the
+  // zero-match placeholder for a filter they can no longer see in the row.
+  // Same shape as the tab-disappear fallback above — keep view-state honest
+  // when the data underneath shifts out from under it.
+  useEffect(() => {
+    if (!activeColorFilter) return;
+    if (!usedColors.includes(activeColorFilter)) {
+      setColorFilter(deckId, null);
+    }
+  }, [activeColorFilter, usedColors, deckId, setColorFilter]);
+
+  // Tab-filter + color-filter + pinned-first ordering lives in
+  // `getVisibleColumnIds`, shared with the deck-header "Refresh all" button so
+  // the set of columns that mount here and the set of columns a deck-wide
+  // refresh targets can never drift apart (an enqueued-but-unmounted column
+  // would never drain its pending-refresh id).
   const visibleColumnIds = useMemo(
-    () => (deck ? getVisibleColumnIds(deck, columns, selectedTab) : []),
-    [deck, columns, selectedTab],
+    () =>
+      deck
+        ? getVisibleColumnIds(deck, columns, selectedTab, activeColorFilter)
+        : [],
+    [deck, columns, selectedTab, activeColorFilter],
   );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -281,6 +333,11 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   }
 
   const hasTabs = tabGroups.length > 0;
+  // Hide the entire filter bar when there are fewer than two distinct colors
+  // in use — with 0 or 1 colors there's nothing to filter to, the row would
+  // just be visual noise. Same rule of thumb as the tab row above: a single
+  // implicit group is no group at all.
+  const showColorFilter = usedColors.length >= 2;
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -307,6 +364,24 @@ export function DeckBoard({ deckId }: { deckId: string }) {
               />
             );
           })}
+        </div>
+      )}
+
+      {showColorFilter && (
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border bg-background/60 px-2 py-1.5 sm:px-3">
+          <ColorFilterPill
+            active={activeColorFilter === null}
+            onClick={() => setColorFilter(deck.id, null)}
+          />
+          {usedColors.map((color) => (
+            <ColorFilterPill
+              key={color}
+              color={color}
+              count={colorCounts[color] ?? 0}
+              active={activeColorFilter === color}
+              onClick={() => setColorFilter(deck.id, color)}
+            />
+          ))}
         </div>
       )}
 
@@ -338,6 +413,24 @@ export function DeckBoard({ deckId }: { deckId: string }) {
               })}
             </SortableContext>
           </DndContext>
+
+          {activeColorFilter !== null && visibleColumnIds.length === 0 && (
+            <div className="flex h-full w-[min(280px,calc(100vw-1rem))] shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-transparent px-4 text-center text-sm text-muted-foreground sm:w-[280px] sm:snap-none">
+              <span
+                aria-hidden
+                className="size-3 shrink-0 rounded-full ring-1 ring-border"
+                style={{ backgroundColor: activeColorFilter }}
+              />
+              <span>No columns match this color filter.</span>
+              <button
+                type="button"
+                onClick={() => setColorFilter(deck.id, null)}
+                className="text-xs font-medium text-[color:var(--brand)] underline-offset-2 hover:underline"
+              >
+                Clear filter
+              </button>
+            </div>
+          )}
 
           <button
             type="button"
@@ -390,6 +483,48 @@ function TabButton({ label, count, active, onClick }: TabButtonProps) {
       <span className="rounded bg-surface-elevated px-1 text-[10px] tabular-nums text-muted-foreground">
         {count}
       </span>
+    </button>
+  );
+}
+
+interface ColorFilterPillProps {
+  /** Absent = the "All" pill (no color dot, clears the filter). */
+  color?: string;
+  /** Absent for the "All" pill. */
+  count?: number;
+  active: boolean;
+  onClick: () => void;
+}
+
+function ColorFilterPill({ color, count, active, onClick }: ColorFilterPillProps) {
+  const isAll = color === undefined;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={isAll ? "Show all colors" : `Filter to ${color}`}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border px-2 text-xs font-medium transition-colors",
+        active
+          ? "border-transparent bg-[color:var(--brand)]/10 text-[color:var(--brand)] ring-2 ring-[color:var(--brand)]/60"
+          : "border-border text-muted-foreground hover:bg-surface hover:text-foreground",
+      )}
+    >
+      {isAll ? (
+        <span>All</span>
+      ) : (
+        <>
+          <span
+            aria-hidden
+            className="size-2.5 shrink-0 rounded-full ring-1 ring-border"
+            style={{ backgroundColor: color }}
+          />
+          <span className="rounded bg-surface-elevated px-1 text-[10px] tabular-nums text-muted-foreground">
+            {count ?? 0}
+          </span>
+        </>
+      )}
     </button>
   );
 }
