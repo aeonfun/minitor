@@ -107,6 +107,19 @@ export function DeckBoard({ deckId }: { deckId: string }) {
     return ordered;
   }, [deck, columns]);
 
+  // Cheap rollup so the chips don't each re-walk the deck. Done before the
+  // render so the All count and per-color counts share the same single pass.
+  const colorCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    if (!deck) return counts;
+    for (const id of deck.columnIds) {
+      const c = columns[id]?.color;
+      if (!c) continue;
+      counts[c] = (counts[c] ?? 0) + 1;
+    }
+    return counts;
+  }, [deck, columns]);
+
   // If the active filter color is no longer present in any column (operator
   // recolored everything, or deleted the last column carrying that color),
   // clear it silently so the operator doesn't end up staring at the
@@ -325,18 +338,6 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   // just be visual noise. Same rule of thumb as the tab row above: a single
   // implicit group is no group at all.
   const showColorFilter = usedColors.length >= 2;
-  // Cheap rollup so the chips don't each re-walk the deck. Done before the
-  // render so the All count and per-color counts share the same single pass.
-  const colorCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    if (!deck) return counts;
-    for (const id of deck.columnIds) {
-      const c = columns[id]?.color;
-      if (!c) continue;
-      counts[c] = (counts[c] ?? 0) + 1;
-    }
-    return counts;
-  }, [deck, columns]);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
