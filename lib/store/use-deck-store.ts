@@ -56,6 +56,18 @@ export const TAB_GROUP_ALL = "__all__";
  * deck.columnIds order (used by reorderColumnsInDeck and the SortableContext)
  * is untouched.
  *
+ * The optional `colorFilter` runs AFTER the tab partition and BEFORE the
+ * pinned/unpinned partition — the operator wants "show me orange columns
+ * within the active tab", not "show me orange columns across all tabs". The
+ * value is compared against the column's `color` field after passing both
+ * sides through `normalizeColumnColor`, so a hand-entered `#FF8800` chip
+ * matches a stored `#ff8800` column. Pinned columns are NOT exempt from the
+ * color filter — pinning is a routing decision (always visible on every tab),
+ * color is a label decision (show me what kind of column this is), so an
+ * orange-tagged pin survives a "show orange" filter and a blue-tagged pin
+ * does not. Same semantics as collapsing a pinned column: pinning trumps
+ * tab routing, not the operator's other view-state choices.
+ *
  * Shared by the deck-board's render memo and the deck-header "Refresh all"
  * button so "what refreshes" can never drift from "what's mounted": a refresh
  * signal aimed at a column the tab filter keeps unmounted would sit in
@@ -67,6 +79,7 @@ export function getVisibleColumnIds(
   deck: Deck,
   columns: Record<string, Column>,
   selectedTab: string,
+  colorFilter?: string | null,
 ): string[] {
   const tabFiltered =
     selectedTab === TAB_GROUP_ALL
@@ -77,13 +90,24 @@ export function getVisibleColumnIds(
             col?.pinned || !col || !col.tabGroup || col.tabGroup === selectedTab
           );
         });
+  const normalizedFilter = colorFilter
+    ? normalizeColumnColor(colorFilter)
+    : null;
+  const colorFiltered = normalizedFilter
+    ? tabFiltered.filter((id) => {
+        const col = columns[id];
+        if (!col) return false;
+        const colColor = normalizeColumnColor(col.color);
+        return colColor === normalizedFilter;
+      })
+    : tabFiltered;
   const pinned: string[] = [];
   const unpinned: string[] = [];
-  for (const id of tabFiltered) {
+  for (const id of colorFiltered) {
     if (columns[id]?.pinned) pinned.push(id);
     else unpinned.push(id);
   }
-  return pinned.length === 0 ? tabFiltered : [...pinned, ...unpinned];
+  return pinned.length === 0 ? colorFiltered : [...pinned, ...unpinned];
 }
 
 /**
@@ -138,6 +162,22 @@ interface DeckState {
    * collapse always shows. Width re-applies on expand from the in-memory map.
    */
   widthByColumn: Record<string, ColumnWidth>;
+  /**
+   * Per-deck active color filter. NOT persisted — same lifetime as
+   * `selectedTabByDeck`/`collapsedColumnIds`/`searchByColumn`, clears on
+   * reload. Keyed on deck id so each deck remembers its own filter for the
+   * session (an operator can hop between a "research" deck filtered to orange
+   * and a "social" deck filtered to blue without re-clicking the chip every
+   * time). Value is the canonical lowercase `#rrggbb` hex of the color in
+   * play; `null` or absent means "All" (no color filter active). The deck
+   * board's pill row writes this; `getVisibleColumnIds` consumes it.
+   *
+   * Why not exported: same rationale as `widthByColumn`. The deck's
+   * identity (decks/columns/configs) lives in the DB; "how the operator is
+   * reading it right now" lives in memory. Filter chips are reading-shape,
+   * not deck-shape — they don't belong in `DECK_EXPORT_VERSION`.
+   */
+  activeColorFilter: Record<string, string | null>;
   /**
    * Currently-focused column id for keyboard navigation. NOT persisted — same
    * lifetime as `collapsedColumnIds`/`searchByColumn`. `null` means no column
@@ -215,6 +255,14 @@ interface DeckState {
    * source of truth, not a counter.
    */
   clearPendingRefresh: (columnId: string) => void;
+  /**
+   * Set the active color filter for a deck. Pass `null` to clear (the "All"
+   * pill). Color strings are normalized through the same
+   * `normalizeColumnColor` the column action uses, so an invalid hex collapses
+   * to "no filter" rather than landing as a value that can never match
+   * anything. Setting the same value the deck already has is a no-op.
+   */
+  setColorFilter: (deckId: string, color: string | null) => void;
 
   addDeck: (name: string) => string;
   renameDeck: (deckId: string, name: string) => void;
@@ -324,6 +372,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
   pendingSearchOpen: null,
   pendingRefreshIds: new Set<string>(),
   widthByColumn: {},
+  activeColorFilter: {},
 
   hydrate: (snapshot) =>
     set((s) => ({
@@ -427,6 +476,27 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       return { pendingRefreshIds: next };
     }),
 
+  setColorFilter: (deckId, color) =>
+    set((s) => {
+      // Mirror the column/deck normalizer so a chip that originated from a
+      // column's stored color matches the normalized comparison done in
+      // `getVisibleColumnIds`. Empty/invalid collapses to `null` — same
+      // shape as "All".
+      const normalized = color === null ? null : normalizeColumnColor(color);
+      const current = s.activeColorFilter[deckId] ?? null;
+      if (current === normalized) return s;
+      const next = { ...s.activeColorFilter };
+      if (normalized === null) {
+        // Match the absence-from-map convention used by
+        // `widthByColumn`/`searchByColumn` so the map only carries the
+        // non-default rows.
+        delete next[deckId];
+      } else {
+        next[deckId] = normalized;
+      }
+      return { activeColorFilter: next };
+    }),
+
   addDeck: (name) => {
     const id = nanoid();
     set((s) => ({
@@ -481,6 +551,10 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       for (const cid of deck.columnIds) delete searchByColumn[cid];
       const widthByColumn = { ...s.widthByColumn };
       for (const cid of deck.columnIds) delete widthByColumn[cid];
+      // Drop this deck's color-filter entry — keyed on deck id, not column
+      // id, so the cleanup is a single delete rather than a per-column scrub.
+      const activeColorFilter = { ...s.activeColorFilter };
+      delete activeColorFilter[deckId];
       const focusedColumnId =
         s.focusedColumnId && deck.columnIds.includes(s.focusedColumnId)
           ? null
@@ -509,6 +583,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
         collapsedColumnIds: collapsed,
         searchByColumn,
         widthByColumn,
+        activeColorFilter,
         focusedColumnId,
         pendingSearchOpen,
         pendingRefreshIds,
