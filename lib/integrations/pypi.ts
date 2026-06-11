@@ -284,7 +284,7 @@ async function fetchTopMode(
     : new Date().toISOString();
 
   const items: FeedItem<PypiMeta>[] = slice
-    .map((r, idx) => {
+    .map((r, idx): FeedItem<PypiMeta> | null => {
       const name = r.project?.trim();
       if (!name) return null;
       return {
@@ -297,7 +297,7 @@ async function fetchTopMode(
           monthlyDownloads: Math.max(0, r.download_count ?? 0),
           weeklyDownloads: downloads[idx] ?? 0,
         },
-      } satisfies FeedItem<PypiMeta>;
+      };
     })
     .filter((x): x is FeedItem<PypiMeta> => x !== null);
 
