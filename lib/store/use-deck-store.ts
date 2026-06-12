@@ -29,15 +29,17 @@ import {
   updateColumnTabGroup as serverUpdateTabGroup,
   updateColumnPinned as serverUpdatePinned,
   updateColumnColor as serverUpdateColor,
-  normalizeColumnColor,
   loadDeckSnapshots as serverLoadDeckSnapshots,
   restoreDeckSnapshot as serverRestoreDeckSnapshot,
-  isAllowedRefreshInterval,
-  TAB_GROUP_MAX,
   type DeckSnapshotMeta,
   type ImportedDeckResult,
   type Snapshot,
 } from "@/app/actions";
+import {
+  isAllowedRefreshInterval,
+  normalizeColumnColor,
+  TAB_GROUP_MAX,
+} from "@/lib/deck-rules";
 
 // Sentinel for the implicit "All" tab — used when a deck has tab groups
 // configured but the operator wants to see every column at once. Exported so

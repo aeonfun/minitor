@@ -20,6 +20,15 @@ import {
   WEBHOOK_URL_MAX,
   type WebhookMatch,
 } from "@/lib/columns/webhook";
+// Plain constants + sync validators shared with the client store. They live
+// outside this "use server" file because a "use server" module may only export
+// async functions — see `lib/deck-rules.ts` for the why.
+import {
+  DECK_EXPORT_VERSION,
+  TAB_GROUP_MAX,
+  isAllowedRefreshInterval,
+  normalizeColumnColor,
+} from "@/lib/deck-rules";
 
 export interface Snapshot {
   decks: Record<string, Deck>;
@@ -250,23 +259,6 @@ export async function updateColumnWebhookUrl(
 }
 
 /**
- * Whitelist of refresh-interval cadences (seconds). Anything outside this set
- * is rejected server-side and persisted as NULL (manual-only). Keeping the
- * allowlist short prevents the UI from being used to schedule pathological
- * sub-minute polling that would hammer upstream rate limits.
- */
-export const REFRESH_INTERVAL_OPTIONS = [60, 300, 900, 3600] as const;
-export type RefreshIntervalSeconds = (typeof REFRESH_INTERVAL_OPTIONS)[number];
-
-const REFRESH_INTERVAL_SET = new Set<number>(REFRESH_INTERVAL_OPTIONS);
-
-export function isAllowedRefreshInterval(
-  value: unknown,
-): value is RefreshIntervalSeconds {
-  return typeof value === "number" && REFRESH_INTERVAL_SET.has(value);
-}
-
-/**
  * Persist a column's auto-refresh cadence. Pass `null` to clear (manual-only).
  * Non-allowlisted values are coerced to `null` server-side — never trust the
  * client to enforce the cadence floor.
@@ -308,14 +300,6 @@ export async function updateColumnFilters(
 }
 
 /**
- * Hard cap on a tab-group label. Generous enough for a Title-Case section name
- * but tight enough to keep the tab bar readable and bound storage. Anything
- * longer is truncated server-side rather than rejected — the UI never silently
- * drops a paste.
- */
-export const TAB_GROUP_MAX = 50;
-
-/**
  * Persist a column's tab-group label. Pass an empty string to clear (no group).
  * Whitespace is collapsed to a single space and trimmed so "AI", " AI ", and
  * "AI  " all bucket to the same tab — operators don't have to think about
@@ -347,30 +331,6 @@ export async function updateColumnPinned(
     .update(columns)
     .set({ pinned })
     .where(eq(columns.id, id));
-}
-
-/**
- * Hex-color regex applied to every persisted column color. 6-hex form only
- * (`#rrggbb`); the 3-hex shorthand and named CSS colors are deliberately
- * rejected so the stored representation is canonical — round-tripping a
- * color through export → import → DB always gives the same string back.
- */
-export const COLOR_HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-/**
- * Normalize an operator-entered color string. Returns the canonical
- * lowercased `#rrggbb` form when valid; `null` when empty after trim or
- * when the input doesn't match the hex pattern. The same normalizer is
- * applied by `updateColumnColor`, `duplicateColumn`, and `importDeck` so a
- * tampered or hand-edited payload can never smuggle anything but a pure
- * 6-hex string into the DB.
- */
-export function normalizeColumnColor(raw: string | null | undefined): string | null {
-  if (raw === null || raw === undefined) return null;
-  const trimmed = raw.trim();
-  if (trimmed.length === 0) return null;
-  if (!COLOR_HEX_RE.test(trimmed)) return null;
-  return trimmed.toLowerCase();
 }
 
 /**
@@ -516,8 +476,6 @@ export async function reorderColumnsInDeck(
     WHERE columns.id = v.id
   `);
 }
-
-export const DECK_EXPORT_VERSION = 1;
 
 const importedColumnSchema = z.object({
   typeId: z.string().min(1).max(128),
