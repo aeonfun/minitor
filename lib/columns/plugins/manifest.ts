@@ -51,6 +51,7 @@ import { meta as producthunt } from "./producthunt/plugin";
 import { meta as coingecko } from "./coingecko/plugin";
 import { meta as githubDiscussions } from "./github-discussions/plugin";
 import { meta as defillama } from "./defillama/plugin";
+import { meta as dexscreener } from "./dexscreener/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -100,6 +101,7 @@ export const PLUGIN_METAS = [
   coingecko,
   githubDiscussions,
   defillama,
+  dexscreener,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(

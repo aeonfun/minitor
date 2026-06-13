@@ -55,6 +55,7 @@ import { server as producthunt } from "@/lib/columns/plugins/producthunt/server"
 import { server as coingecko } from "@/lib/columns/plugins/coingecko/server";
 import { server as githubDiscussions } from "@/lib/columns/plugins/github-discussions/server";
 import { server as defillama } from "@/lib/columns/plugins/defillama/server";
+import { server as dexscreener } from "@/lib/columns/plugins/dexscreener/server";
 
 const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "x-search": xSearch,
@@ -104,6 +105,7 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   coingecko,
   "github-discussions": githubDiscussions,
   defillama,
+  dexscreener,
 };
 
 // Parity check — runs once at server module init. Throws loudly rather than
