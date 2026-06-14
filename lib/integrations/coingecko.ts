@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { CoingeckoMeta } from "@/lib/columns/plugins/coingecko/plugin";
+
+// `CoingeckoMeta` is the renderer contract owned by the coingecko plugin; the
+// fetcher here produces `FeedItem<CoingeckoMeta>` so its meta lines up with what
+// the coingecko renderer reads. Re-exported so call sites that grab
+// CoingeckoMeta from the integration keep working.
+export type { CoingeckoMeta };
 
 // CoinGecko public API — keyless for `/search/trending` and `/coins/markets`.
 // The Demo plan (env `COINGECKO_DEMO_API_KEY`) authenticates the same endpoints
@@ -28,19 +35,6 @@ const PUBLIC_BASE = "https://api.coingecko.com/api/v3";
 const PRO_BASE = "https://pro-api.coingecko.com/api/v3";
 
 export type CoingeckoMode = "trending" | "top" | "watchlist";
-
-export interface CoingeckoMeta {
-  symbol: string;
-  imageUrl?: string;
-  priceUsd: number;
-  priceChange24h: number;
-  marketCapUsd: number;
-  marketCapRank?: number;
-  volume24hUsd: number;
-  high24hUsd?: number;
-  low24hUsd?: number;
-  sparkline7d?: number[];
-}
 
 interface TrendingItem {
   item?: {

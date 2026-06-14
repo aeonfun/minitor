@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { DevtoMeta } from "@/lib/columns/plugins/devto/plugin";
+
+// `DevtoMeta` is the renderer contract owned by the devto plugin; the fetcher
+// here produces `FeedItem<DevtoMeta>` so its meta lines up with what the devto
+// renderer reads. Re-exported so call sites that grab DevtoMeta from the
+// integration keep working.
+export type { DevtoMeta };
 
 // DEV.to public REST API — keyless for read endpoints.
 // https://developers.forem.com/api/v1#tag/articles
@@ -55,15 +62,6 @@ interface DevtoArticle {
   tags?: string;
   user?: DevtoUser;
   organization?: DevtoOrganization;
-}
-
-export interface DevtoMeta {
-  reactions: number;
-  comments: number;
-  readingTimeMinutes: number;
-  tags: string[];
-  organization?: { name: string; slug: string; avatarUrl?: string };
-  coverImage?: string;
 }
 
 function normaliseTagFilter(tag: string): string[] {

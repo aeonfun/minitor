@@ -16,14 +16,23 @@ export const schema = z.object({
 export type DefillamaConfig = z.infer<typeof schema>;
 
 export interface DefillamaMeta {
+  /** Display symbol or chain ticker (e.g. "AAVE", "ETH"). May be empty. */
   symbol: string;
+  /** Hosted protocol/chain logo URL when available. */
   imageUrl?: string;
+  /** Current TVL in USD (already in USD — DeFiLlama normalises). */
   tvlUsd: number;
+  /** Percent change over 24h (+/-). */
   tvlChange24h: number;
+  /** Percent change over 7d (+/-). */
   tvlChange7d?: number;
+  /** Protocol category (DeFiLlama's taxonomy, e.g. "Lending", "Dexs"). */
   category?: string;
+  /** Comma-joined chain list from DeFiLlama (e.g. "Ethereum, Base"). */
   chains?: string;
+  /** Market cap of the protocol token in USD, when DeFiLlama has it. */
   marketCapUsd?: number;
+  /** "protocol" or "chain" — lets the renderer style the row differently. */
   kind: "protocol" | "chain";
 }
 

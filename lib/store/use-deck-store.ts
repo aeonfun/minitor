@@ -322,21 +322,10 @@ function importedDeckPatch(
 ): Partial<DeckState> {
   const cols = { ...s.columns };
   for (const c of result.columns) {
-    cols[c.id] = {
-      id: c.id,
-      typeId: c.typeId,
-      title: c.title,
-      config: c.config,
-      alertKeywords: c.alertKeywords,
-      notifyWebhookUrl: c.notifyWebhookUrl,
-      refreshIntervalSeconds: c.refreshIntervalSeconds,
-      filterKeywords: c.filterKeywords,
-      excludeKeywords: c.excludeKeywords,
-      tabGroup: c.tabGroup,
-      pinned: c.pinned,
-      color: c.color,
-      items: [],
-    };
+    // `ImportedDeckColumn` is exactly `Column` minus the runtime-only `items` /
+    // `lastFetchedAt`, so spreading it and seeding empty items reconstructs the
+    // full `Column` — no field-by-field copy to keep in lockstep with `Column`.
+    cols[c.id] = { ...c, items: [] };
   }
   return {
     decks: {

@@ -15,6 +15,25 @@ export const schema = z.object({
 
 export type GHActionsConfig = z.infer<typeof schema>;
 
+export type GHActionStatus =
+  | "queued"
+  | "in_progress"
+  | "completed"
+  | "waiting"
+  | "pending"
+  | "requested";
+
+export type GHActionConclusion =
+  | "success"
+  | "failure"
+  | "cancelled"
+  | "neutral"
+  | "skipped"
+  | "timed_out"
+  | "action_required"
+  | "stale"
+  | "startup_failure";
+
 export interface GHActionsMeta {
   kind: "run";
   repo: string;
@@ -22,30 +41,19 @@ export interface GHActionsMeta {
   runNumber: number;
   workflowName: string;
   workflowPath?: string;
-  status:
-    | "queued"
-    | "in_progress"
-    | "completed"
-    | "waiting"
-    | "pending"
-    | "requested";
-  conclusion?:
-    | "success"
-    | "failure"
-    | "cancelled"
-    | "neutral"
-    | "skipped"
-    | "timed_out"
-    | "action_required"
-    | "stale"
-    | "startup_failure";
+  status: GHActionStatus;
+  /** undefined while status != "completed" */
+  conclusion?: GHActionConclusion;
   branch?: string;
   event?: string;
   sha?: string;
   shortSha?: string;
+  /** "<owner>/<repo>" form; useful for the renderer when displaying the row */
   fullRepo: string;
   startedAt?: string;
+  /** Duration in ms; undefined when the run hasn't ended yet */
   durationMs?: number;
+  /** Commit message first-line, when available */
   commitMessage?: string;
 }
 

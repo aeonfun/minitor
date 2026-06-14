@@ -1,5 +1,12 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { ProductHuntMeta } from "@/lib/columns/plugins/producthunt/plugin";
 import { fetchFeed } from "@/lib/integrations/rss";
+
+// `ProductHuntMeta` is the renderer contract owned by the producthunt plugin;
+// the fetcher here produces `FeedItem<ProductHuntMeta>` so its meta lines up
+// with what the producthunt renderer reads. Re-exported so call sites that grab
+// ProductHuntMeta from the integration keep working.
+export type { ProductHuntMeta };
 
 // Product Hunt RSS feed — keyless, public. The frontpage feed
 // (https://www.producthunt.com/feed) lists every product launched today plus a
@@ -16,20 +23,6 @@ import { fetchFeed } from "@/lib/integrations/rss";
 const FEED_URL = "https://www.producthunt.com/feed";
 
 export type ProductHuntMode = "today" | "topic";
-
-export interface ProductHuntMeta {
-  source: string;
-  feedTitle?: string;
-  // The product slug extracted from the post URL (e.g. "linear-3"). Useful for
-  // dedupe across days when the same product re-appears in the rolling window.
-  slug?: string;
-  // The product name (left half of the "{name} — {tagline}" title split). Kept
-  // separately so the renderer can highlight it without re-parsing every row.
-  productName?: string;
-  // The tagline (right half of the title split). Often empty if the publisher
-  // didn't add an em-dash; falls back to feed description in that case.
-  tagline?: string;
-}
 
 interface FeedRowMeta {
   source?: string;

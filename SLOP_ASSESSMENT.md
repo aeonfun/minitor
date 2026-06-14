@@ -1,72 +1,155 @@
-# Comment & stub assessment
+# SLOP_ASSESSMENT.md — Dimension #8: AI slop, stubs, larp, unhelpful comments
 
-## Overall
+Phase: ASSESSMENT (read-only). No source files were modified in this pass.
 
-This codebase is unusually clean for an LLM-touched repo. The vast majority of comments either capture genuine "why" context (upstream API quirks, rate-limit trivia, race conditions, reasoning behind a workaround) or live in the `_template/` plugin scaffold where narrative is explicitly the point.
+> Note: this file previously held a PR-#21-era cleanup log whose line references
+> have since rotted (the banner boxes in `github.ts`, the `// ignore` narration,
+> the `types.ts` "Backwards-compat aliases" block, and the `relative-time.tsx:65`
+> narration it listed no longer exist — already removed). This is a fresh
+> assessment of the **current** tree.
 
-What I found:
-- ~340 comments across 65 non-`components/ui` files. Roughly 90% are kept as-is.
-- A small set of banner / section-divider comments worth removing.
-- A few "narration of obvious code" comments to remove.
-- One in-motion-change comment ("Backwards-compat aliases") to remove.
-- One LARP-flavored block: `lib/integrations/farcaster.ts` keeps three unused paid-tier helpers + a multi-mode dispatcher behind `void fetchFarcaster`. The header comment honestly documents this. Conservative call: keep them — re-enable path is real (the Neynar paid tier exists), comments are accurate, removing forces a future re-implementer to redo upstream-discovery work. Flag, don't delete.
+## Executive summary
 
-## Top offenders (action taken in this pass)
+For the slop dimension this codebase is in excellent shape. A full sweep of all
+242 `.ts`/`.tsx` files found:
 
-| # | Location | Current | Action | Why |
-|---|---|---|---|---|
-| 1 | `lib/integrations/github.ts:606-608` | `// ===========...\n// Stargazers + forks (used by the github-watchers plugin)\n// ===========...` | REMOVE banner box, keep one-line section header | Banner ASCII art adds nothing; one-liner is enough |
-| 2 | `lib/integrations/farcaster.ts:201-204` | `// -----------...\n// PAID-TIER HELPERS — kept intentionally for re-enable.\n// All three return 402 PaymentRequired on Neynar's free tier.\n// -----------...` | REMOVE banner rules, keep prose | Banners are visual noise |
-| 3 | `lib/integrations/farcaster.ts:3-23` | 21-line ASCII-banner header with "FARCASTER VIA NEYNAR" + box-drawn rules | REWRITE: drop banner rules + the "to re-enable" 4-step recipe, keep the actual factual info | The banner rules + step-by-step "restore the multi-mode dispatch" runbook is in-motion / scratchpad-flavored. Underlying tier-limit info is real and worth keeping. |
-| 4 | `lib/integrations/app-reviews.ts:24` | `// ---- App Store (iTunes RSS, keyless) -----...` | KEEP (informative one-liner) | Has real info, just one line, not a banner box |
-| 5 | `lib/integrations/app-reviews.ts:105-110` | `// ---- Google Play (batchexecute scrape, keyless) ---...\n// Google Play has no public reviews API...` | KEEP | The text below is genuinely non-obvious upstream info |
-| 6 | `lib/integrations/app-reviews.ts:230` | `// ---- Public entry point ------------...` | REMOVE | Pure section divider, no info |
-| 7 | `lib/integrations/hackernews.ts:133` | `// ---- Mentions search ----------...` | REMOVE | Pure section divider |
-| 8 | `lib/integrations/xai.ts:163` | `// ---------- Public fetchers ----------` | REMOVE | Pure section divider |
-| 9 | `lib/integrations/github.ts:347` | `// ---- Free-form search across scopes (used by github-search plugin) ---` | KEEP (one-liner with real info) | Not a banner box; informative |
-| 10 | `app/actions.ts:248` | `// ---- env key management (Settings dialog) -----...` | REMOVE rule, keep label | One line is enough |
-| 11 | `lib/columns/types.ts:139-141` | `// ---- Backwards-compat aliases (existing call sites) ---\n// Old code imported... New code should prefer the new names.` | REWRITE | In-motion; "old code / new code" is rotted. Aliases are still used in 3 files; just say so plainly. |
-| 12 | `lib/integrations/github.ts:650` | `// ignore` | REMOVE | Narrates that an empty catch ignores |
-| 13 | `app/actions.ts:193` | `// Gather existing ids to count "new" arrivals` | KEEP | Borderline; explains intent of the lookup which isn't obvious |
-| 14 | `app/actions.ts:233` | `// Cap history per column` | KEEP | Borderline; explains intent of the SQL DELETE |
-| 15 | `components/relative-time.tsx:65` | `// Subscribe so we re-render once per second.` | REMOVE | Narrates `useSyncExternalStore(subscribe, ...)` — obvious |
-| 16 | `lib/integrations/substack.ts:43` | `// Full URL or bare host: extract the subdomain before .substack.com.` | KEEP | Useful — describes branch intent |
-| 17 | `lib/integrations/substack.ts:48` | `// Plain handle. Allow alphanumerics and hyphens; reject anything else.` | KEEP | Same |
-| 18 | `lib/integrations/substack.ts:178` | `// Prefix with publication to avoid id collisions across feeds.` | KEEP | Genuine why |
-| 19 | `lib/integrations/github-backlinks.ts:93/100/107/123` | One-line per-source labels | KEEP | Each is a useful breadcrumb in a fan-out function |
-| 20 | `next.config.ts:4-5` | "PGlite ships a WASM binary..." | KEEP | Genuine reason for `serverExternalPackages` entries |
-| 21 | `drizzle.config.ts:5-7` | "drizzle-kit's `generate` doesn't need credentials..." | KEEP | Genuine why |
-| 22 | `lib/db/client.ts:11-19` | Multi-line driver-selection table | KEEP | Top-of-file map is valuable; non-obvious behavior |
-| 23 | `lib/db/client.ts:51` | `// fall through to postgres branch — let the driver surface a real error` | KEEP | Genuine why |
-| 24 | `lib/db/client.ts:61-62` | "We declare `db` as the NodePg shape because..." | KEEP | Genuine why; explains a deliberate type choice |
-| 25 | `lib/columns/server-registry.ts:75-77` | "Parity check..." | KEEP, but slightly redundant with file header | Mildly chatty but not slop |
-| 26 | `lib/columns/server-registry.ts:95-96` | "Verify each registered server's id matches its key (catches typos like `redit` → reddit)..." | KEEP | Genuine why with concrete example |
-| 27 | `lib/columns/registry.ts:46-48` | "Keyed by id rather than positional — 'use client' boundary..." | KEEP | Genuine why |
-| 28 | `lib/columns/registry.ts:82` | `// Pre-built ordered list, indexed by manifest order. Built once at module init.` | KEEP | Useful one-liner |
-| 29 | `components/column/column-card.tsx:50-52` | `// undefined = unknown ... // string = ready ... // null = exhausted` | KEEP | Genuine state-encoding key |
-| 30 | `components/column/column-card.tsx:96` | `// Reset pagination cursor on a fresh refresh.` | KEEP | Borderline but explains intent of the next line |
-| 31 | `components/column/column-card.tsx:114-117` | "First load after a cold open..." | KEEP | Genuine why for the two-stage logic |
-| 32 | `components/column/column-card.tsx:156` | `// consumed by the beam-frame CSS` | KEEP | Useful — CSS custom property usage isn't obvious |
-| 33 | `components/sidebar-01/nav-stats.tsx:12-13` | "Re-render every minute so 'Updated' stays fresh — useSyncExternalStore keeps `Date.now()` out of render bodies (React's purity rule)." | KEEP | Genuine why w/ reference to React rule |
-| 34 | `hooks/use-min-duration.ts:12-14` | "React's blessed pattern for deriving state from props..." | KEEP | Genuine why |
-| 35 | `lib/integrations/farcaster.ts:294` | `// Suppress "declared but never read" — these are intentionally kept for re-enable.\nvoid fetchFarcaster;` | KEEP | The comment IS the warning that makes the larp explicit. Removing the comment without removing the larp would be worse. |
-| 36 | `lib/integrations/farcaster.ts:263` | `// Multi-mode dispatcher — wire this back up in route.ts when the plan is upgraded.` | KEEP | Same — pin the dead code with explicit context |
-| 37 | All `_template/*` narrative comments | Long pedagogy comments in plugin scaffold | KEEP | Template is documentation by design |
+- **Zero** `TODO`/`FIXME`/`XXX`/`HACK` comments.
+- **Zero** "not implemented" / "coming soon" throws.
+- **Zero** mock/fake/dummy/sample-data identifiers in product code.
+- **Zero** narration-of-in-motion-work comments ("now we…", "changed to…",
+  "this replaces…", "old code / new code"). The `instead of` / `rather than`
+  phrasing that appears throughout documents deliberate design choices (the
+  *why*) — keep-quality comments, not narration.
+- **Zero** ceremonial banner boxes / empty section dividers (the prior cleanup
+  removed them; the only dashed separators left, in `lib/deck-templates.ts`,
+  head substantive per-template explanations, not empty `// --- Imports ---`).
+- **Zero** redundant JSDoc: no `@param`/`@returns` ceremony anywhere; the
+  `/** */` blocks (e.g. `lib/columns/types.ts`) document real invariants.
+- **Zero** copy-paste comment slop across the ~70 plugin files — every comment
+  line is unique (verified via `uniq -c`; all counts = 1).
+- High comment density (`use-deck-store.ts` 231 comment lines, `actions.ts` 228)
+  is *substantive*: wire-format contracts, drop-not-fail posture, server/client
+  validation parity, the registry parity-check invariant. Assets, not slop.
 
-## Stubs / LARP / overengineered
+There is essentially **one** real slop finding: a self-contained dead-code
+island in `lib/integrations/farcaster.ts` kept alive only by a `void`-discard to
+silence the linter. Everything else is Low / micro-nit.
 
-- `lib/integrations/farcaster.ts`: `fetchTrending`, `fetchChannel`, `fetchSearch`, `fetchFarcaster` — three of these are unused; `fetchFarcaster` is suppressed via `void`. They are real, working calls into the Neynar paid tier. Keeping per author intent (commented as such).
-- `defineColumnUI` / `defineColumnServer`: looked like potential larp ("factory pattern producing one type") but used at 126 call sites and provides a non-trivial typing seam (`as unknown as AnyColumnUI`). Real abstraction.
-- The `_template` plugin folder is scaffolding-by-design, not larp — it's intentionally not registered, makes adding a plugin fast.
-- No empty stub functions, no "TODO: implement" placeholders, no abandoned interfaces with single implementations that aren't actually used, no over-abstracted factory patterns.
+The other top-level `*_ASSESSMENT.md` artifacts were not touched.
 
-## Summary of changes applied
+---
 
-- 4 banner-box comments removed (`farcaster.ts`, `github.ts`, multi-rule dividers).
-- 1 `// ignore` deletion.
-- 1 obvious-narration comment removal (`relative-time.tsx:65`).
-- 1 in-motion comment rewritten (`types.ts` "Backwards-compat aliases").
-- 4 single-line section dividers without info content removed (`hackernews.ts`, `xai.ts`, `app-reviews.ts:230`, `actions.ts:248`).
-- The `farcaster.ts` 21-line header trimmed: kept the factual upstream context (free vs paid tiers, demo-key trick, hub-fallback ruling), dropped the in-motion runbook ("To re-enable: 1. ... 2. ... 3. ...") and the ASCII rules.
+## Findings (with file:line references)
 
-Net result: ~25 lines of comment removed, no behavior changes, build still green.
+### F1 — Dead "kept for re-enable" code island in farcaster.ts  (the one real finding)
+
+`lib/integrations/farcaster.ts` carries a cohesive cluster never reached by any
+execution path, kept purely "for re-enable":
+
+- `fetchTrending` — `farcaster.ts:195`
+- `fetchChannel` — `farcaster.ts:212`
+- `fetchSearch` — `farcaster.ts:248` (a one-line re-export of `fetchFarcasterSearch`)
+- `fetchFarcaster` dispatcher — `farcaster.ts:253`
+- exported types used ONLY by the above: `FCMode` (`farcaster.ts:18`),
+  `FCWindow` (`farcaster.ts:19`)
+- the linter-suppression statement `void fetchFarcaster;` — `farcaster.ts:284`
+- four framing comments — `farcaster.ts:5`, `:192-193`, `:252`, `:283`
+
+Verification performed:
+- The farcaster plugin fetcher (`lib/columns/plugins/farcaster/server.ts`)
+  imports ONLY `fetchFarcasterUser` and `fetchFarcasterSearch`.
+- Repo-wide grep: nothing outside `farcaster.ts` references
+  `fetchTrending` / `fetchChannel` / `fetchSearch` / `fetchFarcaster` /
+  `FCMode` / `FCWindow`. (The names `fetchTrending`/`fetchChannel` also exist as
+  unrelated module-private functions in `github.ts`, `youtube.ts`,
+  `coingecko.ts`.)
+- The "wire this back up in route.ts" comment (`:252`) is stale: there are zero
+  farcaster references in `app/api/columns/[type]/route.ts`.
+- `void fetchFarcaster;` (`:284`) is the tell-tale larp artifact — a no-op whose
+  only job is to stop the unused-symbol lint from firing on dead code.
+
+This is the textbook "stub kept around, suppressed with a void-discard" pattern,
+and the dominant slop in the repo (~95 lines incl. comments).
+
+Why NOT rated High for removal: intent is documented and defensible (a one-line
+path back when the Neynar plan is upgraded). Removal is technically safe — tsc
+stays green, the eslint count cannot rise, and there is **no** plugin-registry /
+parity-check impact (this is an integration module, not a registered plugin) —
+but deleting deliberately-parked product capability is an owner judgment call,
+not a pure-mechanical cleanup. Hence Medium.
+
+If the owner wants to keep the capability parked, the slop can still be cut by
+removing just the `void fetchFarcaster;` suppressor (`:284`) + its comment
+(`:283`); the cleanest honest outcome, though, is full removal (recover from git
+history when actually re-enabling).
+
+### F2 — `void mode;` unused-parameter suppression in producthunt.ts
+
+`lib/integrations/producthunt.ts:152` — `fetchProductHuntPage(mode, …)` never
+uses `mode` and discards it with `void mode;`. The comment (`:148-151`) explains
+it is kept "as a type so future PH endpoints can plug in". Mild slop (unused
+param + forward-looking placeholder), but `mode` is part of the public signature
+callers pass, so it is NOT removable without touching the caller and the plugin
+config shape, and the why is honestly documented. Low — a safe micro-change
+would rename `_mode` to drop the `void`; near-zero value.
+
+### F3 — Historical PR-number references inside comments
+
+`lib/columns/types.ts:229` ("…column color labels, PR #61"),
+`lib/store/use-deck-store.ts:677` ("PR #59's 'DnD across pin/unpin no-op' rule"),
+`app/actions.ts:156` ("…from PR #61"), `app/actions.ts:369` ("…rule from PR #59").
+Each anchors a real invariant to a PR for provenance. Mildly historical, but the
+invariant text beside each is the load-bearing content and must be kept. Low —
+at most drop the bare "PR #NN" tokens; not worth a dedicated change.
+
+### F4 — `lib/deck-rules.ts:5` "used to live in app/actions.ts" framing
+
+`lib/deck-rules.ts:1-11` correctly documents the real Next.js constraint that a
+`"use server"` module may only export async functions (a genuine, non-obvious
+gotcha that MUST be kept). The single phrase "They used to live in
+`app/actions.ts`" (`:5`) is light historical narration but the natural way to
+explain why the module exists. Low — optional reword to lead with the
+constraint; not a priority.
+
+---
+
+## Things that look like slop but are NOT — KEEP (don't let another pass cut these)
+
+- `console.log(json)` / `console.log(url)` — `components/sidebar-01/nav-header.tsx:85,110`.
+  Intentional user-facing fallback: the paired toast literally tells the user to
+  "paste the JSON manually from the console" when clipboard is blocked.
+- `console.log("[minitor] webhook delivered …")` — `lib/columns/webhook.ts:150`.
+  Operational delivery logging, prefixed and paired with `console.error` failure
+  branches.
+- `eslint-disable-next-line @next/next/no-img-element` across plugin clients
+  (dexscreener/github-forks/youtube/coingecko/github-stars/github-prs/defillama)
+  and `react-hooks/exhaustive-deps` at `components/column/column-card.tsx:191` —
+  legitimate targeted suppressions.
+- `eslint-disable-next-line @typescript-eslint/no-unused-vars` at
+  `lib/columns/types.ts:67` — the `TMeta` phantom type param is structurally
+  required.
+- `void save()` / `void autoFetchColumn(...)` / `void onRefreshRef.current(...)`
+  in components — idiomatic fire-and-forget promise discards.
+- `_template/` (scaffolding, intentionally unreferenced) and
+  `_newsnow/renderer.tsx` (shared renderer) — the numbered "1./2./3." comments
+  in `_template/*` are the point of a template. KEEP per project safety rules.
+- The dashed separators + per-template paragraphs in `lib/deck-templates.ts` —
+  substantive, not ceremonial.
+- The dense "why" comments in `use-deck-store.ts`, `actions.ts`, `types.ts`,
+  every integration's drop-not-fail / wire-format notes, and the registry
+  parity-check rationale — KEEP / sharpen, never strip.
+
+---
+
+## Prioritized recommendations
+
+| # | Recommendation | Confidence |
+|---|----------------|------------|
+| R1 | Remove the dead farcaster re-enable island (`fetchTrending`, `fetchChannel`, `fetchSearch`, `fetchFarcaster`, `FCMode`, `FCWindow`, the `void fetchFarcaster;` suppressor, and the four re-enable comments) from `lib/integrations/farcaster.ts` — OR, if the owner wants the capability parked, at minimum drop the `void`-discard slop. Verified-unreferenced and parity-check-safe; Medium (not High) only because deleting documented intentional re-enable code is an owner judgment call. | Medium |
+| R2 | (Optional, micro) Rename `mode` → `_mode` and drop `void mode;` at `lib/integrations/producthunt.ts:152`. | Low |
+| R3 | (Optional, micro) Trim bare "PR #NN" provenance tokens in `types.ts:229`, `use-deck-store.ts:677`, `actions.ts:156`, `actions.ts:369` while keeping every invariant sentence. | Low |
+| R4 | (Optional, micro) Reword the "used to live in app/actions.ts" framing in `lib/deck-rules.ts:5`, keeping the gotcha. | Low |
+
+No High-confidence slop deletions exist: the codebase has no clear-cut,
+risk-free slop to remove. R1 is the only material item and carries an
+intent/judgment caveat that keeps it at Medium.

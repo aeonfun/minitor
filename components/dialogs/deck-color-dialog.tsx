@@ -14,32 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-
-// Same 6-hex rule the server enforces (`COLOR_HEX_RE` in app/actions.ts).
-// Matched client-side so the Save button can light up only when the input
-// is in canonical form — the server is still authoritative.
-const COLOR_HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-function normalizeHexColor(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (trimmed.length === 0) return null;
-  if (!COLOR_HEX_RE.test(trimmed)) return null;
-  return trimmed.toLowerCase();
-}
-
-// Same eight presets as the column-color picker (configure-column-dialog.tsx)
-// — keeps the two color surfaces visually coherent so an operator marking a
-// "DeFi" deck orange picks the same orange they'd use to color a DeFi column.
-const COLOR_SWATCHES: { value: string; label: string }[] = [
-  { value: "#f97316", label: "Orange" },
-  { value: "#22c55e", label: "Green" },
-  { value: "#3b82f6", label: "Blue" },
-  { value: "#a855f7", label: "Purple" },
-  { value: "#ec4899", label: "Pink" },
-  { value: "#eab308", label: "Yellow" },
-  { value: "#06b6d4", label: "Cyan" },
-  { value: "#94a3b8", label: "Slate" },
-];
+import { COLOR_SWATCHES, normalizeColumnColor } from "@/lib/deck-rules";
 
 interface Props {
   open: boolean;
@@ -64,11 +39,11 @@ export function DeckColorDialog({
   }
 
   const previewColor =
-    draft.trim().length === 0 ? "" : (normalizeHexColor(draft) ?? draft);
+    draft.trim().length === 0 ? "" : (normalizeColumnColor(draft) ?? draft);
   const colorInputInvalid =
-    draft.trim().length > 0 && normalizeHexColor(draft) === null;
-  const initialNormalized = normalizeHexColor(initialColor ?? "") ?? "";
-  const draftNormalized = normalizeHexColor(draft) ?? "";
+    draft.trim().length > 0 && normalizeColumnColor(draft) === null;
+  const initialNormalized = normalizeColumnColor(initialColor ?? "") ?? "";
+  const draftNormalized = normalizeColumnColor(draft) ?? "";
   // Save lights up either when the operator picks a different valid color, or
   // when they explicitly clear (initial had a color, draft is now empty).
   const cleared = draft.trim().length === 0 && initialNormalized.length > 0;

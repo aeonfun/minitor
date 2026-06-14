@@ -1,5 +1,12 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { HuggingfaceMeta } from "@/lib/columns/plugins/huggingface/plugin";
 import { identiconUrl } from "@/lib/utils";
+
+// `HuggingfaceMeta` is the renderer contract owned by the huggingface plugin;
+// the fetcher here produces `FeedItem<HuggingfaceMeta>` so its meta lines up
+// with what the huggingface renderer reads. Re-exported so call sites that grab
+// HuggingfaceMeta from the integration keep working.
+export type { HuggingfaceMeta };
 
 // Hugging Face Hub REST API — public, no auth, generous rate limits for
 // anonymous list endpoints. https://huggingface.co/docs/hub/api
@@ -15,18 +22,6 @@ const FETCH_BATCH = 50; // upstream cap is 1000, but 50 is plenty for slice-pagi
 
 export type HuggingfaceResource = "models" | "datasets" | "spaces";
 export type HuggingfaceMode = "trending" | "most-likes" | "newest";
-
-export interface HuggingfaceMeta {
-  resource: HuggingfaceResource;
-  likes: number;
-  downloads?: number;
-  trendingScore?: number;
-  pipelineTag?: string;
-  libraryName?: string;
-  sdk?: string;
-  tags: string[];
-  gated: boolean;
-}
 
 interface HFRepo {
   _id?: string;

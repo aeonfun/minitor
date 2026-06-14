@@ -26,6 +26,9 @@ export const schema = z.object({
 export type ArxivConfig = z.infer<typeof schema>;
 
 export interface ArxivMeta {
+  // Primary category as reported by arXiv (often more specific than the
+  // user's filter — a cs.AI paper might primary-cat as cs.LG when it's more
+  // ML than agentic, useful signal for the renderer).
   primaryCategory: string;
   categories: string[];
   authors: string[];
@@ -34,7 +37,14 @@ export interface ArxivMeta {
   arxivId: string;
   publishedAt: string;
   updatedAt: string;
+  // Distinguishes a freshly published paper from a v2/v3 revision — useful
+  // for picking out genuinely new work in `updated` mode.
   isRevision: boolean;
+  // Free-form `<arxiv:comment>` from the Atom entry. Authors typically use it
+  // for venue acceptance ("Accepted to ICML 2026", "SIGGRAPH 2026"), code
+  // links ("Code: https://github.com/..."), or page count ("33 pages"). ~56%
+  // of recent cs.LG entries populate it; the renderer hides the line when
+  // empty.
   comment?: string;
 }
 

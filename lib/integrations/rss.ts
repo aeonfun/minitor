@@ -1,5 +1,6 @@
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl, truncateText } from "@/lib/utils";
+import { decodeEntities } from "@/lib/integrations/text";
 
 interface ParsedItem {
   id: string;
@@ -14,22 +15,6 @@ interface ParsedItem {
 interface ParsedFeed {
   title: string;
   items: ParsedItem[];
-}
-
-const NAMED_ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&apos;": "'",
-  "&nbsp;": " ",
-};
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g, (m) => NAMED_ENTITIES[m] ?? m)
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
 }
 
 function stripCdata(s: string): string {

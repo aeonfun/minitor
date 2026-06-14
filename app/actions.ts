@@ -102,7 +102,7 @@ export async function loadSnapshot(): Promise<Snapshot> {
       id: c.id,
       typeId: c.typeId,
       title: c.title,
-      config: (c.config as Record<string, unknown>) ?? {},
+      config: c.config ?? {},
       alertKeywords: c.alertKeywords ?? undefined,
       notifyWebhookUrl: c.notifyWebhookUrl ?? undefined,
       refreshIntervalSeconds: c.refreshIntervalSeconds ?? undefined,
@@ -435,7 +435,7 @@ export async function duplicateColumn(
     id: newId,
     typeId: src.typeId,
     title,
-    config: (src.config as Record<string, unknown>) ?? {},
+    config: src.config ?? {},
     alertKeywords: src.alertKeywords ?? undefined,
     notifyWebhookUrl: src.notifyWebhookUrl ?? undefined,
     refreshIntervalSeconds: src.refreshIntervalSeconds ?? undefined,
@@ -569,7 +569,7 @@ export async function exportDeck(deckId: string): Promise<string> {
     columns: cols.map((c) => ({
       typeId: c.typeId,
       title: c.title,
-      config: (c.config as Record<string, unknown>) ?? {},
+      config: c.config ?? {},
       ...(c.alertKeywords ? { alertKeywords: c.alertKeywords } : {}),
       ...(isAllowedRefreshInterval(c.refreshIntervalSeconds)
         ? { refreshIntervalSeconds: c.refreshIntervalSeconds }
@@ -584,20 +584,12 @@ export async function exportDeck(deckId: string): Promise<string> {
   return JSON.stringify(payload, null, 2);
 }
 
-export interface ImportedDeckColumn {
-  id: string;
-  typeId: string;
-  title: string;
-  config: Record<string, unknown>;
-  alertKeywords?: string;
-  notifyWebhookUrl?: string;
-  refreshIntervalSeconds?: number;
-  filterKeywords?: string;
-  excludeKeywords?: string;
-  tabGroup?: string;
-  pinned?: boolean;
-  color?: string;
-}
+// A persisted column as returned from an import/restore: every field a `Column`
+// carries except the runtime-only `items` (fetched fresh on first view) and
+// `lastFetchedAt` (set on first fetch). Derived from `Column` so a new persisted
+// column field is threaded through automatically rather than hand-maintained
+// here in lockstep.
+export type ImportedDeckColumn = Omit<Column, "items" | "lastFetchedAt">;
 
 export interface ImportedDeckResult {
   deckId: string;

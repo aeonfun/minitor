@@ -1,7 +1,9 @@
 "use client";
 
-import { ArrowDownRight, ArrowUpRight, CandlestickChart } from "lucide-react";
+import { CandlestickChart } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
+import { formatPriceUsd } from "@/lib/columns/shared/format";
+import { PctChangePill } from "@/lib/columns/shared/pct-change-pill";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -82,16 +84,6 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DexscreenerConfig>) {
   );
 }
 
-function formatPriceUsd(n: number): string {
-  if (!Number.isFinite(n) || n <= 0) return "$0";
-  if (n >= 1000) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-  if (n >= 1) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  if (n >= 0.01) return `$${n.toFixed(4)}`;
-  // Sub-cent meme-coin prices need more significant figures — drop trailing
-  // zeros so $0.0000234 doesn't render as $0.00002340.
-  return `$${n.toPrecision(3).replace(/0+$/, "").replace(/\.$/, "")}`;
-}
-
 function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
   const m = item.meta;
   const pair = item.content;
@@ -104,7 +96,6 @@ function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
   const baseName = m?.baseName;
   const imageUrl = m?.imageUrl;
   const txns = m?.txns24h;
-  const up = pct >= 0;
 
   return (
     <div className="group/item block border-b border-border px-3.5 py-3 transition-colors hover:bg-surface/60">
@@ -173,17 +164,7 @@ function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
         <span className="tabular-nums text-foreground/90">
           {formatPriceUsd(priceUsd)}
         </span>
-        <span
-          className="inline-flex items-center gap-0.5 tabular-nums"
-          style={{ color: up ? "#10b981" : "#ef4444" }}
-        >
-          {up ? (
-            <ArrowUpRight className="size-3" />
-          ) : (
-            <ArrowDownRight className="size-3" />
-          )}
-          {pct.toFixed(2)}%
-        </span>
+        <PctChangePill value={pct} />
         {liquidity > 0 && (
           <>
             <span className="text-muted-foreground/50">·</span>

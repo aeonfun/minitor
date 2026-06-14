@@ -1,5 +1,13 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { LobstersMeta } from "@/lib/columns/plugins/lobsters/plugin";
 import { identiconUrl } from "@/lib/utils";
+import { stripHtml } from "@/lib/integrations/text";
+
+// `LobstersMeta` is the renderer contract owned by the lobsters plugin; the
+// fetcher here produces `FeedItem<LobstersMeta>` so its meta lines up with what
+// the lobsters renderer reads. Re-exported so call sites that grab LobstersMeta
+// from the integration keep working.
+export type { LobstersMeta };
 
 // Lobsters JSON API — public, no auth, generous rate limits.
 // https://lobste.rs/about — Active, hottest, newest, and per-tag feeds all
@@ -60,22 +68,6 @@ function unwrapAuthor(s: LobstersStory): string {
   return u.username ?? "anonymous";
 }
 
-function stripHtml(html: string): string {
-  // Lobsters returns sanitised fragments — links, paragraphs, code, em — so a
-  // targeted regex strip is safe without pulling in a full HTML parser.
-  return html
-    .replace(/<\/(p|div|li|br|h[1-6])>/gi, "\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#x27;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
 function mapStory(s: LobstersStory): FeedItem<LobstersMeta> | null {
   // Schema-drift safe — without an id or a comments URL there's nothing to
   // render or link to, so drop rather than emit a dead row.
@@ -111,14 +103,6 @@ function mapStory(s: LobstersStory): FeedItem<LobstersMeta> | null {
       tags: Array.isArray(s.tags) ? s.tags : [],
     },
   };
-}
-
-export interface LobstersMeta {
-  score: number;
-  comments: number;
-  commentsUrl: string;
-  externalUrl?: string;
-  tags: string[];
 }
 
 export async function fetchLobstersPage(

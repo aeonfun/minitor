@@ -30,7 +30,7 @@ const fetch: ServerFetcher<GHDiscussionsConfig, GHDiscussionsMeta> = async (
   // renderer contract, integration owns the fetch shape — same pattern
   // github-actions uses.
   return sliceForPage(
-    items as unknown as FeedItem<GHDiscussionsMeta>[],
+    items as FeedItem<GHDiscussionsMeta>[],
     cursor,
   );
 };

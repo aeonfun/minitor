@@ -1,5 +1,13 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { PolymarketMeta } from "@/lib/columns/plugins/polymarket/plugin";
 import { identiconUrl } from "@/lib/utils";
+import { stripHtml } from "@/lib/integrations/text";
+
+// `PolymarketMeta` is the renderer contract owned by the polymarket plugin; the
+// fetcher here produces `FeedItem<PolymarketMeta>` so its meta lines up with
+// what the polymarket renderer reads. Re-exported so call sites that grab
+// PolymarketMeta from the integration keep working.
+export type { PolymarketMeta };
 
 // Polymarket Gamma API — public, no auth, generous rate limits.
 // https://docs.polymarket.com/#markets-1 documents the markets endpoint.
@@ -48,16 +56,6 @@ interface GammaMarket {
   conditionId?: string;
   groupItemTitle?: string;
   events?: GammaMarketEvent[];
-}
-
-export interface PolymarketMeta {
-  outcomes: { label: string; price: number }[];
-  volume24hUsd: number;
-  liquidityUsd: number;
-  endDate?: string;
-  category?: string;
-  conditionId?: string;
-  imageUrl?: string;
 }
 
 function parseJsonArray(raw: string | undefined): string[] {
@@ -121,23 +119,6 @@ function permalinkFor(m: GammaMarket): string {
   if (eventSlug) return `https://polymarket.com/event/${eventSlug}`;
   if (m.slug) return `https://polymarket.com/market/${m.slug}`;
   return "https://polymarket.com";
-}
-
-function stripHtml(html: string): string {
-  // Gamma `description` is plain text in practice, but a minority of imported
-  // markets carry over light HTML from upstream sources — strip it the same
-  // way Lobsters does to stay safe without a parser dependency.
-  return html
-    .replace(/<\/(p|div|li|br|h[1-6])>/gi, "\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#x27;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
 }
 
 function mapMarket(m: GammaMarket, now: number): FeedItem<PolymarketMeta> | null {

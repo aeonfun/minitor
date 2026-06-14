@@ -10,9 +10,13 @@ export const schema = z.object({
 export type PypiConfig = z.infer<typeof schema>;
 
 export interface PypiMeta {
+  /** Version string when known (always for updates, never for new-packages). */
   version?: string;
+  /** 30-day downloads when known (top-30d mode); 0 otherwise. */
   monthlyDownloads: number;
+  /** Last-week downloads via pypistats.org; 0 on failure. */
   weeklyDownloads: number;
+  /** PyPI author/maintainer login if surfaced by the feed. */
   author?: string;
 }
 

@@ -1,8 +1,7 @@
 import type { FeedItem } from "@/lib/columns/types";
 
-// Farcaster via Neynar. USER + SEARCH modes are exposed; TRENDING and CHANNEL
-// require Neynar Starter+ ($9/mo, returns 402 on the free tier) and are kept
-// below as `fetchTrending` / `fetchChannel` for re-enable.
+// Farcaster via Neynar. Only USER and SEARCH modes are exposed — TRENDING and
+// CHANNEL require Neynar Starter+ ($9/mo, return 402 on the free tier).
 //
 // Search relies on a trick: Neynar publishes a public demo key
 // (`NEYNAR_API_DOCS`) used in their docs that responds to /cast/search even
@@ -14,9 +13,6 @@ import type { FeedItem } from "@/lib/columns/types";
 // keyless path.
 
 const NEYNAR = "https://api.neynar.com";
-
-export type FCMode = "trending" | "channel" | "user" | "search";
-export type FCWindow = "1h" | "6h" | "24h" | "7d" | "30d";
 
 interface NeynarAuthor {
   fid?: number;
@@ -189,45 +185,6 @@ export async function fetchFarcasterUser(
   return mapCasts(casts, limit);
 }
 
-// Paid-tier helpers — not currently exported. All three return 402 on Neynar's
-// free tier; kept here so the re-enable path stays a one-liner in route.ts.
-
-async function fetchTrending(
-  windowSize: FCWindow,
-  channelId: string,
-  limit: number,
-): Promise<FeedItem[]> {
-  const params = new URLSearchParams({
-    limit: String(limit),
-    time_window: windowSize,
-  });
-  if (channelId.trim()) params.set("channel_id", channelId.trim());
-  const json = await neynar<NeynarCastsResponse>(
-    `/v2/farcaster/feed/trending?${params}`,
-  );
-  const casts = json.casts ?? json.result?.casts ?? [];
-  return mapCasts(casts, limit);
-}
-
-async function fetchChannel(
-  channelId: string,
-  limit: number,
-): Promise<FeedItem[]> {
-  const id = channelId.trim().replace(/^\//, "").toLowerCase();
-  if (!id) throw new Error("Channel id is required (e.g. dev, design, base).");
-  const params = new URLSearchParams({
-    feed_type: "filter",
-    filter_type: "channel_id",
-    channel_id: id,
-    limit: String(limit),
-  });
-  const json = await neynar<NeynarCastsResponse>(
-    `/v2/farcaster/feed?${params}`,
-  );
-  const casts = json.casts ?? json.result?.casts ?? [];
-  return mapCasts(casts, limit);
-}
-
 export async function fetchFarcasterSearch(
   query: string,
   limit = 12,
@@ -244,41 +201,3 @@ export async function fetchFarcasterSearch(
   const casts = json.casts ?? json.result?.casts ?? [];
   return mapCasts(casts, limit);
 }
-
-async function fetchSearch(query: string, limit: number): Promise<FeedItem[]> {
-  return fetchFarcasterSearch(query, limit);
-}
-
-// Multi-mode dispatcher — wire this back up in route.ts when the plan is upgraded.
-async function fetchFarcaster(
-  mode: FCMode,
-  config: {
-    channelId?: string;
-    username?: string;
-    query?: string;
-    window?: string;
-  },
-  limit = 12,
-): Promise<FeedItem[]> {
-  switch (mode) {
-    case "channel":
-      return fetchChannel(config.channelId ?? "", limit);
-    case "user":
-      return fetchFarcasterUser(config.username ?? "", limit);
-    case "search":
-      return fetchSearch(config.query ?? "", limit);
-    case "trending":
-    default: {
-      const w = (config.window === "1h" ||
-      config.window === "6h" ||
-      config.window === "7d" ||
-      config.window === "30d"
-        ? config.window
-        : "24h") as FCWindow;
-      return fetchTrending(w, config.channelId ?? "", limit);
-    }
-  }
-}
-
-// Suppress "declared but never read" — these are intentionally kept for re-enable.
-void fetchFarcaster;

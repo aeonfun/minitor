@@ -1,7 +1,9 @@
 "use client";
 
-import { Activity, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { Activity } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
+import { formatPriceUsd } from "@/lib/columns/shared/format";
+import { PctChangePill } from "@/lib/columns/shared/pct-change-pill";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -73,16 +75,6 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CoingeckoConfig>) {
   );
 }
 
-function formatPriceUsd(n: number): string {
-  if (!Number.isFinite(n) || n <= 0) return "$0";
-  if (n >= 1000) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-  if (n >= 1) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  if (n >= 0.01) return `$${n.toFixed(4)}`;
-  // Sub-cent prices need more precision — drop trailing zeros so a $0.0010
-  // doesn't render as `$0.001000`.
-  return `$${n.toPrecision(3).replace(/0+$/, "").replace(/\.$/, "")}`;
-}
-
 function Sparkline({ values }: { values: number[] }) {
   if (values.length < 2) return null;
   const min = Math.min(...values);
@@ -141,7 +133,6 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
   const sparkline = m?.sparkline7d ?? [];
   const imageUrl = m?.imageUrl;
   const name = item.content;
-  const up = pct >= 0;
 
   return (
     <div className="group/item block border-b border-border px-3.5 py-3 transition-colors hover:bg-surface/60">
@@ -201,17 +192,7 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
         <span className="tabular-nums text-foreground/90">
           {formatPriceUsd(priceUsd)}
         </span>
-        <span
-          className="inline-flex items-center gap-0.5 tabular-nums"
-          style={{ color: up ? "#10b981" : "#ef4444" }}
-        >
-          {up ? (
-            <ArrowUpRight className="size-3" />
-          ) : (
-            <ArrowDownRight className="size-3" />
-          )}
-          {pct.toFixed(2)}%
-        </span>
+        <PctChangePill value={pct} />
         {sparkline.length > 1 && <Sparkline values={sparkline} />}
         {marketCap > 0 && (
           <>

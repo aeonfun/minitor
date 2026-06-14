@@ -35,6 +35,17 @@ export function isAllowedRefreshInterval(
 export const TAB_GROUP_MAX = 50;
 
 /**
+ * Canonicalize a tab-group label: collapse internal whitespace runs to a single
+ * space, trim, and cap at `TAB_GROUP_MAX`. Returns the (possibly empty) string;
+ * callers decide whether an empty result means `null`/`undefined` on the wire.
+ * The same rule runs in `updateColumnTabGroup`, `importDeck`, the client store,
+ * and the configure dialog so "AI", " AI " and "AI  " always bucket together.
+ */
+export function normalizeTabGroup(raw: string): string {
+  return raw.replace(/\s+/g, " ").trim().slice(0, TAB_GROUP_MAX);
+}
+
+/**
  * Hex-color regex applied to every persisted column/deck color. 6-hex form only
  * (`#rrggbb`); the 3-hex shorthand and named CSS colors are deliberately
  * rejected so the stored representation is canonical — round-tripping a
@@ -57,6 +68,28 @@ export function normalizeColumnColor(raw: string | null | undefined): string | n
   if (!COLOR_HEX_RE.test(trimmed)) return null;
   return trimmed.toLowerCase();
 }
+
+/**
+ * The shared preset color palette offered by both the column-color picker
+ * (configure-column-dialog) and the deck-color picker (deck-color-dialog).
+ * Tuned to read distinctly against both the light and dark surface tones used
+ * elsewhere in the app (no near-whites, no near-blacks). The empty (no-color)
+ * state is offered as a "Clear" affordance separately rather than as a swatch —
+ * a "no color" swatch and a real color swatch read the same in the row and
+ * would confuse the operator. Both surfaces share this one const so the column
+ * and deck color rows stay visually coherent (e.g. the same orange for a "DeFi"
+ * deck and a DeFi column).
+ */
+export const COLOR_SWATCHES: { value: string; label: string }[] = [
+  { value: "#f97316", label: "Orange" }, // DeFi / on-chain default
+  { value: "#22c55e", label: "Green" },  // markets / portfolio
+  { value: "#3b82f6", label: "Blue" },   // dev / GitHub
+  { value: "#a855f7", label: "Purple" }, // social
+  { value: "#ec4899", label: "Pink" },   // creators / video
+  { value: "#eab308", label: "Yellow" }, // news / alerts-adjacent
+  { value: "#06b6d4", label: "Cyan" },   // research / AI
+  { value: "#94a3b8", label: "Slate" },  // archival / low-priority
+];
 
 /** Schema version stamped into every exported deck payload. */
 export const DECK_EXPORT_VERSION = 1;

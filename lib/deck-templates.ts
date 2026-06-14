@@ -21,52 +21,35 @@
 //     there's no value in a network round-trip to /templates/<id>.json.
 //   - Imports stay synchronous — no fetch failure modes for the gallery UI.
 
+// Type-only import: erased at build time so this client-imported module never
+// pulls the "use server" actions runtime into the client bundle (same pattern
+// as version-history-dialog's `import type { DeckSnapshotMeta }`).
+import type { DeckExport } from "@/app/actions";
+
 export const DECK_TEMPLATE_VERSION = 1;
 
-export interface DeckTemplateColumn {
-  typeId: string;
-  title: string;
-  config: Record<string, unknown>;
-  alertKeywords?: string;
-  // Optional auto-refresh cadence in seconds. When set, the column re-fetches
-  // on this cadence after import. Allowed values are whitelisted server-side
-  // to {60, 300, 900, 3600}; anything else is dropped during importDeck.
-  refreshIntervalSeconds?: number;
-  // Optional include/exclude item filters (comma/space-separated). Let a
-  // starter template ship a pre-focused column — e.g. a security feed that
-  // only surfaces items mentioning "CVE". Round-trip through importDeck.
-  filterKeywords?: string;
-  excludeKeywords?: string;
-  // Optional tab-group label. Let a multi-category starter deck ship pre-grouped
-  // (e.g. "DeFi" / "Social" / "Dev") so the tab bar renders on first import
-  // instead of forcing the operator to label each column by hand. Round-trips
-  // through importDeck — same TAB_GROUP_MAX cap, same whitespace normalization.
-  tabGroup?: string;
-  // Optional pin flag. Let a starter template ship with a priority column (e.g.
-  // the project's main GitHub repo, or a token price column) already pinned to
-  // the front of the deck so it stays visible regardless of active tab and DnD
-  // reorder. Round-trips through importDeck.
-  pinned?: boolean;
-  // Optional color label (6-char hex `#rrggbb`). Let a multi-category starter
-  // deck ship with pre-colored lanes (e.g. orange for DeFi, blue for repos,
-  // purple for social) so the visual grouping is immediate on first import.
-  // Round-trips through importDeck — re-validated against the same hex regex
-  // and dropped if it doesn't match.
-  color?: string;
-}
+// Templates ARE DeckExport v1 payloads, so their shape is derived from the
+// canonical `DeckExport` (`z.infer<typeof importedDeckSchema>`) rather than
+// re-declared. This keeps the "templates use the SAME schema as Export/Import/
+// Share" promise above true at the type level: a new persisted column field
+// added to the export schema flows into templates automatically.
+//
+// A template column is an export column WITHOUT `notifyWebhookUrl` — a webhook
+// URL is install-private (often embeds a secret) and a shared starter template
+// has no business shipping one, so it's omitted from the authored shape.
+export type DeckTemplateColumn = Omit<
+  DeckExport["columns"][number],
+  "notifyWebhookUrl"
+>;
 
-export interface DeckTemplatePayload {
+// A template payload is a DeckExport WITHOUT the runtime-only `exportedAt`
+// timestamp (stamped on at import in `templateAsImportJson`) and with the
+// webhook-free column shape above. `version` stays pinned to the template
+// constant, which equals the export version — `z.literal(DECK_EXPORT_VERSION)`.
+export type DeckTemplatePayload = Omit<DeckExport, "exportedAt" | "columns"> & {
   version: typeof DECK_TEMPLATE_VERSION;
-  deckName: string;
-  // Optional deck-level color label (6-char hex `#rrggbb`). Let a multi-category
-  // starter template ship pre-tagged with a deck-identity color (e.g. the
-  // markets pack ships orange, the dev pack ships blue) so the sidebar dot
-  // is meaningful from first import. Round-trips through importDeck — the
-  // same hex normalizer used for the per-column color drops it to null if
-  // the template ships a malformed value, never aborts the import.
-  deckColor?: string;
   columns: DeckTemplateColumn[];
-}
+};
 
 export interface DeckTemplate {
   id: string;
@@ -292,10 +275,6 @@ export const TEMPLATES: DeckTemplate[] = [
   cryptoDefi,
   startupTracker,
 ];
-
-export function getTemplate(id: string): DeckTemplate | undefined {
-  return TEMPLATES.find((t) => t.id === id);
-}
 
 /**
  * Serialize a template's payload as a JSON string compatible with the

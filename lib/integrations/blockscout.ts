@@ -46,16 +46,8 @@ const CHAINS: Record<Chain, ChainInfo> = {
   zksync: { chainId: 324, host: "zksync.blockscout.com", nativeSymbol: "ETH", label: "zkSync" },
 };
 
-export function getChainInfo(chain: Chain): ChainInfo {
-  return CHAINS[chain];
-}
-
 export function explorerTxUrl(chain: Chain, hash: string): string {
   return `https://${CHAINS[chain].host}/tx/${hash}`;
-}
-
-export function explorerAddressUrl(chain: Chain, address: string): string {
-  return `https://${CHAINS[chain].host}/address/${address}`;
 }
 
 interface BSAddressRef {

@@ -1,186 +1,88 @@
-# Dedupe Assessment
+# DEDUPE_ASSESSMENT — Dimension #1: Deduplicate & consolidate (DRY where it reduces complexity)
 
-## HIGH confidence (implemented)
+Phase: ASSESSMENT (read-only). No source files were modified. `npx tsc --noEmit` was confirmed green before and is untouched.
 
-### 1. `compact()` number-formatter duplicated 10x
-Identical (or nearly identical) `compact(n: number)` body in:
-- `lib/columns/plugins/hacker-news/client.tsx:21-26`
-- `lib/columns/plugins/youtube/client.tsx:21-28` (adds a B branch)
-- `lib/columns/plugins/farcaster/client.tsx:15-20`
-- `lib/columns/plugins/github-trending/client.tsx:21-26`
-- `lib/columns/plugins/reddit/client.tsx:21-26`
-- `lib/columns/plugins/github-issues/client.tsx:19-24`
-- `lib/columns/plugins/github-prs/client.tsx:27-32`
-- `lib/columns/plugins/github-search/client.tsx:30-35`
-- `lib/columns/shared/tweet-renderer.tsx:19-25` (uses `K` upper-case)
-- `components/sidebar-01/nav-stats.tsx:6-10` (drops `Math.abs`)
+## Already done (verified, do NOT re-recommend)
+A prior dedup pass already landed and was re-verified during this assessment:
+- `formatCompactCount` lives in `lib/utils.ts:8` and is used ~78×; **zero** local `compact()` remain in plugins/shared/sidebar.
+- `identiconUrl` is in `lib/utils.ts:17`; **zero** inline `api.dicebear.com/9.x/identicon` URLs remain outside it.
+- `truncateText` is in `lib/utils.ts:21` (5 import sites).
+This assessment covers the **next layer** the prior pass did not touch.
 
-Eight of the ten are byte-for-byte identical. The other two (YouTube B-branch,
-sidebar `Math.abs`) are tiny supersets of the same idea — engagement counts are
-non-negative anyway. Promoting one canonical `formatCompactCount` to
-`lib/utils.ts` removes ~70 lines and makes future tweaks (locale-aware
-formatting, threshold) one-touch.
+## Current state — what's already DRY (sets the bar)
+- **Date formatting is fully centralized** via `components/relative-time.tsx`: 32 client.tsx use `RelativeTime`; **zero** local date formatters.
+- **`lib/columns/plugins/_newsnow/renderer.tsx`** is the model abstraction: `makeNewsNowItemRenderer({icon,accent,badgeLabel})` + `NewsNowConfigHint`, consumed by 6 hot-board plugins whose client.tsx are ~30 trivial lines each. **This is the template for the fixes below.**
+- **`lib/columns/shared/`** has `LinkItem` (7 plugins) and `TweetItem` (2 plugins).
+- **`lib/columns/paginate.ts`** (`pageFromCursor`/`sliceForPage`) is shared by 24 server fetchers.
+- **`lib/deck-rules.ts`** already exports the canonical refresh/tab-group/color constants; `app/actions.ts` + `use-deck-store.ts` import them correctly.
+- The api route (`app/api/columns/[type]/route.ts`) is the single config-validation chokepoint — no dup there.
 
-Decision: extract `formatCompactCount` to `lib/utils.ts` and update all call
-sites. Keep YouTube's B-branch in the canonical impl (covers the worst case
-without regressing the others).
+The remaining duplication clusters in: **plugin client.tsx renderers**, **plugin server.ts fetchers**, **integration HTML/number helpers**, and a small **color/tab-group constant re-declaration in two dialogs** despite a canonical source already existing.
 
-### 2. `dicebear identicon` avatar URL duplicated 19x
-The exact pattern
-`` `https://api.dicebear.com/9.x/identicon/svg?seed=${encodeURIComponent(x)}` ``
-appears in:
-- `lib/integrations/github.ts` (10 occurrences)
-- `lib/integrations/{newsnow,reddit,blockscout,xai,substack,youtube,telegram,hackernews,rss}.ts`
+---
 
-Decision: extract `identiconUrl(seed: string)` to `lib/utils.ts`. The avataaars
-variants (3 occurrences in `xai`, `farcaster`, `mock/generators`) and the
-keyword-icons variant (1 occurrence in xai for Grok summaries) stay inline —
-they use a different style and are one-of-a-kind, not duplication.
+## Concrete problems (with file:line references)
 
-### 3. `truncateWithEllipsis` body trimming repeated 8x
-The pattern `body.length > N ? \`${body.slice(0, N).trimEnd()}…\` : body`
-appears in:
-- `lib/integrations/github.ts:178, 226, 295, 450, 512, 561`
-- `lib/integrations/youtube.ts:132-135`
-- `lib/integrations/newsnow.ts:81-84`
-- `lib/integrations/rss.ts:52` (already abstracted into `clean()` locally)
+### A. Color + tab-group constants re-declared in two dialogs (canonical source already exists)
+`lib/deck-rules.ts` exports `COLOR_HEX_RE` (:43), `normalizeColumnColor` (:53 — trim → empty→null → regex→null → lowercase), `TAB_GROUP_MAX` (:35). Yet two dialogs re-declare byte-equivalent copies instead of importing:
+- `components/column/configure-column-dialog.tsx:40` `COLOR_HEX_RE`, `:46` `normalizeHexColor` (identical body to `normalizeColumnColor`), `:39` `TAB_GROUP_MAX`, `:42` `normalizeTabGroup` (= `.replace(/\s+/g," ").trim().slice(0,TAB_GROUP_MAX)`, the exact logic at `app/actions.ts:312` and `use-deck-store.ts:800`).
+- `components/dialogs/deck-color-dialog.tsx:21` `COLOR_HEX_RE`, `:23` `normalizeHexColor`.
+- The 8-entry `COLOR_SWATCHES` palette is duplicated verbatim: `configure-column-dialog.tsx:58` and `deck-color-dialog.tsx:33` (a comment at deck-color-dialog.tsx:30 literally says "Same eight presets as the column-color picker" — a manual keep-in-sync note = drift risk).
 
-Decision: extract `truncateText(s, max)` to `lib/utils.ts` and replace direct
-use sites in github/youtube/newsnow. Keep `rss.ts`'s local `clean()` — it
-combines truncation with HTML stripping; the truncation step now calls the
-shared helper. Saves ~16 lines, behavior preserved.
+### B. `formatPriceUsd` — byte-identical across two plugins
+`lib/columns/plugins/coingecko/client.tsx:76` and `lib/columns/plugins/dexscreener/client.tsx:85` are identical (verified by diff ignoring comments): same 5-branch `$0 / >=1000 / >=1 / >=0.01 / sub-cent toPrecision(3)` body.
 
-## MEDIUM confidence (NOT implemented; would need broader changes)
+### C. Percent-change "pill" JSX — identical across three crypto plugins
+`<span … style={{color: up ? "#10b981" : "#ef4444"}}>{up ? <ArrowUpRight/> : <ArrowDownRight/>}{pct.toFixed(2)}%</span>` is byte-identical in:
+- `coingecko/client.tsx:204-214`, `dexscreener/client.tsx:176-186`, `defillama/client.tsx:170-181`.
+- (`wallet-tx` imports `ArrowUpRight` too but uses it as a tx-direction icon at line 108 — NOT this pill; do not lump it in.)
 
-### 4. NewsNow plugin server boilerplate is mostly identical
-Six servers (`weibo-hot`, `zhihu-hot`, `douyin-hot`, `bilibili-hot`, `toutiao`,
-`baidu-hot`) differ only in the platform string passed to `fetchNewsNow` and
-the `Config`/`Meta` type names. ~25 lines × 6 = 150 lines that could collapse
-to ~20 lines via a `defineNewsNowServer(platformKey)` factory.
+### D. "Source badge" JSX block — same shape in 13 plugins
+`<span className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 …"><span className="grid size-3.5 place-items-center rounded-[3px] …">{icon|char}</span>{label}</span>`, parameterized only by background-color, inner icon/char, and label. 13 client.tsx: coingecko, dexscreener, devto, crates, defillama, hacker-news, lobsters, huggingface, npm, polymarket, producthunt, pypi, stack-overflow. The inner-square className is identical across npm:105 / crates:88 / pypi:89. `_newsnow` already proves the factory for exactly this.
 
-Why NOT implementing: each plugin currently lives as a self-contained tuple of
-`plugin.ts + client.tsx + server.ts`, mirrored in `manifest.ts`,
-`registry.ts`, `server-registry.ts`. Touching the server-only file pattern
-would either (a) require a different factory shape that breaks the established
-plugin contract, or (b) introduce flag-based generic helpers that complicate
-the contract for a one-time cleanup. The repetition is mechanical and matches
-the pattern set in `_template/server.ts`. The README at `lib/columns/README.md`
-likely treats this as the canonical shape; collapsing it adds indirection
-without removing code from the hottest path.
+### E. Server-fetcher pagination boilerplate — two near-identical idioms, ~17 sites
+1. **0-based page + `{items,hasMore}` wrap** (12 sites): coingecko, crates, devto, npm, pypi, huggingface, arxiv, hacker-news, lobsters, stack-overflow, polymarket, defillama. All do:
+   `const page = cursor ? Number(cursor) || 0 : 0; const r = await fetchXPage(…, PAGE_SIZE, page); return { items: r.items, nextCursor: r.hasMore ? String(page+1) : undefined };`
+   (e.g. `coingecko/server.ts:11-24`, `crates/server.ts:11-18`, `npm/server.ts:11-18`.)
+2. **1-based page + `items.length === PAGE_SIZE`** (5 sites): `github-issues/server.ts:16-26`, `github-prs/server.ts:11-23`, `github-search/server.ts:14-24`, `github-trending/server.ts:14-25`, `github-releases/server.ts:30-38` (variant: uses `all.length` after a prerelease filter). `cursor ? Number(cursor) || 1 : 1` + `items.length === PAGE_SIZE ? String(page+1) : undefined` is copy-pasted.
+   Note: `pageFromCursor` (`paginate.ts:13`) already encapsulates idiom-1's cursor parse but none of these 17 fetchers use it.
 
-Recommendation: leave for a future refactor that addresses the registry
-boilerplate at the same time (manifest + registry + server-registry could be
-generated from a single per-plugin descriptor).
+### F. github-stars / github-forks server.ts — essentially identical
+`github-stars/server.ts` and `github-forks/server.ts` differ only by the imported fetcher (`fetchStargazers` vs `fetchForks`) and type names; both trim repo, throw `"Repository is required (owner/repo)."`, call `fetchX(repo, PAGE_SIZE, cursor)`. That same guard string recurs in `github-releases/server.ts:18` and `github-actions/server.ts:18`.
 
-### 5. github-stars + github-forks renderers ~95% identical
-`lib/columns/plugins/github-stars/client.tsx` and
-`lib/columns/plugins/github-forks/client.tsx` differ in: icon, badge color/label,
-verb ("starred"/"forked"), and an extra forkUrl link block (forks only).
-Server.ts files differ only in which fetcher is called.
+### G. NewsNow server.ts — 6 near-identical fetchers
+weibo/zhihu/douyin/bilibili/toutiao/baidu `server.ts` differ only by the platform string (`"weibo"`, `"zhihu"`, …) and type names; all call `fetchNewsNow(platform, 50)` then `sliceForPage(items, cursor)`. (The client side is already factored via `_newsnow`; the server side is not.)
 
-Why NOT implementing: the `forkUrl` extension makes a unified renderer either
-parameterized (icon, color, verb, optionalSecondaryLink — three flag-style
-parameters) or a thin wrapper that passes a render-prop. Both options are uglier
-than the current near-duplication. The two plugins are likely to evolve
-independently (e.g. forks get `forkCount`, stars get `starredFromOrg`). DRY
-here would be a premature abstraction.
+### H. HTML-entity decode / strip-HTML helpers in integrations
+- `decodeEntities` defined in 4 files; **byte-identical** in `rss.ts` and `arxiv.ts` (same `NAMED_ENTITIES` map + same 3-`replace` body). `stackoverflow.ts:68` and `pypi.ts:63` are variants with overlapping-but-narrower entity lists.
+- `stripHtml`/`stripTags` defined in 5 files; `lobsters.ts:63` and `polymarket.ts:126` are **byte-identical** (polymarket's comment says "strip it the same way Lobsters does"). `mastodon.ts:76` is a richer `<a>`/`<p>`-aware variant.
+- `NAMED_ENTITIES` const duplicated in `rss.ts` + `arxiv.ts`.
 
-### 6. `instagram/linkedin/facebook/google-news/bing` plugins all delegate to `LinkItem`
-Already deduplicated via the `LinkItem` shared renderer. The remaining
-per-plugin client.tsx files are mostly distinct ConfigForms — those have to
-stay distinct because each platform's input semantics differ. No further
-abstraction available.
+### I. Integration fetch + `!res.ok` throw boilerplate — ~30 sites
+`const res = await fetch(url, {…}); if (!res.ok) throw new Error(\`X ${res.status}: …slice(0,200)\`); return await res.json()` recurs ~30× across integrations — **5× inside `github.ts` alone**, where a `ghFetch<T>` helper already exists at `github.ts:97` but `searchCode`:481, stargazers:653/725, `fetchWorkflowRuns`:972 bypass it with inline re-implementations. Each external call site varies in headers/error-prefix/slice length, so cross-file consolidation is coupling-prone.
 
-### 7. Toast format `count > 0 ? \`${count} new item${count === 1 ? "" : "s"}\` : "No new items"`
-Duplicated in `lib/store/use-deck-store.ts:210` and
-`components/column/column-card.tsx:98`. Would save ~2 lines via a tiny helper.
+### J. ConfigForm "Mode <Select> + conditional <Input> + helper <p>" scaffold
+22 client.tsx import the shadcn `Select` cluster and build the same Label/Select shape; 16 use the `mode: v as XConfig["mode"]` cast; helper-text `<p className="text-xs text-muted-foreground">` appears 63×. Structure is similar but option lists + help copy are all distinct — **weakest** candidate.
 
-Why NOT implementing: it's a UX string; abstracting it would require a helper
-that returns toast args (description differs by call site). The savings (2
-lines) don't justify a new helper; if the message ever needs i18n, the call
-sites are easy to grep.
+---
 
-### 8. `paginate.ts` already exists; unused page-cursor pattern in github-* servers
-`github-search`, `github-issues`, `github-trending`, `github-prs` all
-re-implement page-cursor with the same body:
+## Prioritized recommendations
 
-```ts
-const page = cursor ? Number(cursor) || 1 : 1;
-const items = await fetcher(...args, PAGE_SIZE, page);
-return { items, nextCursor: items.length === PAGE_SIZE ? String(page + 1) : undefined };
-```
+1. **[HIGH]** Import `COLOR_HEX_RE` / `normalizeColumnColor` / `TAB_GROUP_MAX` (and the tab-group normalizer) from `@/lib/deck-rules` in both color dialogs; hoist the 8-entry `COLOR_SWATCHES` palette into one shared const. Bodies verified equivalent; canonical source already imported elsewhere. Removes a hand-maintained "keep in sync" comment. (§A)
+2. **[HIGH]** Extract `formatPriceUsd` (byte-identical) to a shared module; import in coingecko + dexscreener. Do NOT fold in polymarket/wallet-tx `formatUsd` — different rounding (Rec 8). (§B)
+3. **[HIGH]** Extract a `<PctChangePill value={pct} />` shared component for the identical pill in coingecko/dexscreener/defillama; wallet-tx excluded. (§C)
+4. **[HIGH]** Extract `decodeEntities` + `NAMED_ENTITIES` to a shared text-util; migrate rss + arxiv (exact). stackoverflow/pypi optional (their entity lists are subsets — verify each). (§H)
+5. **[HIGH]** Share the byte-identical `stripHtml` between lobsters + polymarket; leave mastodon's richer variant alone. (§H)
+6. **[MEDIUM]** A `pageWrap`-style helper for the 12 "0-based page + {items,hasMore}" fetchers, plus a sibling for the 5 GitHub `items.length === PAGE_SIZE` fetchers. MEDIUM: per-source 0/1-based offset differs, and lobsters/polymarket/defillama do pre-call massaging that must stay in the closure. (§E)
+7. **[MEDIUM]** A `makeSourceBadge({bg,accent,icon|char,label})` factory mirroring `makeNewsNowItemRenderer` for the 13-plugin badge. MEDIUM: some use a Lucide icon, some a literal char, and npm/crates/pypi share a `text-[9px] font-bold` inner-square variant — the factory must take both shapes. (§D)
+8. **[MEDIUM]** Optionally consolidate compact-USD `formatUsd` (polymarket vs wallet-tx) behind a parameterized helper — but the precision rules are deliberately different, so only if the options stay readable; otherwise leave (premature-abstraction risk). (§ formatUsd variants)
+9. **[MEDIUM]** Tiny factories: `makeRepoWatcherServer(fetcher,label)` for github-stars/forks (+ reuse the repo guard) and `makeNewsNowServer(platform)` for the 6 hot-board servers (mirror the already-factored client side). Small LOC, high structural-clarity payoff, zero behavior change. (§F, §G)
+10. **[LOW]** First make `github.ts`'s `searchCode`/stargazers/`fetchWorkflowRuns` use the existing in-file `ghFetch<T>` (safe internal win). A cross-integration `fetchJson` helper is LOW/likely-premature given per-API header/error variance. (§I)
+11. **[LOW] Do NOT** consolidate `plugin.ts` meta or the 22 ConfigForm Select scaffolds — declarative metadata and per-plugin-unique option/help copy; a generic abstraction would need so much config it wouldn't reduce complexity, and would obscure the parity-checked registry (Safety Rule #1). Listed to prevent over-abstraction. (§J)
 
-Why NOT implementing: this is technically "page-from-1" cursor, while
-`paginate.ts:pageFromCursor` defaults to 1 too. Could collapse via a helper
-`fetchPaged(fetchFn, cursor)`, but the four call sites pass different argument
-shapes (varargs into the per-source fetcher). A typed helper would either need
-generics + tuple-spread or a closure-based fetcher signature. The line savings
-are ~3 lines × 4 = 12 lines for ~10 lines of helper code + extra imports —
-net wash that costs readability.
+---
 
-### 9. `normalizeGitHubRepo` (lib/integrations/github.ts) vs `normalizeRepo` (lib/integrations/github-backlinks.ts)
-Both validate `owner/repo` and accept full GitHub URLs. They differ in:
-- Return type: string vs `{ ownerRepo, canonicalUrl }`
-- Error message text
-- `github-backlinks` strips `.git` suffix; the other doesn't
-
-Why NOT implementing: the two are already in different integration files with
-clear ownership. Unifying would require either picking one signature
-(breaking the other's call sites) or layering, neither of which is obviously
-better. Keep separate.
-
-## LOW confidence (deliberately left alone)
-
-### 10. Repeated badge class string
-`"inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-foreground ring-1 ring-black/5"`
-appears 21 times across plugin clients.
-
-Why NOT extracting: this is Tailwind composition. shadcn convention is
-co-located classes, and extracting to a `<Badge>` component would add 1 layer
-of indirection per render. The string is grep-able and the inline style is
-the way the rest of the codebase reads. Plus each badge has a different
-`backgroundColor` style — they're not really "the same" badge.
-
-### 11. Repeated `font-serif text-[16px]...fontFeatureSettings` h3 style
-~16 occurrences of essentially the same headline style.
-
-Why NOT extracting: same reasoning as #10. Tailwind classes are fine to
-repeat; a Headline component would force prop-drilling for color overrides,
-hover variants, etc. Each plugin tweaks the hover color differently.
-
-### 12. Plugin file structure (`plugin.ts`/`client.tsx`/`server.ts`) is repeated 30 times
-Each plugin has the same file layout and similar imports.
-
-Why NOT touching: this is the documented plugin contract (see
-`lib/columns/README.md`). The "repetition" is the contract itself. Collapsing
-it would require a different DSL/generator for plugins.
-
-### 13. `[title, ...rest] = item.content.split("\n\n"); rest.join("\n\n").trim()` repeats ~10x in renderers
-Splits the content blob into title/snippet.
-
-Why NOT extracting to a util: it's a 2-line idiom, and several renderers do
-slight variations (e.g. bing inlines it, others use `description` rather than
-`snippet`). Extracting would be marginal at best, and it's already a stable
-shape. If someone wanted to change the content encoding (`\n\n` → something
-else) they'd grep and replace 10 spots; that's tractable.
-
-### 14. `reorderColumnsInDeck` and `reorderDecks` share an UPDATE...FROM VALUES SQL pattern
-Both use the same trick to bulk-update positions.
-
-Why NOT extracting: they update different tables and `reorderColumnsInDeck`
-also writes `deck_id`. A generic helper would need to take a table identifier
-and column list as parameters, which is uglier than the current 7-line
-duplication. SQL helpers that take dynamic identifiers are also more
-error-prone (escaping, drizzle quirks). Leave alone.
-
-### 15. `RelativeTime` usage with `addSuffix`/`compact`
-~40 call sites pass either `addSuffix` or `compact` props. Already a shared
-component — no further dedupe needed.
-
-### 16. `ConfigForm` Input + Label pattern in plugin clients
-~30 occurrences of `<div className="grid gap-1.5"><Label>X</Label><Input ...></div>`.
-
-Why NOT extracting: each Input has different placeholder, helper text, and
-sometimes adjacent Selects. A shared FormField component would either add
-prop-drilling (helper text, error state, regex) or end up looking exactly like
-shadcn's. The current shape is the shadcn-recommended composition.
+## Safety notes
+- All recs preserve user-facing behavior (Rule #5) and touch no manifest/registry/server-registry keys or the parity check (Rule #1).
+- `_template/` and `_newsnow/` untouched as sources (Rule #2); `_newsnow` cited only as the pattern to imitate.
+- Recs 1–5 are exact-equivalence moves (HIGH, grepped repo-wide). Recs 6–9 are uniform-shape factories with minor per-site variance (MEDIUM). Recs 10–11 are coupling-prone / premature (LOW / don't-do).

@@ -27,6 +27,12 @@ import { getColumnType } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import { parseAlertKeywords } from "@/lib/columns/keyword-match";
 import { validateWebhookUrl, WEBHOOK_URL_MAX } from "@/lib/columns/webhook";
+import {
+  COLOR_SWATCHES,
+  normalizeColumnColor,
+  normalizeTabGroup,
+  TAB_GROUP_MAX,
+} from "@/lib/deck-rules";
 import type { Column } from "@/lib/columns/types";
 
 interface Props {
@@ -36,35 +42,6 @@ interface Props {
 }
 
 const ALERT_KEYWORDS_MAX = 512;
-const TAB_GROUP_MAX = 50;
-const COLOR_HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-function normalizeTabGroup(raw: string): string {
-  return raw.replace(/\s+/g, " ").trim().slice(0, TAB_GROUP_MAX);
-}
-
-function normalizeHexColor(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (trimmed.length === 0) return null;
-  if (!COLOR_HEX_RE.test(trimmed)) return null;
-  return trimmed.toLowerCase();
-}
-
-// Preset swatches. Tuned to read distinctly against both the light and dark
-// surface tones used elsewhere in the app (no near-whites, no near-blacks).
-// The empty (no-color) state is offered as a "Clear" affordance separately
-// rather than as a swatch — a "no color" swatch and a real color swatch read
-// the same in the row and would confuse the operator.
-const COLOR_SWATCHES: { value: string; label: string }[] = [
-  { value: "#f97316", label: "Orange" }, // DeFi / on-chain default
-  { value: "#22c55e", label: "Green" },  // markets / portfolio
-  { value: "#3b82f6", label: "Blue" },   // dev / GitHub
-  { value: "#a855f7", label: "Purple" }, // social
-  { value: "#ec4899", label: "Pink" },   // creators / video
-  { value: "#eab308", label: "Yellow" }, // news / alerts-adjacent
-  { value: "#06b6d4", label: "Cyan" },   // research / AI
-  { value: "#94a3b8", label: "Slate" },  // archival / low-priority
-];
 
 // Sentinel for the Select value when the operator chooses "Manual only" —
 // Radix's Select disallows empty-string values, so we use a non-numeric token
@@ -194,7 +171,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
     // Normalize before the equality check so "#F97316", " #f97316 " and
     // "#f97316" all map to the same canonical value and don't trigger a
     // spurious update.
-    const nextColor = normalizeHexColor(colorDraft) ?? "";
+    const nextColor = normalizeColumnColor(colorDraft) ?? "";
     if (nextColor !== (column.color ?? "")) {
       updateColor(column.id, nextColor);
     }
@@ -202,8 +179,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   }
 
   const colorInputInvalid =
-    colorDraft.trim().length > 0 && normalizeHexColor(colorDraft) === null;
-  const previewColor = normalizeHexColor(colorDraft) ?? "";
+    colorDraft.trim().length > 0 && normalizeColumnColor(colorDraft) === null;
+  const previewColor = normalizeColumnColor(colorDraft) ?? "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

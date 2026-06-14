@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { CratesMeta } from "@/lib/columns/plugins/crates/plugin";
+
+// `CratesMeta` is the renderer contract owned by the crates plugin; the fetcher
+// here produces `FeedItem<CratesMeta>` so its meta lines up with what the crates
+// renderer reads. Re-exported so call sites that grab CratesMeta from the
+// integration keep working.
+export type { CratesMeta };
 
 // crates.io public REST API — fully keyless, generously rate-limited for
 // anonymous polling. One rule the docs are explicit about: every request
@@ -27,19 +34,6 @@ export type CratesSort =
   | "recent-updates"
   | "new"
   | "alpha";
-
-export interface CratesMeta {
-  version: string;
-  totalDownloads: number;
-  recentDownloads: number;
-  keywords: string[];
-  description: string;
-  homepage?: string;
-  documentation?: string;
-  repository?: string;
-  updatedAt: string;
-  exactMatch: boolean;
-}
 
 interface CratesApiCrate {
   id?: string;

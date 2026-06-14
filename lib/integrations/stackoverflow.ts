@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { StackOverflowMeta } from "@/lib/columns/plugins/stack-overflow/plugin";
+
+// `StackOverflowMeta` is the renderer contract owned by the stack-overflow
+// plugin; the fetcher here produces `FeedItem<StackOverflowMeta>` so its meta
+// lines up with what the stack-overflow renderer reads. Re-exported so call
+// sites that grab StackOverflowMeta from the integration keep working.
+export type { StackOverflowMeta };
 
 // Stack Exchange API 2.3 — public, no auth, generous quota.
 // https://api.stackexchange.com/docs/questions
@@ -42,16 +49,6 @@ interface SOResponse {
   quota_remaining?: number;
   error_id?: number;
   error_message?: string;
-}
-
-export interface StackOverflowMeta {
-  score: number;
-  answers: number;
-  views: number;
-  isAnswered: boolean;
-  hasAccepted: boolean;
-  tags: string[];
-  questionId: number;
 }
 
 function sortFor(mode: StackOverflowMode): string {

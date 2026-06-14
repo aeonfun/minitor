@@ -25,7 +25,7 @@ export const columns = pgTable("columns", {
     .references(() => decks.id, { onDelete: "cascade" }),
   typeId: text("type_id").notNull(),
   title: text("title").notNull(),
-  config: jsonb("config").notNull().default({}),
+  config: jsonb("config").$type<Record<string, unknown>>().notNull().default({}),
   alertKeywords: text("alert_keywords"),
   notifyWebhookUrl: text("notify_webhook_url"),
   refreshIntervalSeconds: integer("refresh_interval_seconds"),

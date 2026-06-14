@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { DexscreenerMeta } from "@/lib/columns/plugins/dexscreener/plugin";
+
+// `DexscreenerMeta` is the renderer contract owned by the dexscreener plugin;
+// the fetcher here produces `FeedItem<DexscreenerMeta>` so its meta lines up
+// with what the dexscreener renderer reads. Re-exported so call sites that grab
+// DexscreenerMeta from the integration keep working.
+export type { DexscreenerMeta };
 
 // Dexscreener public API — keyless for the two endpoints this column uses.
 // Dexscreener indexes DEX trading pairs across every major chain (Ethereum,
@@ -27,22 +34,6 @@ const MAX_WATCHLIST = 30;
 const MAX_ITEMS = 60;
 
 export type DexscreenerMode = "search" | "watchlist";
-
-export interface DexscreenerMeta {
-  chainId: string;
-  dexId: string;
-  baseSymbol: string;
-  quoteSymbol: string;
-  baseName?: string;
-  imageUrl?: string;
-  priceUsd: number;
-  priceChange24h: number;
-  volume24hUsd: number;
-  liquidityUsd: number;
-  fdvUsd?: number;
-  marketCapUsd?: number;
-  txns24h?: { buys: number; sells: number };
-}
 
 interface DexPair {
   chainId?: string;

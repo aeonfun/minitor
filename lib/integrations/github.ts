@@ -1,12 +1,15 @@
 import type { FeedItem } from "@/lib/columns/types";
 import type { GHPRMeta } from "@/lib/columns/plugins/github-prs/plugin";
+import type {
+  GHActionsMeta,
+  GHActionStatus,
+  GHActionConclusion,
+} from "@/lib/columns/plugins/github-actions/plugin";
 import { identiconUrl, truncateText } from "@/lib/utils";
 
 // `GHPRMeta` is the renderer contract owned by the github-prs plugin; the
 // fetcher below produces `FeedItem<GHPRMeta>` so its meta lines up with what
-// the plugin's renderer reads. Re-exported under the legacy `GHPRItemMeta`
-// name in case external callers grew an import on it.
-export type { GHPRMeta as GHPRItemMeta };
+// the plugin's renderer reads.
 
 const API = "https://api.github.com";
 
@@ -629,7 +632,10 @@ function parseLastPage(linkHeader: string | null): number | undefined {
         const u = new URL(m[1]);
         const p = u.searchParams.get("page");
         if (p) return Number(p);
-      } catch {}
+      } catch {
+        // The Link-header URL is matched by regex; a malformed match shouldn't
+        // be fatal — fall through and let pagination return undefined.
+      }
     }
   }
   return undefined;
@@ -869,47 +875,13 @@ export async function fetchForks(
 
 // ---- Actions / workflow runs (used by the github-actions plugin) -----------
 
-export type GHActionStatus =
-  | "queued"
-  | "in_progress"
-  | "completed"
-  | "waiting"
-  | "pending"
-  | "requested";
-
-export type GHActionConclusion =
-  | "success"
-  | "failure"
-  | "cancelled"
-  | "neutral"
-  | "skipped"
-  | "timed_out"
-  | "action_required"
-  | "stale"
-  | "startup_failure";
-
-export interface GHActionRunMeta {
-  kind: "run";
-  repo: string;
-  runId: number;
-  runNumber: number;
-  workflowName: string;
-  workflowPath?: string;
-  status: GHActionStatus;
-  /** undefined while status != "completed" */
-  conclusion?: GHActionConclusion;
-  branch?: string;
-  event?: string;
-  sha?: string;
-  shortSha?: string;
-  /** "<owner>/<repo>" form; useful for the renderer when displaying the row */
-  fullRepo: string;
-  startedAt?: string;
-  /** Duration in ms; undefined when the run hasn't ended yet */
-  durationMs?: number;
-  /** Commit message first-line, when available */
-  commitMessage?: string;
-}
+// `GHActionsMeta` (+ its `GHActionStatus` / `GHActionConclusion` field unions)
+// is the renderer contract owned by the github-actions plugin; the fetcher
+// below produces `FeedItem<GHActionsMeta>` so its meta lines up with what the
+// github-actions renderer reads. Re-exported (and aliased as `GHActionRunMeta`)
+// so call sites that grab these from the integration keep working.
+export type { GHActionsMeta, GHActionStatus, GHActionConclusion };
+export type GHActionRunMeta = GHActionsMeta;
 
 interface GHWorkflowRun {
   id: number;

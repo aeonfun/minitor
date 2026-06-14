@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { NpmMeta } from "@/lib/columns/plugins/npm/plugin";
+
+// `NpmMeta` is the renderer contract owned by the npm plugin; the fetcher here
+// produces `FeedItem<NpmMeta>` so its meta lines up with what the npm renderer
+// reads. Re-exported so call sites that grab NpmMeta from the integration keep
+// working.
+export type { NpmMeta };
 
 // npm public registry + downloads API — both keyless, both rate-limited
 // generously enough for anonymous polling. The two surfaces:
@@ -20,23 +27,6 @@ const REGISTRY_BASE = "https://registry.npmjs.org";
 const DOWNLOADS_BASE = "https://api.npmjs.org";
 
 export type NpmMode = "popularity" | "quality" | "maintenance" | "combined";
-
-export interface NpmMeta {
-  version: string;
-  weeklyDownloads: number;
-  keywords: string[];
-  score: number;
-  scoreDetail: {
-    quality: number;
-    popularity: number;
-    maintenance: number;
-  };
-  publisher?: { username?: string; email?: string };
-  homepage?: string;
-  repository?: string;
-  license?: string;
-  deprecated: boolean;
-}
 
 interface NpmSearchObject {
   package: {

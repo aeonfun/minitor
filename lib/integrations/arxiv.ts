@@ -1,5 +1,13 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { ArxivMeta } from "@/lib/columns/plugins/arxiv/plugin";
 import { identiconUrl } from "@/lib/utils";
+import { decodeEntities } from "@/lib/integrations/text";
+
+// `ArxivMeta` is the renderer contract owned by the arxiv plugin; the fetcher
+// here produces `FeedItem<ArxivMeta>` so its meta lines up with what the arxiv
+// renderer reads. Re-exported so call sites that grab ArxivMeta from the
+// integration keep working.
+export type { ArxivMeta };
 
 // arXiv Atom-XML query API — public, no auth, no rate-limit headers documented
 // beyond the polite-crawler advice (≥3 sec between requests, recognisable UA).
@@ -28,45 +36,6 @@ export type ArxivCategory =
   | "math.OC";
 
 export type ArxivMode = "recent" | "updated";
-
-export interface ArxivMeta {
-  // Primary category as reported by arXiv (often more specific than the
-  // user's filter — a cs.AI paper might primary-cat as cs.LG when it's more
-  // ML than agentic, useful signal for the renderer).
-  primaryCategory: string;
-  categories: string[];
-  authors: string[];
-  abstract: string;
-  pdfUrl?: string;
-  arxivId: string;
-  publishedAt: string;
-  updatedAt: string;
-  // Distinguishes a freshly published paper from a v2/v3 revision — useful
-  // for picking out genuinely new work in `updated` mode.
-  isRevision: boolean;
-  // Free-form `<arxiv:comment>` from the Atom entry. Authors typically use it
-  // for venue acceptance ("Accepted to ICML 2026", "SIGGRAPH 2026"), code
-  // links ("Code: https://github.com/..."), or page count ("33 pages"). ~56%
-  // of recent cs.LG entries populate it; the renderer hides the line when
-  // empty.
-  comment?: string;
-}
-
-const NAMED_ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&apos;": "'",
-  "&nbsp;": " ",
-};
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g, (m) => NAMED_ENTITIES[m] ?? m)
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
-}
 
 function getTag(xml: string, tag: string): string {
   const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

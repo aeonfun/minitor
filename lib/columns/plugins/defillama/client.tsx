@@ -1,7 +1,8 @@
 "use client";
 
-import { Layers, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { Layers } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
+import { PctChangePill } from "@/lib/columns/shared/pct-change-pill";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -107,7 +108,6 @@ function ItemRenderer({ item }: ItemRendererProps<DefillamaMeta>) {
   const mcap = m?.marketCapUsd;
   const imageUrl = m?.imageUrl;
   const name = item.content;
-  const up = pct >= 0;
   const isChain = m?.kind === "chain";
 
   return (
@@ -166,19 +166,7 @@ function ItemRenderer({ item }: ItemRendererProps<DefillamaMeta>) {
         <span className="tabular-nums text-foreground/90">
           TVL ${formatCompactCount(tvl)}
         </span>
-        {!isChain && (
-          <span
-            className="inline-flex items-center gap-0.5 tabular-nums"
-            style={{ color: up ? "#10b981" : "#ef4444" }}
-          >
-            {up ? (
-              <ArrowUpRight className="size-3" />
-            ) : (
-              <ArrowDownRight className="size-3" />
-            )}
-            {pct.toFixed(2)}%
-          </span>
-        )}
+        {!isChain && <PctChangePill value={pct} />}
         {!isChain && typeof pct7d === "number" && (
           <>
             <span className="text-muted-foreground/50">·</span>

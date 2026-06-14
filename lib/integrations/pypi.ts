@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { PypiMeta } from "@/lib/columns/plugins/pypi/plugin";
+
+// `PypiMeta` is the renderer contract owned by the pypi plugin; the fetcher
+// here produces `FeedItem<PypiMeta>` so its meta lines up with what the pypi
+// renderer reads. Re-exported so call sites that grab PypiMeta from the
+// integration keep working.
+export type { PypiMeta };
 
 // PyPI exposes three keyless surfaces this column draws from:
 //
@@ -36,17 +43,6 @@ const PYPI_PROJECT_BASE = "https://pypi.org/project";
 const UA = "minitor/1.0 (+https://github.com/aaronjmars/minitor)";
 
 export type PypiMode = "updates" | "new-packages" | "top-30d";
-
-export interface PypiMeta {
-  /** Version string when known (always for updates, never for new-packages). */
-  version?: string;
-  /** 30-day downloads when known (top-30d mode); 0 otherwise. */
-  monthlyDownloads: number;
-  /** Last-week downloads via pypistats.org; 0 on failure. */
-  weeklyDownloads: number;
-  /** PyPI author/maintainer login if surfaced by the feed. */
-  author?: string;
-}
 
 interface RssItem {
   title: string;

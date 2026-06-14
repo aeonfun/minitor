@@ -1,4 +1,11 @@
 import type { FeedItem } from "@/lib/columns/types";
+import type { DefillamaMeta } from "@/lib/columns/plugins/defillama/plugin";
+
+// `DefillamaMeta` is the renderer contract owned by the defillama plugin; the
+// fetcher here produces `FeedItem<DefillamaMeta>` so its meta lines up with what
+// the defillama renderer reads. Re-exported so call sites that grab
+// DefillamaMeta from the integration keep working.
+export type { DefillamaMeta };
 
 // DeFiLlama public API — keyless. Two endpoints cover all three column modes:
 //
@@ -24,27 +31,6 @@ import type { FeedItem } from "@/lib/columns/types";
 const API_BASE = "https://api.llama.fi";
 
 export type DefillamaMode = "top" | "gainers" | "chains";
-
-export interface DefillamaMeta {
-  /** Display symbol or chain ticker (e.g. "AAVE", "ETH"). May be empty. */
-  symbol: string;
-  /** Hosted protocol/chain logo URL when available. */
-  imageUrl?: string;
-  /** Current TVL in USD (already in USD — DeFiLlama normalises). */
-  tvlUsd: number;
-  /** Percent change over 24h (+/-). */
-  tvlChange24h: number;
-  /** Percent change over 7d (+/-). */
-  tvlChange7d?: number;
-  /** Protocol category (DeFiLlama's taxonomy, e.g. "Lending", "Dexs"). */
-  category?: string;
-  /** Comma-joined chain list from DeFiLlama (e.g. "Ethereum, Base"). */
-  chains?: string;
-  /** Market cap of the protocol token in USD, when DeFiLlama has it. */
-  marketCapUsd?: number;
-  /** "protocol" or "chain" — lets the renderer style the row differently. */
-  kind: "protocol" | "chain";
-}
 
 interface DefillamaProtocol {
   id?: string;
