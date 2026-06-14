@@ -59,6 +59,7 @@ import { column as producthunt } from "@/lib/columns/plugins/producthunt/client"
 import { column as coingecko } from "@/lib/columns/plugins/coingecko/client";
 import { column as githubDiscussions } from "@/lib/columns/plugins/github-discussions/client";
 import { column as defillama } from "@/lib/columns/plugins/defillama/client";
+import { column as dexscreener } from "@/lib/columns/plugins/dexscreener/client";
 
 // Keyed by id rather than positional — "use client" boundary means we can't
 // read `column.id` reliably from a server context anyway, so the id has to
@@ -111,6 +112,7 @@ const COLUMNS_BY_ID: Record<string, AnyColumnUI> = {
   coingecko,
   "github-discussions": githubDiscussions,
   defillama,
+  dexscreener,
 };
 
 // Pre-built ordered list, indexed by manifest order. Built once at module init.

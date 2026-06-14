@@ -149,7 +149,7 @@ const baseEcosystem: DeckTemplate = {
   name: "Base Ecosystem",
   tagline: "Aeon repos + AEON price + DeFiLlama + X",
   description:
-    "Tracks the Aeon project + the Base on-chain stack. Two GitHub-stars columns for aeon and aeon-agent, a CoinGecko watchlist with $AEON, the DeFiLlama protocol leaderboard, and the X feed for @aeonframework.",
+    "Tracks the Aeon project + the Base on-chain stack. Two GitHub-stars columns for aeon and aeon-agent, a CoinGecko watchlist with $AEON, a Dexscreener feed of every $AEON pair, the DeFiLlama protocol leaderboard, and the X feed for @aeonframework.",
   accent: "#445ed0",
   iconName: "Layers",
   payload: {
@@ -170,6 +170,14 @@ const baseEcosystem: DeckTemplate = {
         typeId: "coingecko",
         title: "CoinGecko · Watchlist",
         config: { mode: "watchlist", watchlist: "aeon" },
+      },
+      {
+        typeId: "dexscreener",
+        title: "Dexscreener · $AEON",
+        config: {
+          mode: "watchlist",
+          watchlist: "0xbf8e8f0e8866a7052f948c16508644347c57aba3",
+        },
       },
       {
         typeId: "defillama",
