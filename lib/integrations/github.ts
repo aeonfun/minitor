@@ -318,6 +318,69 @@ export async function fetchPullRequests(
   });
 }
 
+interface GHCommitListItem {
+  sha: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author?: { name?: string; email?: string; date?: string };
+    committer?: { name?: string; email?: string; date?: string };
+  };
+  author?: { login: string; avatar_url?: string } | null;
+}
+
+export async function fetchCommits(
+  repo: string,
+  branch: string,
+  limit: number,
+  page = 1,
+): Promise<FeedItem[]> {
+  const clean = repo.trim().replace(/^https?:\/\/github\.com\//, "");
+  if (!/^[\w.-]+\/[\w.-]+$/.test(clean)) {
+    throw new Error(`Invalid repo "${repo}". Use owner/repo (e.g. vercel/next.js).`);
+  }
+  const params = new URLSearchParams({
+    per_page: String(limit),
+    page: String(page),
+  });
+  // `sha` accepts a branch name, tag, or commit SHA. Empty = the default branch.
+  const ref = branch.trim();
+  if (ref) params.set("sha", ref);
+  const commits = await ghFetch<GHCommitListItem[]>(
+    `${API}/repos/${clean}/commits?${params}`,
+  );
+  return commits.slice(0, limit).map((c) => {
+    const handle =
+      c.author?.login ?? c.commit.author?.name ?? clean.split("/")[0] ?? "github";
+    const message = (c.commit.message ?? "").trim();
+    const [firstLine, ...rest] = message.split("\n");
+    const body = rest.join("\n").trim();
+    const trimmed = truncateText(body, 400);
+    return {
+      id: `ghc-${c.sha}`,
+      author: {
+        name: handle,
+        handle,
+        avatarUrl:
+          c.author?.avatar_url ??
+          identiconUrl(handle),
+      },
+      content: trimmed ? `${firstLine}\n\n${trimmed}` : firstLine,
+      url: c.html_url,
+      createdAt:
+        c.commit.author?.date ??
+        c.commit.committer?.date ??
+        new Date().toISOString(),
+      meta: {
+        kind: "commit",
+        repo: clean,
+        sha: c.sha,
+        shortSha: c.sha.slice(0, 7),
+      },
+    } satisfies FeedItem;
+  });
+}
+
 export async function fetchGitHub(
   mode: GHMode,
   config: { language?: string; period?: string; repo?: string; query?: string },

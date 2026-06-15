@@ -18,12 +18,12 @@
 </p>
 
 > **Monitor the current thing. Your dashboard for the internet.**
-> Build a deck, pack it with columns, refresh on demand. Each column is a plugin: X, Bluesky, Reddit, Hacker News, Lobsters, Stack Overflow, DEV.to, npm + PyPI + crates.io packages, Hugging Face (models / datasets / spaces), arXiv (CS / stat / math.OC papers), GitHub (trending / issues / PRs / stars / forks / backlinks / search / releases / Actions / Discussions), Farcaster, Mastodon, YouTube, RSS, Google News, Bing, Substack, LinkedIn, Facebook, Instagram, Apple + Google Play reviews, on-chain wallet activity, Polymarket prediction markets, CoinGecko crypto trending + prices, DeFiLlama TVL leaderboard, Dexscreener DEX pair search + watchlist, and the six biggest Chinese platforms (Weibo / Zhihu / Douyin / Bilibili / Toutiao / Baidu).
+> Build a deck, pack it with columns, refresh on demand. Each column is a plugin: X, Bluesky, Reddit, Hacker News, Lobsters, Stack Overflow, DEV.to, npm + PyPI + crates.io packages, Hugging Face (models / datasets / spaces), arXiv (CS / stat / math.OC papers), GitHub (trending / issues / PRs / stars / forks / backlinks / search / releases / commits / Actions / Discussions), Farcaster, Mastodon, YouTube, RSS, Google News, Bing, Substack, LinkedIn, Facebook, Instagram, Apple + Google Play reviews, on-chain wallet activity, Polymarket prediction markets, CoinGecko crypto trending + prices, DeFiLlama TVL leaderboard, Dexscreener DEX pair search + watchlist, and the six biggest Chinese platforms (Weibo / Zhihu / Douyin / Bilibili / Toutiao / Baidu).
 
 ### What it does
 
 - You name a deck. Minitor packs it with whatever you're watching.
-- 48 column types out of the box — social feeds, news, GitHub (including CI runs and Discussions), Hugging Face, arXiv, DEV.to, Product Hunt, npm + PyPI + crates.io packages, app reviews, on-chain transactions, prediction markets, CoinGecko prices, DeFiLlama TVL, Dexscreener DEX pairs, Chinese hot boards.
+- 49 column types out of the box — social feeds, news, GitHub (including commits, CI runs, and Discussions), Hugging Face, arXiv, DEV.to, Product Hunt, npm + PyPI + crates.io packages, app reviews, on-chain transactions, prediction markets, CoinGecko prices, DeFiLlama TVL, Dexscreener DEX pairs, Chinese hot boards.
 - Refresh per column or auto-fetch on creation. Load more pages 10 at a time.
 - Shape the signal per column — highlight items with alert keywords, or filter the feed to "show only" / "hide" by keyword so a firehose column shows just what matters.
 - ⌘K command palette over every deck, column, and action. Drag to reorder.
@@ -60,7 +60,7 @@ For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https:
 | Category | Columns |
 |----------|---------|
 | **Social — X / Bluesky / Reddit / HN / Farcaster / Mastodon** (7) | `x-search`, `x-trending`, `bluesky`, `reddit`, `hacker-news`, `farcaster`, `mastodon` |
-| **GitHub** (10) | `github-trending`, `github-releases`, `github-issues`, `github-prs`, `github-stars`, `github-forks`, `github-search`, `github-backlinks`, `github-actions`, `github-discussions` |
+| **GitHub** (11) | `github-trending`, `github-releases`, `github-issues`, `github-prs`, `github-commits`, `github-stars`, `github-forks`, `github-search`, `github-backlinks`, `github-actions`, `github-discussions` |
 | **News & web** (11) | `bing` (Web search), `google-news`, `news-search`, `rss`, `lobsters`, `stack-overflow`, `devto`, `npm`, `pypi`, `crates`, `producthunt` |
 | **AI / ML** (2) | `huggingface` (trending models, datasets, spaces), `arxiv` (CS / stat / math.OC papers) |
 | **Long-form & video** (3) | `substack`, `youtube`, `linkedin` |
