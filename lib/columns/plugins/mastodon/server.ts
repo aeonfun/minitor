@@ -16,6 +16,12 @@ const fetch: ServerFetcher<MastodonConfig, MastodonMeta> = async (
   config,
   cursor,
 ) => {
+  if (config.mode === "author") {
+    if (!config.handle.trim()) throw new Error("Author handle is required.");
+  } else if (!config.query.trim()) {
+    throw new Error("Hashtag is required.");
+  }
+
   const items =
     config.mode === "author"
       ? await fetchMastodonAuthor(config.instance, config.handle, 30)

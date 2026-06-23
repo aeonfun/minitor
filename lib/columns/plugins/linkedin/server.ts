@@ -17,8 +17,11 @@ const fetch: ServerFetcher<LinkedinConfig, LinkedinMeta> = async (
   config,
   cursor,
 ) => {
+  const q = config.query.trim();
+  if (!q) throw new Error("Search query is required.");
+
   const items = (await searchLinkedinPosts(
-    config.query,
+    q,
     30,
   )) as FeedItem<LinkedinMeta>[];
   return sliceForPage(items, cursor);

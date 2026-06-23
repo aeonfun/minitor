@@ -14,6 +14,7 @@ import { meta, type YTConfig, type YTMeta } from "./plugin";
 
 const fetch: ServerFetcher<YTConfig, YTMeta> = async (config, cursor) => {
   if (config.mode === "search") {
+    if (!config.query.trim()) throw new Error("Search query is required.");
     const r = await fetchYouTubeSearchPage(
       config.query,
       config.order,
@@ -25,6 +26,10 @@ const fetch: ServerFetcher<YTConfig, YTMeta> = async (config, cursor) => {
       nextCursor: r.nextPageToken,
     };
   }
+  if (config.mode === "channel" && !config.channel.trim())
+    throw new Error("Channel handle or ID is required.");
+  if (config.mode === "playlist" && !config.playlist.trim())
+    throw new Error("Playlist ID is required.");
   const items = (await fetchYouTube(config.mode, {
     query: config.query,
     order: config.order,

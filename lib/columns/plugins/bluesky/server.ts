@@ -13,6 +13,12 @@ const fetch: ServerFetcher<BlueskyConfig, BlueskyMeta> = async (
   config,
   cursor,
 ) => {
+  if (config.mode === "author") {
+    if (!config.handle.trim()) throw new Error("Author handle is required.");
+  } else if (!config.query.trim()) {
+    throw new Error("Search query is required.");
+  }
+
   const r = await fetchBlueskyPage(
     config.mode,
     config.query,
