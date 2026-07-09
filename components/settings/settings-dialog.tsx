@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ENV_KEYS } from "@/lib/env-keys";
+import { IS_HOSTED_CLIENT } from "@/lib/hosted";
 import {
   getEnvKeysStatus,
   setEnvKeys,
@@ -92,13 +93,21 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>Settings · API keys</DialogTitle>
         </DialogHeader>
-        <p className="-mt-1 text-[12.5px] text-muted-foreground">
-          Keys are written to{" "}
-          <code className="rounded bg-foreground/[0.06] px-1 py-px text-[11.5px] text-foreground/90">
-            .env.local
-          </code>{" "}
-          and applied immediately — no restart needed.
-        </p>
+        {IS_HOSTED_CLIENT ? (
+          <p className="-mt-1 text-[12.5px] text-muted-foreground">
+            This is a hosted deployment. API keys are read from server
+            environment variables and can&apos;t be edited here — set them on
+            your host (e.g. Railway / Render variables) and redeploy.
+          </p>
+        ) : (
+          <p className="-mt-1 text-[12.5px] text-muted-foreground">
+            Keys are written to{" "}
+            <code className="rounded bg-foreground/[0.06] px-1 py-px text-[11.5px] text-foreground/90">
+              .env.local
+            </code>{" "}
+            and applied immediately — no restart needed.
+          </p>
+        )}
 
         <form
           onSubmit={(e) => {
@@ -162,10 +171,11 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
                       spellCheck={false}
                       value={value === SENTINEL ? "" : value}
                       placeholder={placeholder}
+                      disabled={IS_HOSTED_CLIENT}
                       onChange={(e) =>
                         setValues((v) => ({ ...v, [spec.key]: e.target.value }))
                       }
-                      className="pr-9 font-mono text-[12.5px]"
+                      className="pr-9 font-mono text-[12.5px] disabled:opacity-60"
                     />
                     <button
                       type="button"
@@ -209,7 +219,7 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!dirty || saving}>
+            <Button type="submit" disabled={!dirty || saving || IS_HOSTED_CLIENT}>
               {saving ? "Saving…" : "Save"}
             </Button>
           </DialogFooter>

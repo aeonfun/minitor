@@ -10,6 +10,7 @@ import { columns, deckSnapshots, decks, feedItems } from "@/lib/db/schema";
 import type { Column, Deck, FeedItem } from "@/lib/columns/types";
 import { MAX_ITEMS_PER_COLUMN } from "@/lib/columns/constants";
 import { ENV_KEYS, ENV_KEY_NAMES } from "@/lib/env-keys";
+import { isHostedDeployment } from "@/lib/hosted";
 import {
   parseAlertKeywords,
   matchedAlertKeywords,
@@ -989,6 +990,16 @@ export async function getEnvKeysStatus(): Promise<EnvKeyStatus[]> {
 export async function setEnvKeys(
   updates: Record<string, string>,
 ): Promise<void> {
+  // On a hosted deployment, keys come from host environment variables — the
+  // filesystem is often read-only, and (behind the password gate or not) the
+  // UI must never be usable to write arbitrary allowlisted keys. Authoritative
+  // server-side refusal; the Settings dialog also renders read-only in this mode.
+  if (isHostedDeployment()) {
+    throw new Error(
+      "Editing API keys is disabled on hosted deployments. Set them as environment variables on your host and redeploy.",
+    );
+  }
+
   const sanitized: Record<string, string> = {};
   for (const [k, v] of Object.entries(updates)) {
     if (!ENV_KEY_NAMES.has(k)) continue;

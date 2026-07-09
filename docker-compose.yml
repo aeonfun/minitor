@@ -1,0 +1,44 @@
+# One-command self-host: `docker compose up --build`.
+# Brings up Postgres + Minitor, runs migrations automatically, serves on :3000.
+#
+# Configure via a `.env` file next to this one (compose reads it automatically)
+# or inline env vars, e.g.:
+#   MINITOR_PASSWORD=changeme XAI_API_KEY=xai-… docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: minitor
+      POSTGRES_PASSWORD: minitor
+      POSTGRES_DB: minitor
+    volumes:
+      - minitor-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U minitor -d minitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://minitor:minitor@db:5432/minitor
+      # Optional Basic-Auth gate — set this to require a password to reach the app.
+      MINITOR_PASSWORD: ${MINITOR_PASSWORD:-}
+      # API keys are read from the host env here (the in-app editor is disabled
+      # in hosted mode). Leave unset to run keyless columns only.
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      NEYNAR_API_KEY: ${NEYNAR_API_KEY:-}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      COINGECKO_DEMO_API_KEY: ${COINGECKO_DEMO_API_KEY:-}
+    ports:
+      - "3000:3000"
+
+volumes:
+  minitor-pgdata:
