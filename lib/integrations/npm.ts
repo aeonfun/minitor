@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { NpmMeta } from "@/lib/columns/plugins/npm/plugin";
 
@@ -149,7 +150,7 @@ async function fetchWeeklyDownloads(pkgName: string): Promise<number> {
   // turns `/` into `%2F`, which the downloads API rejects with a 404.
   const url = `${DOWNLOADS_BASE}/downloads/point/last-week/${pkgName}`;
   try {
-    const res = await fetch(url, {
+    const res = await fetchUpstream(url, {
       headers: {
         accept: "application/json",
         "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
@@ -222,7 +223,7 @@ export async function fetchNpmPage(
 ): Promise<{ items: FeedItem<NpmMeta>[]; hasMore: boolean }> {
   const perPage = Math.max(limit, 30);
   const url = endpointFor(query, mode, perPage, page);
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { PypiMeta } from "@/lib/columns/plugins/pypi/plugin";
 
@@ -116,7 +117,7 @@ async function fetchWeeklyDownloads(pkgName: string): Promise<number> {
   // degrade silently to 0; the column still renders without the badge.
   const url = `${STATS_BASE}/${encodeURIComponent(pkgName.toLowerCase())}/recent?period=week`;
   try {
-    const res = await fetch(url, {
+    const res = await fetchUpstream(url, {
       headers: { accept: "application/json", "user-agent": UA },
       cache: "no-store",
     });
@@ -181,7 +182,7 @@ async function fetchRssMode(
   page: number,
 ): Promise<{ items: FeedItem<PypiMeta>[]; hasMore: boolean }> {
   const url = `${RSS_BASE}/${feed}.xml`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/rss+xml,application/xml;q=0.9,*/*;q=0.5",
       "user-agent": UA,
@@ -238,7 +239,7 @@ async function fetchTopMode(
   // hugovk/top-pypi-packages mirror. Keyless, served via GitHub Pages.
   // The full JSON is ~250KB; cache aggressively via `cache: "force-cache"`
   // and rely on Next.js's HTTP cache to dedupe across columns/requests.
-  const res = await fetch(TOP_PACKAGES_URL, {
+  const res = await fetchUpstream(TOP_PACKAGES_URL, {
     headers: { accept: "application/json", "user-agent": UA },
     cache: "force-cache",
     next: { revalidate: 3600 },

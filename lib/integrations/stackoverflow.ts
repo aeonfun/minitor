@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { StackOverflowMeta } from "@/lib/columns/plugins/stack-overflow/plugin";
 
@@ -155,7 +156,7 @@ export async function fetchStackOverflowPage(
   if (tagFilter) params.set("tagged", tagFilter);
 
   const url = `${BASE}/questions?${params}`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

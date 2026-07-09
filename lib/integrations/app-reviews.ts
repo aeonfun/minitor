@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 
 // Single source of truth for App Store + Google Play review fetching. Two
@@ -62,7 +63,7 @@ async function fetchAppStoreReviews(
   country: string,
 ): Promise<FeedItem<AppReviewMeta>[]> {
   const url = `https://itunes.apple.com/${encodeURIComponent(country)}/rss/customerreviews/page=1/id=${encodeURIComponent(appId)}/sortby=mostrecent/json`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: { accept: "application/json", "user-agent": UA },
     cache: "no-store",
   });
@@ -172,7 +173,7 @@ async function fetchGooglePlayReviews(
   const body = new URLSearchParams({ "f.req": fReq });
   const url = `https://play.google.com/_/PlayStoreUi/data/batchexecute?hl=en&gl=${encodeURIComponent(country)}`;
 
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded;charset=UTF-8",

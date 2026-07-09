@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 
 // Mastodon via the public REST API. Two keyless modes exposed:
@@ -62,7 +63,7 @@ function buildHeaders(): HeadersInit {
 }
 
 async function mastodonGet<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: buildHeaders(), cache: "no-store" });
+  const res = await fetchUpstream(url, { headers: buildHeaders(), cache: "no-store" });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`Mastodon ${res.status} (${url}): ${body.slice(0, 240)}`);

@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import { nanoid } from "nanoid";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
@@ -83,7 +84,7 @@ async function callGrok(options: GrokSearchOptions): Promise<GrokItem[]> {
   }
   const model = options.model ?? process.env.XAI_MODEL ?? "grok-4-fast-reasoning";
 
-  const res = await fetch(XAI_URL, {
+  const res = await fetchUpstream(XAI_URL, {
     method: "POST",
     headers: {
       "content-type": "application/json",

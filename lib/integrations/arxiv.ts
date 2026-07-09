@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { ArxivMeta } from "@/lib/columns/plugins/arxiv/plugin";
 import { identiconUrl } from "@/lib/utils";
@@ -246,7 +247,7 @@ export async function fetchArxivPage(
     `&sortBy=${sortBy}` +
     `&sortOrder=${sortOrder}`;
 
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       // Atom 1.0 — the only response shape arXiv's API speaks.
       accept: "application/atom+xml, application/xml;q=0.9, text/xml;q=0.9",

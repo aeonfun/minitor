@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
 
@@ -58,7 +59,7 @@ export async function fetchSubredditPage(
   if (after) params.set("after", after);
   const url = `https://www.reddit.com/r/${encodeURIComponent(sub)}/${sort}.json?${params}`;
 
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: { "user-agent": UA, accept: "application/json" },
     cache: "no-store",
   });
@@ -114,7 +115,7 @@ export async function searchReddit(
   const q = query.trim();
   if (!q) return [];
   const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(q)}&sort=new&limit=${limit}&raw_json=1`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: { "user-agent": UA, accept: "application/json" },
     cache: "no-store",
   });

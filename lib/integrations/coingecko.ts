@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { CoingeckoMeta } from "@/lib/columns/plugins/coingecko/plugin";
 
@@ -188,7 +189,7 @@ function mapMarketCoin(c: MarketCoin): FeedItem<CoingeckoMeta> | null {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

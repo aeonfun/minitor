@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl, truncateText } from "@/lib/utils";
 
@@ -46,7 +47,7 @@ export async function fetchNewsNow(
   platform: NewsNowPlatform,
   limit = 20,
 ): Promise<FeedItem[]> {
-  const res = await fetch(
+  const res = await fetchUpstream(
     `${BASE}/api/s?id=${encodeURIComponent(platform)}&latest`,
     {
       headers: {

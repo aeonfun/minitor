@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
 
@@ -139,7 +140,7 @@ export async function fetchDiscussions(
   // running multiple round trips. GraphQL's `orderBy` only supports
   // CREATED_AT / UPDATED_AT, not upvotes; "top" mode needs the full batch in
   // memory to sort by upvotes anyway.
-  const res = await fetch(GRAPHQL_ENDPOINT, {
+  const res = await fetchUpstream(GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({

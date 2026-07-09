@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { fetchFeed } from "@/lib/integrations/rss";
 import { identiconUrl, truncateText } from "@/lib/utils";
@@ -93,7 +94,7 @@ export async function fetchSearchPage(
     key,
   });
   if (pageToken) sParams.set("pageToken", pageToken);
-  const sRes = await fetch(`${API}/search?${sParams}`, { cache: "no-store" });
+  const sRes = await fetchUpstream(`${API}/search?${sParams}`, { cache: "no-store" });
   if (!sRes.ok) {
     const body = await sRes.text().catch(() => "");
     throw new Error(`YouTube search ${sRes.status}: ${body.slice(0, 240)}`);
@@ -114,7 +115,7 @@ export async function fetchSearchPage(
     id: ids.join(","),
     key,
   });
-  const vRes = await fetch(`${API}/videos?${vParams}`, { cache: "no-store" });
+  const vRes = await fetchUpstream(`${API}/videos?${vParams}`, { cache: "no-store" });
   const vJson = vRes.ok
     ? ((await vRes.json()) as YTVideosResponse)
     : ({ items: [] } as YTVideosResponse);
@@ -213,7 +214,7 @@ async function fetchChannel(
   }
   const handle = raw.replace(/^@/, "");
   // Resolve handle → channel id via the channel page (no key needed).
-  const html = await fetch(`https://www.youtube.com/@${encodeURIComponent(handle)}`, {
+  const html = await fetchUpstream(`https://www.youtube.com/@${encodeURIComponent(handle)}`, {
     headers: { "user-agent": "minitor/0.1", accept: "text/html" },
     cache: "no-store",
   }).then((r) => (r.ok ? r.text() : ""));

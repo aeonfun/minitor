@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { CratesMeta } from "@/lib/columns/plugins/crates/plugin";
 
@@ -140,7 +141,7 @@ export async function fetchCratesPage(
   const perPage = Math.max(limit, 30);
   const url = endpointFor(query, sort, perPage, page);
 
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       // crates.io's User-Agent policy is strict — anonymous requests without

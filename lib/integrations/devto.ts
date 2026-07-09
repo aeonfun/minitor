@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { DevtoMeta } from "@/lib/columns/plugins/devto/plugin";
 
@@ -200,7 +201,7 @@ export async function fetchDevtoPage(
 ): Promise<{ items: FeedItem<DevtoMeta>[]; hasMore: boolean }> {
   const tags = normaliseTagFilter(tag);
   const url = endpointFor(mode, tags, Math.max(limit, 30), page);
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

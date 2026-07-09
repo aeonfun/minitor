@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { HuggingfaceMeta } from "@/lib/columns/plugins/huggingface/plugin";
 import { identiconUrl } from "@/lib/utils";
@@ -159,7 +160,7 @@ export async function fetchHuggingfacePage(
   if (trimmed) params.set("search", trimmed);
 
   const url = `${BASE}/api/${resource}?${params}`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

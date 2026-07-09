@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { LobstersMeta } from "@/lib/columns/plugins/lobsters/plugin";
 import { identiconUrl } from "@/lib/utils";
@@ -112,7 +113,7 @@ export async function fetchLobstersPage(
   page: number,
 ): Promise<{ items: FeedItem<LobstersMeta>[]; hasMore: boolean }> {
   const url = endpointFor(mode, tag, page);
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       // Lobsters' admins ask scrapers to identify themselves; minitor is a

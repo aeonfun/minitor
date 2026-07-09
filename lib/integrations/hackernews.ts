@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
 
@@ -108,7 +109,7 @@ export async function fetchHackerNewsPage(
   page = 0,
 ): Promise<{ items: FeedItem[]; hasMore: boolean }> {
   const url = endpointFor(mode, query, limit, page);
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: { accept: "application/json" },
     cache: "no-store",
   });

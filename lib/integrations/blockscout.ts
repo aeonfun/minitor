@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { WalletTxMeta } from "@/lib/columns/plugins/wallet-tx/plugin";
 import { identiconUrl } from "@/lib/utils";
@@ -209,7 +210,7 @@ export async function fetchAddressTransactions(
   const params = decodeCursor(cursor);
   const url = buildUrl(chain, `/addresses/${address}/transactions`, params);
 
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: { accept: "application/json", "user-agent": "minitor/0.1" },
     cache: "no-store",
   });

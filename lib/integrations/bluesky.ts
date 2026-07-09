@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 
 // Bluesky public AppView — keyless, no auth, generous quota for read endpoints.
@@ -104,7 +105,7 @@ async function fetchSearch(
     sort: "latest",
   });
   if (cursor) params.set("cursor", cursor);
-  const res = await fetch(`${BLUESKY}/app.bsky.feed.searchPosts?${params}`, {
+  const res = await fetchUpstream(`${BLUESKY}/app.bsky.feed.searchPosts?${params}`, {
     headers: { accept: "application/json" },
     cache: "no-store",
   });
@@ -131,7 +132,7 @@ async function fetchAuthor(
     filter: "posts_no_replies",
   });
   if (cursor) params.set("cursor", cursor);
-  const res = await fetch(`${BLUESKY}/app.bsky.feed.getAuthorFeed?${params}`, {
+  const res = await fetchUpstream(`${BLUESKY}/app.bsky.feed.getAuthorFeed?${params}`, {
     headers: { accept: "application/json" },
     cache: "no-store",
   });

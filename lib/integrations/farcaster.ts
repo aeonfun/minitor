@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 
 // Farcaster via Neynar. Only USER and SEARCH modes are exposed — TRENDING and
@@ -83,13 +84,13 @@ async function neynar<T>(
   options?: { fallbackToDemoOn402?: boolean },
 ): Promise<T> {
   const url = `${NEYNAR}${path}`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: headersWith(userKey()),
     cache: "no-store",
   });
 
   if (res.status === 402 && options?.fallbackToDemoOn402) {
-    const demoRes = await fetch(url, {
+    const demoRes = await fetchUpstream(url, {
       headers: headersWith(DEMO_KEY),
       cache: "no-store",
     });

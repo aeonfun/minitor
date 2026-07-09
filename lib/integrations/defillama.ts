@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { DefillamaMeta } from "@/lib/columns/plugins/defillama/plugin";
 
@@ -140,7 +141,7 @@ function mapChain(c: DefillamaChain): FeedItem<DefillamaMeta> | null {
 }
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetchUpstream(`${API_BASE}${path}`, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

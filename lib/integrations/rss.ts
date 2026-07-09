@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl, truncateText } from "@/lib/utils";
 import { decodeEntities } from "@/lib/integrations/text";
@@ -149,7 +150,7 @@ export async function fetchFeed(url: string, limit = 12): Promise<FeedItem[]> {
     throw new Error("Only http/https feed URLs are supported.");
   }
 
-  const res = await fetch(parsed.toString(), {
+  const res = await fetchUpstream(parsed.toString(), {
     headers: {
       accept:
         "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.5",

@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { DexscreenerMeta } from "@/lib/columns/plugins/dexscreener/plugin";
 
@@ -120,7 +121,7 @@ function mapPair(p: DexPair): FeedItem<DexscreenerMeta> | null {
 }
 
 async function fetchPairs(url: string): Promise<DexPair[]> {
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",

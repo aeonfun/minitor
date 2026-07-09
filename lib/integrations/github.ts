@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { GHPRMeta } from "@/lib/columns/plugins/github-prs/plugin";
 import type {
@@ -98,7 +99,7 @@ function headers(): HeadersInit {
 }
 
 async function ghFetch<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: headers(), cache: "no-store" });
+  const res = await fetchUpstream(url, { headers: headers(), cache: "no-store" });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`GitHub ${res.status}: ${body.slice(0, 200)}`);
@@ -544,7 +545,7 @@ async function searchCode(
     per_page: String(limit),
     page: String(page),
   });
-  const res = await fetch(`${API}/search/code?${params}`, {
+  const res = await fetchUpstream(`${API}/search/code?${params}`, {
     headers: {
       ...(headers() as Record<string, string>),
       // text-match returns a `fragment` snippet around each hit
@@ -719,7 +720,7 @@ async function ghFetchStargazersPageREST(
     page: String(page),
   });
   const url = `${API}/repos/${fullRepo}/stargazers?${params}`;
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       ...headers(),
       // star+json is required to receive `starred_at` timestamps.
@@ -791,7 +792,7 @@ async function fetchStargazersGraphQL(
       }
     }
   `;
-  const res = await fetch(`${API}/graphql`, {
+  const res = await fetchUpstream(`${API}/graphql`, {
     method: "POST",
     headers: { ...headers(), "content-type": "application/json" },
     body: JSON.stringify({
@@ -1004,7 +1005,7 @@ export async function fetchWorkflowRuns(
   const trimmedBranch = branch.trim();
   if (trimmedBranch) params.set("branch", trimmedBranch);
   const url = `${API}/repos/${fullRepo}/actions/runs?${params}`;
-  const res = await fetch(url, { headers: headers(), cache: "no-store" });
+  const res = await fetchUpstream(url, { headers: headers(), cache: "no-store" });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`GitHub ${res.status}: ${body.slice(0, 200)}`);

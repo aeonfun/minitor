@@ -1,3 +1,4 @@
+import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import type { PolymarketMeta } from "@/lib/columns/plugins/polymarket/plugin";
 import { identiconUrl } from "@/lib/utils";
@@ -203,7 +204,7 @@ export async function fetchPolymarketPage(
   page: number,
 ): Promise<{ items: FeedItem<PolymarketMeta>[]; hasMore: boolean }> {
   const url = endpointFor(mode, tag, limit, page);
-  const res = await fetch(url, {
+  const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
       // Polymarket's Gamma API is openly documented as public; identifying
