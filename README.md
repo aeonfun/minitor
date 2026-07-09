@@ -110,11 +110,43 @@ Set `DATABASE_URL` in `.env.local`:
 
 | URL form | Driver picked |
 |---|---|
-| *unset* / `pglite:` / `file:` / `memory:` | PGlite (file at `.minitor/pgdata/`) |
+| *unset* / `pglite:` / `file:` | PGlite, persisted to `.minitor/pgdata/` (default) |
+| `memory:` | PGlite, ephemeral in-memory — nothing persists (used by the test suite) |
 | `postgres://user:pass@localhost/minitor` | node-postgres |
 | `postgresql://…@…neon.tech/…?sslmode=require` | `@neondatabase/serverless` HTTP |
 
 `./minitor migrate` and the runtime client honor the same selector (`lib/db/client.ts:resolveDatabaseConfig`).
+
+### Deploy / self-host
+
+Minitor ships as a single Docker image (`Dockerfile`, `output: "standalone"`) that any container host builds straight from source. It runs migrations on boot, then serves on `$PORT` (default 3000). Pair it with a Postgres database.
+
+> **Heads up — Minitor has no per-user auth.** Decks and columns are global, so a public URL is a shared, editable dashboard. For anything reachable from the internet, set `MINITOR_PASSWORD` (below) to put the whole app behind a single-password gate.
+
+**Local / VPS — one command:**
+
+```bash
+MINITOR_PASSWORD=changeme XAI_API_KEY=xai-… docker compose up --build
+```
+
+Brings up Postgres + Minitor, migrates automatically, serves at `http://localhost:3000`. Data persists in the `minitor-pgdata` volume.
+
+**Railway (or Render / Fly) — one click:**
+
+1. New project → **Deploy from repo**. Railway auto-detects the `Dockerfile` (`railway.json` pins the builder + health check).
+2. Add a **Postgres** plugin. Railway exposes its connection string as `DATABASE_URL` — reference it on the app service.
+3. Set `MINITOR_PASSWORD` and any [API keys](#column-types) as service variables, then deploy.
+
+**Hosting env vars:**
+
+| Var | Purpose |
+|---|---|
+| `DATABASE_URL` | `postgres://…` (compose/Railway) or a Neon URL. Required in hosted mode — `memory:`/PGlite is ephemeral. |
+| `MINITOR_PASSWORD` | Enables an HTTP Basic-Auth gate over the whole app. Unset = open (local default). |
+| `MINITOR_HOSTED` | Baked to `1` in the image. Disables the in-app key editor; keys come from env vars. |
+| `XAI_API_KEY`, `GITHUB_TOKEN`, … | Column [API keys](#column-types), read from the host environment. |
+
+The image bakes `MINITOR_HOSTED=1`, so the Settings dialog is read-only and `setEnvKeys` is refused server-side — provide keys as environment variables instead. `GET /api/health` is an unauthenticated liveness probe (excluded from the password gate).
 
 ### Documentation
 

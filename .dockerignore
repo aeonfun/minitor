@@ -1,0 +1,17 @@
+# Build fresh inside the image — never copy host artifacts or secrets.
+node_modules
+.next
+.git
+.github
+.minitor
+.env
+.env.*
+!.env.example
+npm-debug.log*
+coverage
+test
+*_ASSESSMENT.md
+CONTRIBUTING.md
+Dockerfile
+.dockerignore
+docker-compose.yml
