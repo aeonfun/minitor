@@ -149,7 +149,7 @@ export function NavHeader({
           <div className="flex items-center gap-1 text-[11px] text-sidebar-foreground/60">
             <span>by</span>
             <a
-              href="https://x.com/aeonframework"
+              href="https://www.aeon.fun/"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-sidebar-foreground"

@@ -169,7 +169,7 @@ export function Onboarding() {
           <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
             <span>by</span>
             <a
-              href="https://x.com/aeonframework"
+              href="https://www.aeon.fun/"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 rounded-sm transition-colors hover:text-foreground"
