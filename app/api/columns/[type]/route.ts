@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerEntry } from "@/lib/columns/server-registry";
+import {
+  cacheKeyFor,
+  cachedColumnFetch,
+  ttlForMeta,
+} from "@/lib/columns/fetch-cache";
 
 // Grok calls are slow and expensive — don't cache, always fresh on refresh.
 export const dynamic = "force-dynamic";
@@ -43,7 +48,13 @@ export async function POST(req: Request, context: RouteContext) {
   }
 
   try {
-    const result = await entry.fetch(parsed.data, cursor);
+    // Coalesce identical concurrent fetches and reuse a fresh result for a few
+    // seconds, so duplicate columns / "Refresh all" don't each hit upstream.
+    const result = await cachedColumnFetch(
+      cacheKeyFor(type, parsed.data, cursor),
+      ttlForMeta(entry.meta),
+      () => entry.fetch(parsed.data, cursor),
+    );
     return NextResponse.json(result);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
