@@ -58,6 +58,7 @@ export const meta: PluginMeta<GHDiscussionsConfig, GHDiscussionsMeta> = {
   },
   capabilities: {
     paginated: true,
-    rateLimitHint: "60 req/hr without GITHUB_TOKEN, 5000 with.",
+    rateLimitHint:
+      "Requires GITHUB_TOKEN — the GraphQL API gives unauthenticated requests ~0 quota (403). 5000 req/hr with one.",
   },
 };
