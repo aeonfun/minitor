@@ -1,47 +1,87 @@
 import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
+import { decodeEntities, stripHtml } from "@/lib/integrations/text";
 
+// Reddit's JSON API (`/r/<sub>/<sort>.json`, `/search.json`) now returns HTTP
+// 403 with an HTML anti-bot page to unauthenticated clients from most IPs —
+// datacenter and residential alike. Reddit's Atom feeds (`/.rss`) are still
+// served keyless to a descriptive User-Agent, so we read those instead.
+//
+// The trade-off vs. the old JSON path: the feed carries no score / comment
+// count and no `after` cursor. Score and comments degrade to 0 (the UI renders
+// them with a `?? 0` fallback), and each column shows a single feed page
+// (~25 items) instead of paginating. Everything else — title, author,
+// permalink, outbound link, timestamp — comes through.
 const UA = "minitor/0.1 (https://github.com/anthropics/claude-code dashboard)";
-
-interface RedditChild {
-  data: {
-    id: string;
-    name?: string;
-    author?: string;
-    title?: string;
-    selftext?: string;
-    permalink?: string;
-    url?: string;
-    created_utc?: number;
-    score?: number;
-    num_comments?: number;
-    subreddit?: string;
-    thumbnail?: string;
-    is_self?: boolean;
-    over_18?: boolean;
-    stickied?: boolean;
-  };
-}
-
-interface RedditListing {
-  data?: { children?: RedditChild[] };
-  message?: string;
-  error?: number;
-}
+const ACCEPT = "application/atom+xml, application/xml;q=0.9, */*;q=0.8";
 
 const SORTS = new Set(["hot", "new", "top", "rising"]);
 
-interface RedditListingDataExt {
-  children?: RedditChild[];
-  after?: string | null;
-  before?: string | null;
+// --- tiny Atom helpers (regex, matching the lib/integrations/rss.ts style) ---
+
+function getTag(xml: string, tag: string): string {
+  const re = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)</${tag}>`, "i");
+  return xml.match(re)?.[1] ?? "";
 }
 
-interface RedditListingExt {
-  data?: RedditListingDataExt;
-  message?: string;
-  error?: number;
+// The first `<link>` in an entry with no `rel` (or rel="alternate") is the
+// submission's permalink (the Reddit comments page).
+function permalinkOf(entry: string): string {
+  const re = /<link\b([^>]*?)\/?>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(entry))) {
+    const href = m[1].match(/\bhref=["']([^"']+)["']/)?.[1];
+    const rel = m[1].match(/\brel=["']([^"']+)["']/)?.[1];
+    if (href && (!rel || rel === "alternate")) return href;
+  }
+  return "";
+}
+
+// Each entry body embeds `<a href="…">[link]</a>` (the submission's outbound
+// URL) alongside `<a href="…/comments/…">[comments]</a>`. Pull the `[link]`
+// href so we can tell a link post from a self post.
+function outboundLink(contentHtml: string): string | undefined {
+  const html = decodeEntities(contentHtml);
+  return html.match(/href=["']([^"']+)["'][^>]*>\s*\[link\]/i)?.[1];
+}
+
+function parseRedditFeed(xml: string, fallbackSub: string): FeedItem[] {
+  const items: FeedItem[] = [];
+  const entryRe = /<entry\b[^>]*>([\s\S]*?)<\/entry>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = entryRe.exec(xml))) {
+    const entry = m[1];
+    const id = getTag(entry, "id").trim().replace(/^t3_/, "") || permalinkOf(entry);
+    const title = decodeEntities(stripHtml(getTag(entry, "title"))).trim();
+    const permalink = permalinkOf(entry);
+    const author =
+      stripHtml(getTag(getTag(entry, "author"), "name")).replace(/^\/u\//, "").trim() ||
+      "unknown";
+    const subreddit =
+      entry.match(/<category\b[^>]*\bterm=["']([^"']+)["']/i)?.[1] || fallbackSub;
+    const published = getTag(entry, "published") || getTag(entry, "updated");
+    const outbound = outboundLink(getTag(entry, "content"));
+    // A self post's `[link]` points back at its own comments page.
+    const isSelf = !outbound || /reddit\.com\/r\/[^/]+\/comments\//i.test(outbound);
+
+    items.push({
+      id,
+      author: { name: author, handle: author, avatarUrl: identiconUrl(author) },
+      content: title,
+      url: permalink || outbound,
+      createdAt: new Date(published || Date.now()).toISOString(),
+      meta: {
+        score: 0,
+        comments: 0,
+        subreddit,
+        isSelf,
+        externalUrl: isSelf ? undefined : outbound,
+        nsfw: false,
+      },
+    });
+  }
+  return items;
 }
 
 export async function fetchSubredditPage(
@@ -50,62 +90,24 @@ export async function fetchSubredditPage(
   limit = 12,
   after?: string,
 ): Promise<{ items: FeedItem[]; nextAfter?: string }> {
+  // The Atom feed is a single fixed page with no cursor, so a "load more"
+  // (non-empty `after`) has nothing further to return.
+  if (after) return { items: [], nextAfter: undefined };
+
   const sub = subreddit.trim().replace(/^r\//, "") || "popular";
   const sort = SORTS.has(sortBy) ? sortBy : "hot";
-  const params = new URLSearchParams({
-    limit: String(limit),
-    raw_json: "1",
-  });
-  if (after) params.set("after", after);
-  const url = `https://www.reddit.com/r/${encodeURIComponent(sub)}/${sort}.json?${params}`;
+  const url = `https://www.reddit.com/r/${encodeURIComponent(sub)}/${sort}/.rss?limit=${limit}`;
 
   const res = await fetchUpstream(url, {
-    headers: { "user-agent": UA, accept: "application/json" },
+    headers: { "user-agent": UA, accept: ACCEPT },
     cache: "no-store",
   });
-
   if (!res.ok) {
     throw new Error(`Reddit ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
-  const json = (await res.json()) as RedditListingExt;
-  if (json.error || !json.data?.children) {
-    throw new Error(`Reddit error: ${json.message ?? "no listing data"}`);
-  }
-
-  const items = json.data.children
-    .filter((c) => !c.data.stickied)
-    .slice(0, limit)
-    .map((c) => toFeedItem(c, sub));
-  const nextAfter = json.data.after ?? undefined;
-  return { items, nextAfter: nextAfter || undefined };
-}
-
-function toFeedItem(c: RedditChild, fallbackSub: string): FeedItem {
-  const d = c.data;
-  const author = d.author ?? "unknown";
-  const permalink = d.permalink
-    ? `https://reddit.com${d.permalink}`
-    : d.url;
-  return {
-    id: d.id,
-    author: {
-      name: author,
-      handle: author,
-      avatarUrl: identiconUrl(author),
-    },
-    content: d.title ?? "",
-    url: permalink,
-    createdAt: new Date(((d.created_utc ?? 0) * 1000) || Date.now()).toISOString(),
-    meta: {
-      score: d.score ?? 0,
-      comments: d.num_comments ?? 0,
-      subreddit: d.subreddit ?? fallbackSub,
-      isSelf: !!d.is_self,
-      externalUrl: !d.is_self ? d.url : undefined,
-      nsfw: !!d.over_18,
-    },
-  };
+  const items = parseRedditFeed(await res.text(), sub).slice(0, limit);
+  return { items, nextAfter: undefined };
 }
 
 export async function searchReddit(
@@ -114,17 +116,13 @@ export async function searchReddit(
 ): Promise<FeedItem[]> {
   const q = query.trim();
   if (!q) return [];
-  const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(q)}&sort=new&limit=${limit}&raw_json=1`;
+  const url = `https://www.reddit.com/search.rss?q=${encodeURIComponent(q)}&sort=new&limit=${limit}`;
   const res = await fetchUpstream(url, {
-    headers: { "user-agent": UA, accept: "application/json" },
+    headers: { "user-agent": UA, accept: ACCEPT },
     cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(`Reddit ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
-  const json = (await res.json()) as RedditListing;
-  if (!json.data?.children) return [];
-  return json.data.children
-    .slice(0, limit)
-    .map((c) => toFeedItem(c, c.data.subreddit ?? "all"));
+  return parseRedditFeed(await res.text(), "all").slice(0, limit);
 }
