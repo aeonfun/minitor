@@ -121,7 +121,7 @@ Set `DATABASE_URL` in `.env.local`:
 
 Minitor ships as a single Docker image (`Dockerfile`, `output: "standalone"`) that any container host builds straight from source. It runs migrations on boot, then serves on `$PORT` (default 3000). Pair it with a Postgres database.
 
-> **Heads up — Minitor has no per-user auth.** Decks and columns are global, so a public URL is a shared, editable dashboard. For anything reachable from the internet, set `MINITOR_PASSWORD` (below) to put the whole app behind a single-password gate.
+> **Heads up — Minitor has no per-user auth.** Decks and columns are global, so a public URL is a shared, editable dashboard. `MINITOR_PASSWORD` puts the whole app behind a single-password **login page** (a signed session cookie, `/login`, "Log out" in Settings). In a hosted deployment it is **required** — the image fails closed and serves a lock screen until you set it, so an instance is never accidentally public.
 
 **Local / VPS — one command:**
 
@@ -135,14 +135,14 @@ Brings up Postgres + Minitor, migrates automatically, serves at `http://localhos
 
 1. New project → **Deploy from repo**. Railway auto-detects the `Dockerfile` (`railway.json` pins the builder + health check).
 2. Add a **Postgres** plugin. Railway exposes its connection string as `DATABASE_URL` — reference it on the app service.
-3. Set `MINITOR_PASSWORD` and any [API keys](#column-types) as service variables, then deploy.
+3. Set `MINITOR_PASSWORD` (required — the app won't serve without it) and any [API keys](#column-types) as service variables, then deploy.
 
 **Hosting env vars:**
 
 | Var | Purpose |
 |---|---|
 | `DATABASE_URL` | `postgres://…` (compose/Railway) or a Neon URL. Required in hosted mode — `memory:`/PGlite is ephemeral. |
-| `MINITOR_PASSWORD` | Enables an HTTP Basic-Auth gate over the whole app. Unset = open (local default). |
+| `MINITOR_PASSWORD` | The login password. Gates the whole app behind a `/login` page (signed session cookie). **Required when hosted** — unset in hosted mode fails closed with a lock screen. Unset locally = open (dev default). |
 | `MINITOR_HOSTED` | Baked to `1` in the image. Disables the in-app key editor; keys come from env vars. |
 | `XAI_API_KEY`, `GITHUB_TOKEN`, … | Column [API keys](#column-types), read from the host environment. |
 

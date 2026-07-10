@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, ExternalLink, Eye, EyeOff, KeyRound } from "lucide-react";
+import { Check, ExternalLink, Eye, EyeOff, KeyRound, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ENV_KEYS } from "@/lib/env-keys";
 import { IS_HOSTED_CLIENT } from "@/lib/hosted";
+import { logout } from "@/app/login/actions";
 import {
   getEnvKeysStatus,
   setEnvKeys,
@@ -211,6 +212,17 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
           </div>
 
           <DialogFooter>
+            {IS_HOSTED_CLIENT && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => void logout()}
+                className="mr-auto text-muted-foreground"
+              >
+                <LogOut className="size-3.5" />
+                Log out
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"

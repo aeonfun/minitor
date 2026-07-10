@@ -28,7 +28,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://minitor:minitor@db:5432/minitor
-      # Optional Basic-Auth gate — set this to require a password to reach the app.
+      # Login gate — the app is served behind a /login page and refuses to serve
+      # anything until this is set (the image runs in hosted mode). Required.
       MINITOR_PASSWORD: ${MINITOR_PASSWORD:-}
       # API keys are read from the host env here (the in-app editor is disabled
       # in hosted mode). Leave unset to run keyless columns only.
