@@ -8,11 +8,11 @@ import { identiconUrl } from "@/lib/utils";
 // `github.ts` rather than inside it. The REST module is intentionally left
 // untouched so its API surface (legacy callers) stays stable.
 //
-// Auth: optional `GITHUB_TOKEN`. With a token we get the standard 5000 req/hr
-// authenticated GraphQL quota; without one we degrade to the 60 req/hr
-// unauthenticated public quota (same as the rest of the github-* plugins).
-// The column never fails because of a missing token — that's a deliberate
-// product decision: keyless dashboards are a first-class use case.
+// Auth: `GITHUB_TOKEN` is REQUIRED. Unlike GitHub's REST API (which serves the
+// other github-* plugins keyless at 60 req/hr), the GraphQL API gives
+// unauthenticated requests ~0 quota — it returns HTTP 403 "API rate limit
+// exceeded" immediately. Discussions have no REST surface, so there is no
+// keyless path; we fail fast with a clear message instead of a raw 403.
 
 const GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
 
@@ -133,6 +133,11 @@ export async function fetchDiscussions(
   mode: GHDiscussionMode,
   first: number,
 ): Promise<FeedItem<GHDiscussionMeta>[]> {
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error(
+      "GitHub Discussions requires a token. Set GITHUB_TOKEN in your env (read-only public scope is enough).",
+    );
+  }
   const { owner, name } = parseRepo(repo);
   const fullRepo = `${owner}/${name}`;
   // We always pull a generous batch (caller controls `first`, usually 50) so

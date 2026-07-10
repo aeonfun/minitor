@@ -27,6 +27,6 @@ export const meta: PluginMeta<GHStarsConfig, GHStarsMeta> = {
   capabilities: {
     paginated: true,
     rateLimitHint:
-      "60 req/hr without GITHUB_TOKEN, 5000 with. Token unlocks GraphQL for newest-first ordering.",
+      "Requires GITHUB_TOKEN — GitHub auth-gates the stargazers list (401 without a token). 5000 req/hr with one.",
   },
 };

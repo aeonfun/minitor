@@ -686,78 +686,6 @@ export function normalizeGitHubRepo(input: string): string {
   return clean;
 }
 
-function parseLastPage(linkHeader: string | null): number | undefined {
-  if (!linkHeader) return undefined;
-  // Link: <...&page=42>; rel="last", <...&page=2>; rel="next"
-  for (const part of linkHeader.split(",")) {
-    const m = /<([^>]+)>;\s*rel="last"/.exec(part.trim());
-    if (m) {
-      try {
-        const u = new URL(m[1]);
-        const p = u.searchParams.get("page");
-        if (p) return Number(p);
-      } catch {
-        // The Link-header URL is matched by regex; a malformed match shouldn't
-        // be fatal — fall through and let pagination return undefined.
-      }
-    }
-  }
-  return undefined;
-}
-
-interface GHStargazerEdgeREST {
-  starred_at: string;
-  user: { login: string; avatar_url?: string; html_url?: string };
-}
-
-async function ghFetchStargazersPageREST(
-  fullRepo: string,
-  page: number,
-  perPage: number,
-): Promise<{ items: GHWatcherItem[]; lastPage?: number }> {
-  const params = new URLSearchParams({
-    per_page: String(perPage),
-    page: String(page),
-  });
-  const url = `${API}/repos/${fullRepo}/stargazers?${params}`;
-  const res = await fetchUpstream(url, {
-    headers: {
-      ...headers(),
-      // star+json is required to receive `starred_at` timestamps.
-      accept: "application/vnd.github.star+json",
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`GitHub ${res.status}: ${body.slice(0, 200)}`);
-  }
-  const lastPage = parseLastPage(res.headers.get("link"));
-  const json = (await res.json()) as GHStargazerEdgeREST[];
-  const items = json.map((edge) => {
-    const u = edge.user;
-    return {
-      id: `gh-star-${fullRepo}-${u.login}`,
-      author: {
-        name: u.login,
-        handle: u.login,
-        avatarUrl:
-          u.avatar_url ??
-          identiconUrl(u.login),
-      },
-      content: `${u.login} starred ${fullRepo}`,
-      url: u.html_url ?? `https://github.com/${u.login}`,
-      createdAt: edge.starred_at,
-      meta: {
-        kind: "star",
-        repo: fullRepo,
-        starredAt: edge.starred_at,
-      },
-    } satisfies GHWatcherItem;
-  });
-  return { items, lastPage };
-}
-
 interface GHGraphQLStargazersResponse {
   data?: {
     repository: {
@@ -841,49 +769,27 @@ async function fetchStargazersGraphQL(
   };
 }
 
-async function fetchStargazersREST(
-  fullRepo: string,
-  limit: number,
-  cursor?: string,
-): Promise<GHWatcherPage> {
-  // REST sorts oldest-first. To surface newest-first we must walk the Link
-  // header to find the last page, then page backwards from there.
-  let pageToFetch: number;
-  if (cursor) {
-    pageToFetch = Number(cursor);
-    if (!Number.isFinite(pageToFetch) || pageToFetch < 1) {
-      return { items: [] };
-    }
-  } else {
-    const probe = await ghFetchStargazersPageREST(fullRepo, 1, limit);
-    pageToFetch = probe.lastPage ?? 1;
-  }
-  const { items } = await ghFetchStargazersPageREST(
-    fullRepo,
-    pageToFetch,
-    limit,
-  );
-  items.reverse();
-  return {
-    items,
-    nextCursor: pageToFetch > 1 ? String(pageToFetch - 1) : undefined,
-  };
-}
-
 export async function fetchStargazers(
   repo: string,
   limit = 12,
   cursor?: string,
 ): Promise<GHWatcherPage> {
-  const fullRepo = normalizeGitHubRepo(repo);
-  if (process.env.GITHUB_TOKEN) {
-    return fetchStargazersGraphQL(
-      fullRepo,
-      limit,
-      cursor?.startsWith("gql:") ? cursor.slice(4) : undefined,
+  // GitHub now returns 401 on the REST `/stargazers` endpoint for
+  // unauthenticated requests (the plain repo endpoint still works keyless, but
+  // the stargazer list is auth-gated), so this column requires a token — there
+  // is no keyless way to list recent stargazers. With a token we use GraphQL,
+  // which orders by STARRED_AT and gives real newest-first pagination.
+  if (!process.env.GITHUB_TOKEN) {
+    throw new Error(
+      "GitHub stargazers requires a token. Set GITHUB_TOKEN in your env (read-only public scope is enough).",
     );
   }
-  return fetchStargazersREST(fullRepo, limit, cursor);
+  const fullRepo = normalizeGitHubRepo(repo);
+  return fetchStargazersGraphQL(
+    fullRepo,
+    limit,
+    cursor?.startsWith("gql:") ? cursor.slice(4) : undefined,
+  );
 }
 
 interface GHForkREST {

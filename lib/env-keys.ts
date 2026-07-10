@@ -40,7 +40,7 @@ export const ENV_KEYS: EnvKeySpec[] = [
     key: "GITHUB_TOKEN",
     label: "GitHub",
     description:
-      "Optional — raises every GitHub plugin's rate limit from 60 → 5000 req/hr. GitHub code search additionally requires a token.",
+      "Optional — raises every GitHub plugin's rate limit from 60 → 5000 req/hr. GitHub code search, stars, and discussions additionally require a token (GitHub auth-gates those endpoints).",
     signupUrl: "https://github.com/settings/tokens",
     required: false,
   },
