@@ -124,8 +124,22 @@ export async function searchSubstackPublications(
   );
 
   const merged: FeedItem<SubstackMeta>[] = [];
+  const errors: string[] = [];
   for (const r of results) {
-    if (r.status === "fulfilled") merged.push(...r.value);
+    if (r.status === "fulfilled") {
+      merged.push(...r.value);
+    } else {
+      errors.push(
+        r.reason instanceof Error ? r.reason.message : String(r.reason),
+      );
+    }
+  }
+
+  // Partial success is fine — one dead feed shouldn't blank the column — but if
+  // every feed failed, surface the error instead of rendering an empty column
+  // that reads as "no posts". Mirrors github-backlinks' all-sources-failed check.
+  if (merged.length === 0 && errors.length > 0) {
+    throw new Error(`All feeds failed:\n${errors.join("\n")}`);
   }
 
   const filtered = query.trim()
