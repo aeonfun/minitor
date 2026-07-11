@@ -18,6 +18,13 @@ interface ParsedFeed {
   items: ParsedItem[];
 }
 
+// Meta emitted by `fetchFeed`. Owned here so feed-backed plugins (rss,
+// google-news) alias it instead of redeclaring the shape.
+export interface RssItemMeta {
+  source: string;
+  feedTitle?: string;
+}
+
 function stripCdata(s: string): string {
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
 }
@@ -184,7 +191,7 @@ export async function fetchFeed(url: string, limit = 12): Promise<FeedItem[]> {
         source,
         feedTitle: feed.title || host,
       },
-    } satisfies FeedItem;
+    } satisfies FeedItem<RssItemMeta>;
   });
 }
 

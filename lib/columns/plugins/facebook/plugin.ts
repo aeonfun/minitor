@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ThumbsUp } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
+import type { WebSearchMeta } from "@/lib/integrations/xai";
 
 export const schema = z.object({
   query: z.string().default(""),
@@ -8,10 +9,7 @@ export const schema = z.object({
 
 export type FacebookConfig = z.infer<typeof schema>;
 
-export interface FacebookMeta {
-  source: string;
-  kind: "web" | "news";
-}
+export type FacebookMeta = WebSearchMeta;
 
 export const meta: PluginMeta<FacebookConfig, FacebookMeta> = {
   id: "facebook",

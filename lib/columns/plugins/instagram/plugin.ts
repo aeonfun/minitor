@@ -3,6 +3,7 @@ import { z } from "zod";
 // the camera-lens substitute used by other dashboards.
 import { Aperture } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
+import type { WebSearchMeta } from "@/lib/integrations/xai";
 
 export const schema = z.object({
   query: z.string().default(""),
@@ -10,10 +11,7 @@ export const schema = z.object({
 
 export type InstagramConfig = z.infer<typeof schema>;
 
-export interface InstagramMeta {
-  source: string;
-  kind: "web" | "news";
-}
+export type InstagramMeta = WebSearchMeta;
 
 export const meta: PluginMeta<InstagramConfig, InstagramMeta> = {
   id: "instagram",

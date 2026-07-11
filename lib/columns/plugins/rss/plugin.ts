@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Rss } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
+import type { RssItemMeta } from "@/lib/integrations/rss";
 
 export const schema = z.object({
   url: z.string().default(""),
@@ -8,10 +9,7 @@ export const schema = z.object({
 
 export type RssConfig = z.infer<typeof schema>;
 
-export interface RssMeta {
-  source: string;
-  feedTitle?: string;
-}
+export type RssMeta = RssItemMeta;
 
 export const meta: PluginMeta<RssConfig, RssMeta> = {
   id: "rss",

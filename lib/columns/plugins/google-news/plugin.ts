@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Megaphone } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
+import type { RssItemMeta } from "@/lib/integrations/rss";
 
 export const schema = z.object({
   query: z.string().default(""),
@@ -11,10 +12,7 @@ export const schema = z.object({
 
 export type GoogleNewsConfig = z.infer<typeof schema>;
 
-export interface GoogleNewsMeta {
-  source: string;
-  feedTitle?: string;
-}
+export type GoogleNewsMeta = RssItemMeta;
 
 export const meta: PluginMeta<GoogleNewsConfig, GoogleNewsMeta> = {
   id: "google-news",

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Newspaper } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
+import type { WebSearchMeta } from "@/lib/integrations/xai";
 
 export const schema = z.object({
   query: z.string().default(""),
@@ -8,10 +9,7 @@ export const schema = z.object({
 
 export type NewsSearchConfig = z.infer<typeof schema>;
 
-export interface NewsSearchMeta {
-  source: string;
-  kind: "web" | "news";
-}
+export type NewsSearchMeta = WebSearchMeta;
 
 export const meta: PluginMeta<NewsSearchConfig, NewsSearchMeta> = {
   id: "news-search",

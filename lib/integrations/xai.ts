@@ -34,6 +34,13 @@ export type GrokTool =
   | { type: "x_search" }
   | { type: "web_search" };
 
+// Meta emitted by the web/news searches (grokWebSearch, grokNewsSearch,
+// grokFacebookSearch). Owned here so the consuming plugins alias it.
+export interface WebSearchMeta {
+  source: string;
+  kind: "web" | "news";
+}
+
 interface GrokSearchOptions {
   prompt: string;
   tools: GrokTool[];
@@ -142,7 +149,10 @@ function toXFeedItem(g: GrokItem): FeedItem | null {
   };
 }
 
-function toWebFeedItem(g: GrokItem, kind: "web" | "news"): FeedItem | null {
+function toWebFeedItem(
+  g: GrokItem,
+  kind: "web" | "news",
+): FeedItem<WebSearchMeta> | null {
   const url = g.url;
   const content = (g.content ?? g.snippet ?? g.title ?? "").trim();
   if (!url || !content) return null;
@@ -198,7 +208,7 @@ export async function grokWebSearch(query: string, limit = 6): Promise<FeedItem[
   const items = await callGrok({ prompt, tools: [{ type: "web_search" }] });
   return items
     .map((g) => toWebFeedItem(g, "web"))
-    .filter((i): i is FeedItem => i !== null)
+    .filter((i): i is FeedItem<WebSearchMeta> => i !== null)
     .slice(0, limit);
 }
 
@@ -209,7 +219,7 @@ export async function grokNewsSearch(query: string, limit = 6): Promise<FeedItem
   const items = await callGrok({ prompt, tools: [{ type: "web_search" }] });
   return items
     .map((g) => toWebFeedItem(g, "news"))
-    .filter((i): i is FeedItem => i !== null)
+    .filter((i): i is FeedItem<WebSearchMeta> => i !== null)
     .slice(0, limit);
 }
 
@@ -222,7 +232,7 @@ export async function grokFacebookSearch(query: string, limit = 6): Promise<Feed
   const items = await callGrok({ prompt, tools: [{ type: "web_search" }] });
   return items
     .map((g) => toWebFeedItem(g, "web"))
-    .filter((i): i is FeedItem => i !== null)
+    .filter((i): i is FeedItem<WebSearchMeta> => i !== null)
     .filter((i) => /(^|\.)facebook\.com\//i.test(i.url ?? ""))
     .slice(0, limit);
 }
