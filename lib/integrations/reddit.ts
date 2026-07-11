@@ -9,10 +9,10 @@ import { decodeEntities, stripHtml } from "@/lib/integrations/text";
 // served keyless to a descriptive User-Agent, so we read those instead.
 //
 // The trade-off vs. the old JSON path: the feed carries no score / comment
-// count and no `after` cursor. Score and comments degrade to 0 (the UI renders
-// them with a `?? 0` fallback), and each column shows a single feed page
-// (~25 items) instead of paginating. Everything else — title, author,
-// permalink, outbound link, timestamp — comes through.
+// count and no `after` cursor, so the card omits engagement stats and each
+// column shows a single feed page (~25 items) instead of paginating.
+// Everything else — title, author, permalink, outbound link, timestamp —
+// comes through.
 const UA = "minitor/0.1 (https://github.com/anthropics/claude-code dashboard)";
 const ACCEPT = "application/atom+xml, application/xml;q=0.9, */*;q=0.8";
 
@@ -70,8 +70,6 @@ function parseRedditFeed(xml: string, fallbackSub: string): FeedItem[] {
       url: permalink || outbound,
       createdAt: new Date(published || Date.now()).toISOString(),
       meta: {
-        score: 0,
-        comments: 0,
         subreddit,
       },
     });

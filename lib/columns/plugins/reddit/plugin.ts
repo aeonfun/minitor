@@ -10,8 +10,6 @@ export const schema = z.object({
 export type RedditConfig = z.infer<typeof schema>;
 
 export interface RedditMeta {
-  score: number;
-  comments: number;
   subreddit: string;
 }
 

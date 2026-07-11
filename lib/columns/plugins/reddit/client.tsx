@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowBigUp, MessageSquareText, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,6 @@ import {
   type ConfigFormProps,
   type ItemRendererProps,
 } from "@/lib/columns/types";
-import { formatCompactCount } from "@/lib/utils";
 import { meta, type RedditConfig, type RedditMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<RedditConfig>) {
@@ -59,8 +58,6 @@ function ConfigForm({ value, onChange }: ConfigFormProps<RedditConfig>) {
 
 function ItemRenderer({ item }: ItemRendererProps<RedditMeta>) {
   const m = item.meta;
-  const score = m?.score ?? 0;
-  const comments = m?.comments ?? 0;
   const subreddit = m?.subreddit ?? "";
 
   return (
@@ -94,16 +91,6 @@ function ItemRenderer({ item }: ItemRendererProps<RedditMeta>) {
       >
         {item.content}
       </h3>
-      <div className="mt-2 flex items-center gap-4 text-[11.5px] text-muted-foreground">
-        <span className="flex items-center gap-1 transition-colors group-hover/item:text-foreground">
-          <ArrowBigUp className="size-4" />
-          <span className="tabular-nums">{formatCompactCount(score)}</span>
-        </span>
-        <span className="flex items-center gap-1 transition-colors group-hover/item:text-foreground">
-          <MessageSquareText className="size-3.5" />
-          <span className="tabular-nums">{formatCompactCount(comments)}</span>
-        </span>
-      </div>
     </a>
   );
 }
