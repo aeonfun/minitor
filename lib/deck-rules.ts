@@ -2,7 +2,7 @@
 // and the client store (`lib/store/use-deck-store.ts`).
 //
 // These are plain constants and synchronous helpers — NOT server actions. They
-// used to live in `app/actions.ts`, but that file carries `"use server"`, and
+// can't live in `app/actions.ts` because that file carries `"use server"`, and
 // a "use server" module may only export async functions. Exporting a const or
 // a sync function from it makes Turbopack reject the whole module ("only async
 // functions are allowed to be exported in a 'use server' file"), which cascades

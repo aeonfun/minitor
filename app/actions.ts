@@ -154,7 +154,7 @@ export async function renameDeck(id: string, name: string): Promise<void> {
  * clear (the normalizer treats both the same way — the UI validates before
  * calling). Validation is server-authoritative so a hand-edited payload
  * can never bypass the hex check. Mirrors `updateColumnColor` exactly —
- * the deck-level analog of the column color labels from PR #61.
+ * the deck-level analog of the column color labels.
  */
 export async function updateDeckColor(
   id: string,
@@ -367,7 +367,7 @@ export async function renameColumn(id: string, title: string): Promise<void> {
  *
  * `pinned` is deliberately NOT inherited — pinning is the operator's
  * explicit "this is a primary column" decision. Mirrors the deck-board's
- * "DnD across pin/unpin no-op" rule from PR #59: crossing the pin boundary
+ * "DnD across pin/unpin no-op" rule: crossing the pin boundary
  * always requires an explicit action.
  *
  * `color` IS inherited — unlike pinned (a routing decision about where in

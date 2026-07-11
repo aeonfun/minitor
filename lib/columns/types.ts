@@ -226,7 +226,7 @@ export interface Deck {
    * apply a group-level color code at the deck level for at-a-glance
    * identification across a long sidebar (markets orange, dev blue,
    * social purple, etc.). The deck-level analog of `Column.color`
-   * (column color labels, PR #61). Round-trips through deck export /
+   * (column color labels). Round-trips through deck export /
    * import / share links / version-history snapshots as the optional
    * `deckColor` field of the v1 schema (additive — old exports omit it
    * and import as null). Server-validated to `/^#[0-9a-f]{6}$/i` and

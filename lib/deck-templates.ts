@@ -68,7 +68,6 @@ export interface DeckTemplate {
   payload: DeckTemplatePayload;
 }
 
-// -----------------------------------------------------------------------------
 // AI Research
 // HN top + arXiv cs.AI + GitHub trending Python + Hugging Face trending models
 // + X search for "AI". All five run keyless EXCEPT x-search, which needs
@@ -76,7 +75,6 @@ export interface DeckTemplate {
 // and can either add the key or remove the column. Including it anyway because
 // the template's point is "what a research dashboard should look like" — every
 // AI-research user wants X coverage.
-// -----------------------------------------------------------------------------
 
 const aiResearch: DeckTemplate = {
   id: "ai-research",
@@ -119,13 +117,11 @@ const aiResearch: DeckTemplate = {
   },
 };
 
-// -----------------------------------------------------------------------------
 // Base Ecosystem
 // GitHub stars for aaronjmars/aeon + aaronjmars/aeon-agent + CoinGecko AEON
 // watchlist + DeFiLlama top (operator filters category to Base) + X search
 // for "@aeonframework". No wallet-tx — it requires a wallet address per row
 // and a one-click template can't pick one for the operator.
-// -----------------------------------------------------------------------------
 
 const baseEcosystem: DeckTemplate = {
   id: "base-ecosystem",
@@ -176,13 +172,11 @@ const baseEcosystem: DeckTemplate = {
   },
 };
 
-// -----------------------------------------------------------------------------
 // Crypto DeFi
 // DeFiLlama 24h gainers + Polymarket trending + CoinGecko top-by-market-cap
 // + X search for DeFi. Pairs the on-chain TVL flows (DeFiLlama) with the price
 // + narrative layer (CoinGecko, X) and the prediction-market reference
 // (Polymarket). All four are keyless except x-search.
-// -----------------------------------------------------------------------------
 
 const cryptoDefi: DeckTemplate = {
   id: "crypto-defi",
@@ -220,13 +214,11 @@ const cryptoDefi: DeckTemplate = {
   },
 };
 
-// -----------------------------------------------------------------------------
 // Startup Tracker
 // GitHub trending + Product Hunt today + HN Show + DEV.to top week + Reddit
 // r/startups. All five are keyless, which makes this the lowest-friction
 // template — a brand-new install can land on this and have a fully-working
 // deck without setting a single env var.
-// -----------------------------------------------------------------------------
 
 const startupTracker: DeckTemplate = {
   id: "startup-tracker",

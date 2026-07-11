@@ -2,11 +2,9 @@ import { fetchUpstream } from "@/lib/integrations/fetch";
 import type { FeedItem } from "@/lib/columns/types";
 
 // Single source of truth for App Store + Google Play review fetching. Two
-// keyless paths today (Apple's iTunes RSS for App Store; the public
-// batchexecute scrape for Google Play). Env-var-gated upgrade paths
-// (APP_STORE_CONNECT_KEY for App Store Connect API, GOOGLE_PLAY_SA_JSON for
-// Google Play Developer Reporting API) can drop in here without changing
-// the plugin contract.
+// keyless paths today: Apple's iTunes RSS for App Store, and the public
+// batchexecute scrape for Google Play. Authenticated store APIs can slot in
+// here later without changing the plugin contract.
 
 export type AppReviewPlatform = "app-store" | "google-play";
 

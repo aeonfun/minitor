@@ -6,7 +6,7 @@ import { identiconUrl } from "@/lib/utils";
 // GraphQL API — there's no REST surface for them — so this file is a
 // purpose-built GraphQL client that lives alongside the REST helpers in
 // `github.ts` rather than inside it. The REST module is intentionally left
-// untouched so its API surface (legacy callers) stays stable.
+// untouched so its API surface stays stable.
 //
 // Auth: `GITHUB_TOKEN` is REQUIRED. Unlike GitHub's REST API (which serves the
 // other github-* plugins keyless at 60 req/hr), the GraphQL API gives

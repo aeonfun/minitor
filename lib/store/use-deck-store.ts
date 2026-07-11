@@ -663,7 +663,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
             tabGroup: source.tabGroup,
             // Pinning is the operator's explicit "primary column" decision —
             // duplicates land unpinned regardless of source state, mirroring
-            // PR #59's "DnD across pin/unpin no-op" rule.
+            // the deck-board's "DnD across pin/unpin no-op" rule.
             pinned: undefined,
             // Color IS inherited — unlike pinned, color is a visual labeling
             // decision about what kind of column this is, not a routing
