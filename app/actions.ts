@@ -9,7 +9,7 @@ import { db } from "@/lib/db/client";
 import { columns, deckSnapshots, decks, feedItems } from "@/lib/db/schema";
 import type { Column, Deck, FeedItem } from "@/lib/columns/types";
 import { MAX_ITEMS_PER_COLUMN } from "@/lib/columns/constants";
-import { ENV_KEYS, ENV_KEY_NAMES } from "@/lib/env-keys";
+import { ENV_KEYS, ENV_KEY_NAMES, isPlaceholderValue } from "@/lib/env-keys";
 import { isHostedDeployment } from "@/lib/hosted";
 import {
   parseAlertKeywords,
@@ -56,7 +56,10 @@ export async function getKeyAvailability(
   const out: Record<string, boolean> = {};
   for (const k of keys) {
     if (!/^[A-Z][A-Z0-9_]*$/.test(k)) continue;
-    out[k] = Boolean(process.env[k]);
+    // Treat blank / `.env.example` placeholders as unset, matching `doctor`
+    // and the fetchers — otherwise a placeholder greys nothing and the column
+    // looks ready but fails on refresh.
+    out[k] = !isPlaceholderValue(process.env[k]);
   }
   return out;
 }
@@ -973,7 +976,8 @@ export interface EnvKeyStatus {
 export async function getEnvKeysStatus(): Promise<EnvKeyStatus[]> {
   return ENV_KEYS.map(({ key }) => {
     const v = process.env[key] ?? "";
-    if (!v) return { key, set: false };
+    // A leftover `.env.example` placeholder (e.g. `xai-...`) is not configured.
+    if (isPlaceholderValue(v)) return { key, set: false };
     const preview = v.length >= 4 ? v.slice(-4) : v;
     return { key, set: true, preview };
   });

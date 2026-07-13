@@ -55,3 +55,20 @@ export const ENV_KEYS: EnvKeySpec[] = [
 ];
 
 export const ENV_KEY_NAMES = new Set(ENV_KEYS.map((k) => k.key));
+
+/**
+ * Whether an env value is effectively unset — blank, or a fill-me-in
+ * placeholder like `.env.example`'s `XAI_API_KEY=xai-...`. `./minitor doctor`
+ * rejects the same placeholder, but a naive `Boolean(process.env.X)` counts it
+ * as configured — so the Add-column dialog shows a broken column as ready and
+ * the fetcher ships a bogus key upstream (xAI answers "Incorrect API key").
+ * Pure and client-safe; callers pass `process.env[...]` in from the server.
+ */
+export function isPlaceholderValue(value: string | undefined | null): boolean {
+  if (value == null) return true;
+  const v = value.trim();
+  if (v === "") return true;
+  // Ellipsis (ASCII "..." or unicode "…") is the fill-me-in marker in the
+  // shipped .env.example placeholders. No real API key contains it.
+  return v.includes("...") || v.includes("…");
+}

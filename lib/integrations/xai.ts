@@ -2,6 +2,7 @@ import { fetchUpstream } from "@/lib/integrations/fetch";
 import { nanoid } from "nanoid";
 import type { FeedItem } from "@/lib/columns/types";
 import { identiconUrl } from "@/lib/utils";
+import { isPlaceholderValue } from "@/lib/env-keys";
 
 const XAI_URL = "https://api.x.ai/v1/responses";
 
@@ -86,8 +87,13 @@ function extractJsonArray(text: string): GrokItem[] {
 
 async function callGrok(options: GrokSearchOptions): Promise<GrokItem[]> {
   const apiKey = process.env.XAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("XAI_API_KEY is not set in .env.local");
+  // Reject the blank/`.env.example` placeholder here too, so a leftover
+  // `xai-...` fails with a clear "not set" message instead of being shipped
+  // upstream and bouncing back as an opaque "Incorrect API key".
+  if (isPlaceholderValue(apiKey)) {
+    throw new Error(
+      "XAI_API_KEY is not set in .env.local (still the .env.example placeholder?)",
+    );
   }
   const model = options.model ?? process.env.XAI_MODEL ?? "grok-4-fast-reasoning";
 
