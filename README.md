@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/aeonfun/minitor/stargazers"><img src="https://img.shields.io/github/stars/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub stars"></a>
   <a href="https://github.com/aeonfun/minitor/network/members"><img src="https://img.shields.io/github/forks/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub forks"></a>
-  <a href="https://x.com/aeonframework"><img src="https://img.shields.io/badge/by-%40aeonframework-black?style=flat-square&logo=x&labelColor=000000" alt="by aeon"></a>
+  <a href="https://x.com/aeonframework"><img src="https://img.shields.io/badge/Follow-%40aeonframework-black?style=flat-square&logo=x&labelColor=000000" alt="Follow on X"></a>
   <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="https://img.shields.io/badge/Aeon%20on-Bankr-orange?style=flat-square&labelColor=1a1a2e" alt="Aeon on Bankr"></a>
 </p>
 
