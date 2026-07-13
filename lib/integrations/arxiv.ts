@@ -253,7 +253,7 @@ export async function fetchArxivPage(
       accept: "application/atom+xml, application/xml;q=0.9, text/xml;q=0.9",
       // arXiv's user manual asks scrapers to identify themselves so the
       // operations team can rate-limit cooperatively if needed.
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

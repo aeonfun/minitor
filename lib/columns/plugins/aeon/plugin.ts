@@ -2,7 +2,7 @@ import { z } from "zod";
 import { Bot } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
 
-// Aeon (github.com/aaronjmars/aeon) is an autonomous agent that runs "skills"
+// Aeon (github.com/aeonfun/aeon) is an autonomous agent that runs "skills"
 // on a cron and commits the results back into its repo. This column surfaces
 // that output. Four interchangeable sources, so it works whether the operator
 // runs the local Aeon dashboard or only has the GitHub fork:

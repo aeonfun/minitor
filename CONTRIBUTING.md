@@ -7,7 +7,7 @@ Thanks for helping build Minitor — the dashboard for the current thing. The mo
 **Prereqs:** Node 20+. That's the whole list — PGlite is bundled (real Postgres compiled to WASM), so there's no Docker, no hosted database, no migrations to wire up by hand.
 
 ```bash
-git clone https://github.com/aaronjmars/minitor.git && cd minitor
+git clone https://github.com/aeonfun/minitor.git && cd minitor
 ./minitor
 ```
 

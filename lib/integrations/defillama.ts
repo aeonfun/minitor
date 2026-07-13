@@ -144,7 +144,7 @@ async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetchUpstream(`${API_BASE}${path}`, {
     headers: {
       accept: "application/json",
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

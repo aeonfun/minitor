@@ -1,6 +1,6 @@
 // Aeon integration — consumes the output an Aeon agent fork produces.
 //
-// Aeon (github.com/aaronjmars/aeon) is a GitHub-Actions-native agent: a cron
+// Aeon (github.com/aeonfun/aeon) is a GitHub-Actions-native agent: a cron
 // scheduler dispatches skills, each run commits its results back into the repo
 // and (optionally) serves them from a local dashboard. This client reads that
 // output through four interchangeable sources so the column works whether or

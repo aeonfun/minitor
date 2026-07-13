@@ -5,8 +5,8 @@
 <h1 align="center">Minitor</h1>
 
 <p align="center">
-  <a href="https://github.com/aaronjmars/minitor/stargazers"><img src="https://img.shields.io/github/stars/aaronjmars/minitor?style=flat-square&logo=github" alt="GitHub stars"></a>
-  <a href="https://github.com/aaronjmars/minitor/network/members"><img src="https://img.shields.io/github/forks/aaronjmars/minitor?style=flat-square&logo=github" alt="GitHub forks"></a>
+  <a href="https://github.com/aeonfun/minitor/stargazers"><img src="https://img.shields.io/github/stars/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub stars"></a>
+  <a href="https://github.com/aeonfun/minitor/network/members"><img src="https://img.shields.io/github/forks/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub forks"></a>
   <a href="https://x.com/aeonframework"><img src="https://img.shields.io/badge/by-%40aeonframework-black?style=flat-square&logo=x&labelColor=000000" alt="by aeon"></a>
   <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="https://img.shields.io/badge/Aeon%20on-Bankr-orange?style=flat-square&labelColor=1a1a2e" alt="Aeon on Bankr"></a>
 </p>
@@ -36,7 +36,7 @@ The recommended path: **one command, `./minitor`.** First column up in under a m
 **Prereqs** — Node 20+. That's it. PGlite is bundled (real Postgres compiled to WASM), so no Docker, no hosted database, no setup.
 
 ```bash
-git clone https://github.com/aaronjmars/minitor.git && cd minitor
+git clone https://github.com/aeonfun/minitor.git && cd minitor
 ./minitor
 ```
 
@@ -178,4 +178,4 @@ MIT.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=aaronjmars/minitor&type=Date)](https://www.star-history.com/#aaronjmars/minitor&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=aeonfun/minitor&type=Date)](https://www.star-history.com/#aeonfun/minitor&Date)

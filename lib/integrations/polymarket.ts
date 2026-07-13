@@ -210,7 +210,7 @@ export async function fetchPolymarketPage(
       // Polymarket's Gamma API is openly documented as public; identifying
       // ourselves keeps us in good standing if they ever start enforcing
       // per-client rate limits.
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

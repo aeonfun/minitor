@@ -141,7 +141,7 @@ export async function fetchStackOverflowPage(
   const res = await fetchUpstream(url, {
     headers: {
       accept: "application/json",
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

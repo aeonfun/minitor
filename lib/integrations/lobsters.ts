@@ -119,7 +119,7 @@ export async function fetchLobstersPage(
       // Lobsters' admins ask scrapers to identify themselves; minitor is a
       // dashboard polling at user-driven cadence so a recognisable UA helps
       // them rate-limit cooperatively if needed.
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

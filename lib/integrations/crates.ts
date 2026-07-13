@@ -147,7 +147,7 @@ export async function fetchCratesPage(
       // crates.io's User-Agent policy is strict — anonymous requests without
       // a UA get 403. Identifying minitor as the caller keeps us in
       // compliance with the documented expectation.
-      "user-agent": "minitor/1.0 (+https://github.com/aaronjmars/minitor)",
+      "user-agent": "minitor/1.0 (+https://github.com/aeonfun/minitor)",
     },
     cache: "no-store",
   });

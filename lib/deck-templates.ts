@@ -118,7 +118,7 @@ const aiResearch: DeckTemplate = {
 };
 
 // Base Ecosystem
-// GitHub stars for aaronjmars/aeon + aaronjmars/aeon-agent + CoinGecko AEON
+// GitHub stars for aeonfun/aeon + aaronjmars/aeon-agent + CoinGecko AEON
 // watchlist + DeFiLlama top (operator filters category to Base) + X search
 // for "@aeonframework". No wallet-tx — it requires a wallet address per row
 // and a one-click template can't pick one for the operator.
@@ -137,8 +137,8 @@ const baseEcosystem: DeckTemplate = {
     columns: [
       {
         typeId: "github-stars",
-        title: "Stars · aaronjmars/aeon",
-        config: { repo: "aaronjmars/aeon" },
+        title: "Stars · aeonfun/aeon",
+        config: { repo: "aeonfun/aeon" },
       },
       {
         typeId: "github-stars",

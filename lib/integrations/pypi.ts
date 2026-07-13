@@ -41,7 +41,7 @@ const TOP_PACKAGES_URL =
 const STATS_BASE = "https://pypistats.org/api/packages";
 const PYPI_PROJECT_BASE = "https://pypi.org/project";
 
-const UA = "minitor/1.0 (+https://github.com/aaronjmars/minitor)";
+const UA = "minitor/1.0 (+https://github.com/aeonfun/minitor)";
 
 export type PypiMode = "updates" | "new-packages" | "top-30d";
 
