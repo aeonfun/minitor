@@ -39,10 +39,10 @@ import {
 // ---- Config form ----------------------------------------------------------
 
 const SOURCE_LABELS: Record<AeonConfig["source"], string> = {
-  "github-runs": "Workflow runs (GitHub)",
+  "github-runs": "Skill runs (GitHub)",
   "github-articles": "Articles (GitHub)",
-  "dashboard-outputs": "Feed cards (dashboard)",
-  "dashboard-runs": "Runs (dashboard)",
+  "dashboard-outputs": "Feed cards (local)",
+  "dashboard-runs": "Runs (local)",
 };
 
 function ConfigForm({ value, onChange }: ConfigFormProps<AeonConfig>) {
@@ -58,7 +58,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<AeonConfig>) {
             onChange({ ...value, source: v as AeonConfig["source"] })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -84,37 +84,19 @@ function ConfigForm({ value, onChange }: ConfigFormProps<AeonConfig>) {
       </div>
 
       {isGithub ? (
-        <>
-          <div className="grid gap-1.5">
-            <Label htmlFor="aeon-repo">Repository</Label>
-            <Input
-              id="aeon-repo"
-              placeholder="your-username/aeon"
-              value={value.repo}
-              onChange={(e) => onChange({ ...value, repo: e.target.value })}
-            />
-            <p className="text-xs text-muted-foreground">
-              <code>owner/repo</code> of your Aeon fork.
-            </p>
-          </div>
-          {value.source === "github-runs" && (
-            <div className="grid gap-1.5">
-              <Label htmlFor="aeon-workflow">Workflow (optional)</Label>
-              <Input
-                id="aeon-workflow"
-                placeholder="aeon.yml"
-                value={value.workflow}
-                onChange={(e) =>
-                  onChange({ ...value, workflow: e.target.value })
-                }
-              />
-              <p className="text-xs text-muted-foreground">
-                Filter to one workflow — <code>aeon.yml</code> is the skill
-                runner. Empty = every workflow.
-              </p>
-            </div>
-          )}
-        </>
+        <div className="grid gap-1.5">
+          <Label htmlFor="aeon-repo">Repository</Label>
+          <Input
+            id="aeon-repo"
+            placeholder="your-username/aeon"
+            value={value.repo}
+            onChange={(e) => onChange({ ...value, repo: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">
+            <code>owner/repo</code> of your Aeon fork.
+            {value.source === "github-runs" && " Shows Skill Runner (aeon.yml) runs."}
+          </p>
+        </div>
       ) : (
         <>
           <div className="grid gap-1.5">

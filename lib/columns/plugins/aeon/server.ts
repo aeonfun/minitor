@@ -5,7 +5,7 @@ import { PAGE_SIZE } from "@/lib/columns/constants";
 import {
   fetchAeonOutputs,
   fetchAeonDashboardRuns,
-  fetchAeonGithubRuns,
+  fetchAeonSkillRuns,
   fetchAeonArticles,
 } from "@/lib/integrations/aeon";
 import { meta, type AeonConfig, type AeonMeta } from "./plugin";
@@ -33,12 +33,7 @@ const fetch: ServerFetcher<AeonConfig, AeonMeta> = async (config, cursor) => {
     default: {
       const repo = config.repo.trim();
       if (!repo) throw new Error("Repository is required (owner/repo).");
-      const { items, hasMore } = await fetchAeonGithubRuns(
-        repo,
-        config.workflow,
-        PAGE_SIZE,
-        page,
-      );
+      const { items, hasMore } = await fetchAeonSkillRuns(repo, PAGE_SIZE, page);
       return { items, nextCursor: hasMore ? String(page + 1) : undefined };
     }
   }

@@ -16,15 +16,17 @@
 // and remote, and reuse minitor's existing GitHub client.
 
 import { fetchUpstream } from "@/lib/integrations/fetch";
-import {
-  fetchWorkflowRuns,
-  normalizeGitHubRepo,
-  type GHActionRunMeta,
-} from "@/lib/integrations/github";
+import { normalizeGitHubRepo } from "@/lib/integrations/github";
 import type { FeedItem } from "@/lib/columns/types";
 import type { AeonMeta, AeonSpec } from "@/lib/columns/plugins/aeon/plugin";
 
 const GITHUB_API = "https://api.github.com";
+
+// Aeon's skill runs are the "Skill Runner" workflow. Reading them through the
+// per-workflow endpoint (rather than the repo-wide run list + client filter)
+// matters: the scheduler and messages workflows fire far more often, so a
+// repo-wide page would bury skill runs entirely.
+const AEON_WORKFLOW_FILE = "aeon.yml";
 
 export type AeonItem = FeedItem<AeonMeta>;
 
@@ -190,38 +192,110 @@ function dashboardError(status: number): string {
   return `Aeon dashboard returned ${status}. Is it running? (default http://localhost:5555)`;
 }
 
-/** github-runs — Aeon's workflow runs on a fork. Reuses minitor's GitHub client. */
-export async function fetchAeonGithubRuns(
+// Minimal shape of a GitHub Actions run object (both the repo-wide and the
+// per-workflow endpoints return this).
+interface GHRun {
+  id: number;
+  run_number: number;
+  name?: string | null;
+  display_title?: string;
+  status: string;
+  conclusion: string | null;
+  html_url: string;
+  created_at: string;
+  run_started_at?: string;
+  updated_at: string;
+  event?: string;
+  head_branch?: string | null;
+  head_sha?: string;
+  actor?: { login?: string; avatar_url?: string } | null;
+  triggering_actor?: { login?: string; avatar_url?: string } | null;
+  head_commit?: { message?: string; author?: { name?: string } } | null;
+}
+interface GHWorkflowRunsResponse {
+  total_count?: number;
+  workflow_runs?: GHRun[];
+  message?: string;
+}
+
+/**
+ * github-runs — the Skill Runner (aeon.yml) workflow's runs on a fork, via the
+ * per-workflow runs endpoint so skill runs aren't buried under the far more
+ * frequent scheduler / messages runs.
+ */
+export async function fetchAeonSkillRuns(
   repo: string,
-  workflow: string,
   limit: number,
   page: number,
 ): Promise<{ items: AeonItem[]; hasMore: boolean }> {
-  const { items, hasMore } = await fetchWorkflowRuns(repo, workflow, "", limit, page);
-  return {
-    items: items.map((it) => ({
-      ...it,
-      id: `aeon-${it.id}`,
-      meta: runMetaFromGh(it.meta),
-    })),
-    hasMore,
-  };
-}
+  const fullRepo = normalizeGitHubRepo(repo);
+  const params = new URLSearchParams({
+    per_page: String(Math.min(Math.max(limit, 1), 100)),
+    page: String(Math.max(page, 1)),
+  });
+  const url = `${GITHUB_API}/repos/${fullRepo}/actions/workflows/${AEON_WORKFLOW_FILE}/runs?${params}`;
+  const res = await fetchUpstream(url, { headers: ghHeaders(), cache: "no-store" });
+  if (res.status === 404) {
+    // Fork without the Skill Runner workflow (or Actions disabled) — empty feed.
+    return { items: [], hasMore: false };
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`GitHub ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const json = (await res.json()) as GHWorkflowRunsResponse;
+  if (json.message) throw new Error(json.message);
+  const runs = json.workflow_runs ?? [];
 
-function runMetaFromGh(m: GHActionRunMeta | undefined): AeonMeta {
-  return {
-    kind: "run",
-    source: "github-runs",
-    skill: m?.workflowName,
-    status: m?.status,
-    conclusion: m?.conclusion,
-    runNumber: m?.runNumber,
-    branch: m?.branch,
-    shortSha: m?.shortSha,
-    durationMs: m?.durationMs,
-    event: m?.event,
-    fullRepo: m?.fullRepo,
-  };
+  const items: AeonItem[] = runs.map((r) => {
+    const startedAt = r.run_started_at ?? r.created_at;
+    const durationMs =
+      r.status === "completed"
+        ? Math.max(0, Date.parse(r.updated_at) - Date.parse(startedAt))
+        : undefined;
+    const commitMessage = (r.head_commit?.message ?? "").split("\n")[0]?.trim();
+    const title =
+      r.display_title?.trim() ||
+      commitMessage ||
+      (r.name ?? "").trim() ||
+      `Run #${r.run_number}`;
+    const sha = r.head_sha ?? "";
+    const actor =
+      r.actor?.login ??
+      r.triggering_actor?.login ??
+      r.head_commit?.author?.name ??
+      "aeon";
+    return {
+      id: `aeon-run-${r.id}`,
+      author: {
+        name: actor,
+        handle: r.actor?.login,
+        avatarUrl: r.actor?.avatar_url,
+      },
+      content: title,
+      url: r.html_url,
+      // Completed runs sort by finish time; in-flight ones by start time.
+      createdAt: r.status === "completed" ? r.updated_at : startedAt,
+      meta: {
+        kind: "run",
+        source: "github-runs",
+        skill: (r.name ?? "").trim() || "Skill Runner",
+        status: r.status,
+        conclusion: r.conclusion,
+        runNumber: r.run_number,
+        branch: r.head_branch ?? undefined,
+        shortSha: sha ? sha.slice(0, 7) : undefined,
+        durationMs,
+        event: r.event,
+        fullRepo,
+      },
+    };
+  });
+
+  const total = json.total_count;
+  const hasMore =
+    total != null ? Math.max(page, 1) * limit < total : items.length >= limit;
+  return { items, hasMore };
 }
 
 // ---- github-articles ------------------------------------------------------

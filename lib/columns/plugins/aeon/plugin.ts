@@ -8,7 +8,7 @@ import type { PluginMeta } from "@/lib/columns/types";
 // runs the local Aeon dashboard or only has the GitHub fork:
 //   dashboard-outputs  rich json-render card per skill run (dashboard up)
 //   dashboard-runs     recent Aeon-launched workflow runs   (dashboard up)
-//   github-runs        workflow runs on a fork              (GitHub API)
+//   github-runs        Skill Runner (aeon.yml) runs on a fork (GitHub API)
 //   github-articles    output/articles/*.md long-form pieces (GitHub API)
 export const AEON_SOURCES = [
   "dashboard-outputs",
@@ -25,8 +25,6 @@ export const schema = z.object({
   repo: z.string().default(""),
   /** Aeon dashboard base URL — dashboard-outputs / dashboard-runs. */
   baseUrl: z.string().default("http://localhost:5555"),
-  /** github-runs: workflow display name or filename to filter on (e.g. aeon.yml). */
-  workflow: z.string().default(""),
   /** dashboard-*: substring filter on the skill / workflow name. */
   skill: z.string().default(""),
 });
@@ -71,7 +69,7 @@ export const meta: PluginMeta<AeonConfig, AeonMeta> = {
   id: "aeon",
   label: "Aeon",
   description:
-    "Output from an Aeon agent — rich per-run cards, workflow runs, and long-form articles from a fork or the local dashboard.",
+    "Output from an Aeon agent — rich per-run cards, Skill Runner runs, and long-form articles from a fork or the local dashboard.",
   icon: Bot,
   // Aeon brand near-black; the "ai" category groups it with the other agent /
   // model columns in the Add-column picker.
