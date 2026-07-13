@@ -55,6 +55,7 @@ import { server as githubDiscussions } from "@/lib/columns/plugins/github-discus
 import { server as defillama } from "@/lib/columns/plugins/defillama/server";
 import { server as dexscreener } from "@/lib/columns/plugins/dexscreener/server";
 import { server as githubCommits } from "@/lib/columns/plugins/github-commits/server";
+import { server as aeon } from "@/lib/columns/plugins/aeon/server";
 
 const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   "x-search": xSearch,
@@ -104,6 +105,7 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
   defillama,
   dexscreener,
   "github-commits": githubCommits,
+  aeon,
 };
 
 // Parity check — runs once at server module init. Throws loudly rather than

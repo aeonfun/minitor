@@ -51,6 +51,7 @@ import { meta as githubDiscussions } from "./github-discussions/plugin";
 import { meta as defillama } from "./defillama/plugin";
 import { meta as dexscreener } from "./dexscreener/plugin";
 import { meta as githubCommits } from "./github-commits/plugin";
+import { meta as aeon } from "./aeon/plugin";
 
 export const PLUGIN_METAS = [
   xSearch,
@@ -100,6 +101,7 @@ export const PLUGIN_METAS = [
   defillama,
   dexscreener,
   githubCommits,
+  aeon,
 ];
 
 export const REGISTERED_IDS: ReadonlySet<string> = new Set(
