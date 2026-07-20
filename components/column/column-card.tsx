@@ -103,28 +103,6 @@ export function ColumnCard({ column }: { column: Column }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: column.id });
 
-  if (!type) {
-    return (
-      <div className="flex w-[min(360px,calc(100vw-1rem))] shrink-0 snap-start flex-col rounded-lg border border-destructive/50 bg-card p-4 text-sm sm:w-[360px] sm:snap-none">
-        <p className="font-medium">Unknown column type</p>
-        <p className="mt-1 text-muted-foreground">
-          Type <code>{column.typeId}</code> is not registered.
-        </p>
-        <Button
-          variant="destructive"
-          size="sm"
-          className="mt-3"
-          onClick={() => removeColumn(column.id)}
-        >
-          Remove
-        </Button>
-      </div>
-    );
-  }
-
-  const Icon = type.icon;
-  const ItemRenderer = type.ItemRenderer;
-
   const paginated = type?.capabilities?.paginated === true;
 
   const alertTerms = useMemo(
@@ -184,6 +162,12 @@ export function ColumnCard({ column }: { column: Column }) {
   // visually but never clears the query, so re-opening shows what they last
   // typed (until they reload or manually clear).
   useEffect(() => {
+    // set-state-in-effect is suppressed, not fixed: the open state is sticky
+    // by design, so it can't be derived as `searchOpen || searchActive` —
+    // that would auto-close the row the moment the query is cleared, which is
+    // exactly the behaviour the note below rules out. The cascade is one
+    // bounded extra render on the mount-with-existing-query path.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (searchActive && !searchOpen) setSearchOpen(true);
     // intentionally only react to searchActive flipping true — don't auto-
     // close when the operator clears the query mid-type; let them keep the
@@ -197,6 +181,10 @@ export function ColumnCard({ column }: { column: Column }) {
   // re-fires cleanly.
   useEffect(() => {
     if (pendingSearchOpen !== column.id) return;
+    // Syncing local state from an external store signal is effect-shaped by
+    // nature — the keypress happens outside this component and is routed here
+    // through the store, so there is no render-time value to derive from.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchOpen(true);
     requestAnimationFrame(() => searchInputRef.current?.focus());
     clearPendingSearchOpen(column.id);
@@ -206,8 +194,15 @@ export function ColumnCard({ column }: { column: Column }) {
   // the latest typeId/config without forcing a tear-down on every config edit.
   const typeIdRef = useRef(column.typeId);
   const configRef = useRef(column.config);
-  typeIdRef.current = column.typeId;
-  configRef.current = column.config;
+  // Synced in an effect rather than during render: mutating a ref mid-render
+  // is unsafe under concurrent rendering (a render that never commits would
+  // still have written). The useRef seeds hold the correct first-render values
+  // and this effect runs before the interval below can ever fire, so the
+  // closure still reads current values on every tick.
+  useEffect(() => {
+    typeIdRef.current = column.typeId;
+    configRef.current = column.config;
+  });
 
   useEffect(() => {
     const intervalSeconds = column.refreshIntervalSeconds;
@@ -297,7 +292,12 @@ export function ColumnCard({ column }: { column: Column }) {
   // on a fresh function reference and tear down its own subscription
   // mid-tick).
   const onRefreshRef = useRef(onRefresh);
-  onRefreshRef.current = onRefresh;
+  // Synced post-commit for the same reason as the config refs above; the
+  // refresh effect below only dereferences `.current` asynchronously, inside
+  // the pending-refresh branch, so it never reads a stale frame.
+  useEffect(() => {
+    onRefreshRef.current = onRefresh;
+  });
   const refreshInFlightRef = useRef(false);
   useEffect(() => {
     if (!isPendingRefresh) return;
@@ -309,6 +309,34 @@ export function ColumnCard({ column }: { column: Column }) {
       clearPendingRefresh(column.id);
     });
   }, [isPendingRefresh, isFetching, column.id, clearPendingRefresh]);
+
+  // Unknown-type bail-out sits below every hook on purpose. A column's type
+  // resolves through the plugin registry, so `type` can flip from undefined to
+  // defined (or back) across renders as plugins register — returning early
+  // above the hooks would change hook order between renders and throw. The
+  // hooks above all tolerate a missing `type`: `paginated` optional-chains and
+  // the refresh effect guards with its own `if (!type) return`.
+  if (!type) {
+    return (
+      <div className="flex w-[min(360px,calc(100vw-1rem))] shrink-0 snap-start flex-col rounded-lg border border-destructive/50 bg-card p-4 text-sm sm:w-[360px] sm:snap-none">
+        <p className="font-medium">Unknown column type</p>
+        <p className="mt-1 text-muted-foreground">
+          Type <code>{column.typeId}</code> is not registered.
+        </p>
+        <Button
+          variant="destructive"
+          size="sm"
+          className="mt-3"
+          onClick={() => removeColumn(column.id)}
+        >
+          Remove
+        </Button>
+      </div>
+    );
+  }
+
+  const Icon = type.icon;
+  const ItemRenderer = type.ItemRenderer;
 
   async function onLoadMore() {
     if (!paginated) return;

@@ -31,7 +31,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<NpmConfig>) {
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          npm's search endpoint requires a query; leave as <code>javascript</code>
+          npm&rsquo;s search endpoint requires a query; leave as <code>javascript</code>
           {" "}for a broad popularity stream, or scope to a keyword (single word
           for substring match across name/description/keywords).
         </p>
@@ -56,7 +56,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<NpmConfig>) {
         </Select>
         <p className="text-xs text-muted-foreground">
           Heavy-weights the chosen axis to 0.8; <strong>Combined</strong>{" "}
-          mirrors npm's default ranking blend.
+          mirrors npm&rsquo;s default ranking blend.
         </p>
       </div>
     </div>

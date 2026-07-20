@@ -58,7 +58,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CratesConfig>) {
         </Select>
         <p className="text-xs text-muted-foreground">
           <strong>Trending</strong> tracks the last 90 days of downloads — the
-          best signal for "what's hot right now."{" "}
+          best signal for &ldquo;what&rsquo;s hot right now.&rdquo;{" "}
           <strong>Recently updated</strong> surfaces crates with active
           maintenance.
         </p>

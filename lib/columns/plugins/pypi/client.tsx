@@ -40,7 +40,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PypiConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Updates</strong> and <strong>New packages</strong> read PyPI's
+          <strong>Updates</strong> and <strong>New packages</strong> read PyPI&rsquo;s
           public RSS feeds (last ~40 entries, time-ordered).{" "}
           <strong>Top · 30d</strong> ranks the top 8000 packages by 30-day
           downloads via the community-maintained mirror — no API key required.

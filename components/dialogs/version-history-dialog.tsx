@@ -35,6 +35,11 @@ export function VersionHistoryDialog({ deckId, open, onOpenChange }: Props) {
   useEffect(() => {
     if (!open || !deckId) return;
     let cancelled = false;
+    // Entering the loading state as the fetch is kicked off is the point of
+    // this effect — the data lives outside React and only the dialog opening
+    // can trigger the read. Removing the cascade would mean moving snapshot
+    // loading behind Suspense, which is out of scope here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     loadDeckSnapshots(deckId)
       .then((rows) => {

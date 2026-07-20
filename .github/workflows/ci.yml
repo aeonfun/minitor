@@ -15,6 +15,35 @@ permissions:
   contents: read
 
 jobs:
+  # Split from Build so a lint or test failure reports in ~1min instead of
+  # waiting on the full Next production bundle. The npm cache is shared, so the
+  # duplicated install costs little.
+  check:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Matches the Dockerfile's node:22-alpine, so CI checks what ships.
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `eslint` with no args lints the whole project under the flat config.
+      # `--max-warnings=0` keeps the tree at zero warnings now that it is
+      # clean — a new warning is a failure rather than scrollback noise.
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+
+      # Vitest needs no database: the suite runs against PGlite/in-memory
+      # fixtures, same as the build's fallback driver.
+      - name: Test
+        run: npm test
+
   build:
     name: Build
     runs-on: ubuntu-latest

@@ -22,11 +22,6 @@ import {
   type ProductHuntMeta,
 } from "./plugin";
 
-const MODE_LABELS: Record<ProductHuntConfig["mode"], string> = {
-  today: "Today's launches",
-  topic: "Filter by topic",
-};
-
 function ConfigForm({ value, onChange }: ConfigFormProps<ProductHuntConfig>) {
   return (
     <div className="grid gap-3">
