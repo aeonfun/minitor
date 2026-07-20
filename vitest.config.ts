@@ -17,8 +17,13 @@ export default defineConfig({
     ],
   },
   test: {
+    // Node stays the default so the existing suites keep their fast, DOM-free
+    // environment. Component tests opt in per file with a
+    // `@vitest-environment jsdom` docblock.
     environment: "node",
-    include: ["test/**/*.test.ts"],
+    include: ["test/**/*.test.ts", "test/**/*.test.tsx"],
+    // Only loaded for jsdom runs — see the guard inside the file.
+    setupFiles: ["./test/setup-dom.ts"],
     // The DB-backed round-trip test builds an isolated in-memory PGlite from
     // this URL. Every other test ignores it.
     env: { DATABASE_URL: "memory://" },

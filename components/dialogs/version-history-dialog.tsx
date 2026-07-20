@@ -48,11 +48,16 @@ export function VersionHistoryDialog({ deckId, open, onOpenChange }: Props) {
         </p>
 
         {/*
-          The dialog itself stays mounted for the lifetime of the sidebar, so
-          the list is split out and mounted per-open, keyed by deck. That makes
-          `useState`'s initial value the reset: reopening, or switching decks
-          while open, starts from the loading state without an effect having to
-          synchronously roll it back.
+          This component stays mounted for the lifetime of the sidebar, so any
+          state it held directly would survive every open — which is why the
+          old version had to lower a loading flag from an effect. Holding the
+          state one level down instead makes `useState`'s initial value the
+          reset, because DialogContent unmounts its children on close.
+
+          The `key` covers the case the unmount does not: switching decks while
+          the dialog is already open. Without it the list keeps the previous
+          deck's rows on screen until the new read resolves. The `open` check
+          is belt-and-braces — DialogContent already gates this subtree.
         */}
         {open && deckId ? (
           <SnapshotList
