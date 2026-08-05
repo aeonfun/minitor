@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="122" height="40" viewBox="0 0 122 40" role="img" aria-label="Deploy">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1a15"/>
+      <stop offset="1" stop-color="#0d0c0a"/>
+    </linearGradient>
+    <style>
+      @keyframes bob{0%,100%{transform:translateY(1px)}50%{transform:translateY(-1.5px)}}
+      .rk{transform-box:fill-box;transform-origin:center;animation:bob 1.8s ease-in-out infinite}
+      @keyframes fl{0%,100%{opacity:.45;transform:scaleY(.7)}50%{opacity:1;transform:scaleY(1.3)}}
+      .fl{transform-box:fill-box;transform-origin:top center;animation:fl .5s ease-in-out infinite}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="121" height="39" rx="19.5" fill="url(#g)" stroke="#F4EFE1" stroke-opacity="0.5"/>
+  <rect x="2" y="1.5" width="118" height="15" rx="12" fill="#F4EFE1" opacity="0.05"/>
+  <g class="rk">
+    <path class="fl" d="M23.4 24.5h3.2l-1.6 4.2z" fill="#F4EFE1"/>
+    <path d="M25 11.2c3 1.7 4.6 5.1 4.6 8.7l-2.1 4.1h-5l-2.1-4.1c0-3.6 1.6-7 4.6-8.7z" fill="none" stroke="#F4EFE1" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M20.9 21.6l-2.6 3 3.1-.6M29.1 21.6l2.6 3-3.1-.6" fill="none" stroke="#F4EFE1" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="25" cy="18" r="1.9" fill="#F4EFE1"/>
+  </g>
+  <text x="42" y="25.5" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#F4EFE1">Deploy</text>
+</svg>

@@ -1,17 +1,23 @@
 <p align="center">
-  <img src="./public/logo.png" alt="Minitor" width="120" />
+  <img src="./docs/assets/hero-animated.svg" alt="Minitor — monitor the current thing. Your dashboard for the internet: 47 column types (X, Reddit, Hacker News, GitHub, Hugging Face, arXiv, on-chain, prediction markets, and more) on one deck, local-first with zero infra." width="100%" />
 </p>
-
-<h1 align="center">Minitor</h1>
 
 <p align="center">
-  <a href="https://github.com/aeonfun/minitor/stargazers"><img src="https://img.shields.io/github/stars/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub stars"></a>
-  <a href="https://github.com/aeonfun/minitor/network/members"><img src="https://img.shields.io/github/forks/aeonfun/minitor?style=flat-square&logo=github" alt="GitHub forks"></a>
-  <a href="https://x.com/aeonframework"><img src="https://img.shields.io/badge/Follow-%40aeonframework-black?style=flat-square&logo=x&labelColor=000000" alt="Follow on X"></a>
-  <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="https://img.shields.io/badge/Aeon%20on-Bankr-orange?style=flat-square&labelColor=1a1a2e" alt="Aeon on Bankr"></a>
+  <strong>Star us&nbsp;❤️&nbsp;→</strong>&nbsp;&nbsp;
+  <a href="https://github.com/aeonfun/minitor/stargazers"><img src="./docs/assets/btn-star.svg" alt="Star Minitor on GitHub" height="34" align="absmiddle"></a>&nbsp;&nbsp;
+  <a href="#deploy--self-host"><img src="./docs/assets/btn-deploy.svg" alt="Deploy Minitor" height="34" align="absmiddle"></a>&nbsp;&nbsp;
+  <a href="https://x.com/aeonframework"><img src="./docs/assets/btn-x.svg" alt="@aeonframework on X" height="34" align="absmiddle"></a>&nbsp;&nbsp;
+  <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="./docs/assets/btn-bankr.svg" alt="$aeon on Bankr" height="34" align="absmiddle"></a>
 </p>
 
----
+<div align="center">
+
+[![stars](https://img.shields.io/github/stars/aeonfun/minitor?style=flat-square&label=stars&color=F4EFE1&labelColor=0d0c0a&logo=github&logoColor=F4EFE1)](https://github.com/aeonfun/minitor/stargazers)
+[![forks](https://img.shields.io/github/forks/aeonfun/minitor?style=flat-square&label=forks&color=F4EFE1&labelColor=0d0c0a&logo=github&logoColor=F4EFE1)](https://github.com/aeonfun/minitor/network/members)
+[![license](https://img.shields.io/badge/license-MIT-F4EFE1?style=flat-square&labelColor=0d0c0a)](LICENSE)
+[![node](https://img.shields.io/badge/node-20+-F4EFE1?style=flat-square&labelColor=0d0c0a)](https://nodejs.org/)
+
+</div>
 
 <p align="center">
   <img src="./public/minitor.gif" alt="Minitor demo" width="100%" />
