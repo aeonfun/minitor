@@ -10,6 +10,11 @@
   <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="./docs/assets/btn-bankr.svg" alt="$aeon on Bankr" height="34" align="absmiddle"></a>
 </p>
 
+<p align="center">
+  <strong>Monitor the current thing. Your dashboard for the internet.</strong><br/>
+  Build a deck, pack it with columns, refresh on demand — 47 plugin column types across social, news, GitHub, Hugging Face, arXiv, on-chain, prediction markets, prices, and the Chinese hot boards.
+</p>
+
 <div align="center">
 
 [![stars](https://img.shields.io/github/stars/aeonfun/minitor?style=flat-square&label=stars&color=F4EFE1&labelColor=0d0c0a&logo=github&logoColor=F4EFE1)](https://github.com/aeonfun/minitor/stargazers)
@@ -22,9 +27,6 @@
 <p align="center">
   <img src="./public/minitor.gif" alt="Minitor demo" width="100%" />
 </p>
-
-> **Monitor the current thing. Your dashboard for the internet.**
-> Build a deck, pack it with columns, refresh on demand. Each column is a plugin: X, Reddit, Hacker News, Lobsters, Stack Overflow, DEV.to, npm + PyPI + crates.io packages, Hugging Face (models / datasets / spaces), arXiv (CS / stat / math.OC papers), GitHub (trending / issues / PRs / stars / forks / backlinks / search / releases / commits / Actions / Discussions), Farcaster, Mastodon, YouTube, RSS, Google News, Substack, LinkedIn, Facebook, Instagram, Apple + Google Play reviews, on-chain wallet activity, Polymarket prediction markets, CoinGecko crypto trending + prices, DeFiLlama TVL leaderboard, Dexscreener DEX pair search + watchlist, and the six biggest Chinese platforms (Weibo / Zhihu / Douyin / Bilibili / Toutiao / Baidu).
 
 ### What it does
 
