@@ -187,3 +187,7 @@ MIT.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=aeonfun/minitor&type=Date)](https://www.star-history.com/#aeonfun/minitor&Date)
+
+---
+
+Built by [Aaron Elijah Mars](https://aaronjmars.com), founder of Aeon and MiroShark · [@aaronjmars](https://github.com/aaronjmars)
