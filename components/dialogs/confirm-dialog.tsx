@@ -35,10 +35,7 @@ export function ConfirmDialog({
   icon: Icon = AlertTriangle,
   onConfirm,
 }: Props) {
-  const tint =
-    variant === "destructive"
-      ? "rgba(207, 45, 86, 0.14)"
-      : "rgba(38, 37, 30, 0.08)";
+  const tint = variant === "destructive" ? "rgba(207, 45, 86, 0.14)" : "rgba(38, 37, 30, 0.08)";
   const color = variant === "destructive" ? "#cf2d56" : "#26251e";
 
   return (
@@ -60,20 +57,14 @@ export function ConfirmDialog({
           </div>
 
           <DialogHeader className="gap-0 text-center">
-            <DialogTitle className="text-balance text-center">
-              {title}
-            </DialogTitle>
+            <DialogTitle className="text-balance text-center">{title}</DialogTitle>
             <DialogDescription className="mx-auto mt-1.5 text-pretty text-center sm:max-w-[90%]">
               {description}
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter className="w-full gap-2 sm:justify-center">
-            <DialogClose
-              render={
-                <Button type="button" variant="outline" className="flex-1" />
-              }
-            >
+            <DialogClose render={<Button type="button" variant="outline" className="flex-1" />}>
               Cancel
             </DialogClose>
             <Button

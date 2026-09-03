@@ -35,11 +35,7 @@ import {
   type ImportedDeckResult,
   type Snapshot,
 } from "@/app/actions";
-import {
-  isAllowedRefreshInterval,
-  normalizeColumnColor,
-  TAB_GROUP_MAX,
-} from "@/lib/deck-rules";
+import { isAllowedRefreshInterval, normalizeColumnColor, TAB_GROUP_MAX } from "@/lib/deck-rules";
 
 // Sentinel for the implicit "All" tab — used when a deck has tab groups
 // configured but the operator wants to see every column at once. Exported so
@@ -88,13 +84,9 @@ export function getVisibleColumnIds(
       ? deck.columnIds
       : deck.columnIds.filter((id) => {
           const col = columns[id];
-          return (
-            col?.pinned || !col || !col.tabGroup || col.tabGroup === selectedTab
-          );
+          return col?.pinned || !col || !col.tabGroup || col.tabGroup === selectedTab;
         });
-  const normalizedFilter = colorFilter
-    ? normalizeColumnColor(colorFilter)
-    : null;
+  const normalizedFilter = colorFilter ? normalizeColumnColor(colorFilter) : null;
   const colorFiltered = normalizedFilter
     ? tabFiltered.filter((id) => {
         const col = columns[id];
@@ -283,15 +275,8 @@ interface DeckState {
   updateColumnConfig: (columnId: string, config: Record<string, unknown>) => void;
   updateAlertKeywords: (columnId: string, alertKeywords: string) => void;
   updateWebhookUrl: (columnId: string, webhookUrl: string) => void;
-  updateRefreshInterval: (
-    columnId: string,
-    refreshIntervalSeconds: number | null,
-  ) => void;
-  updateFilters: (
-    columnId: string,
-    filterKeywords: string,
-    excludeKeywords: string,
-  ) => void;
+  updateRefreshInterval: (columnId: string, refreshIntervalSeconds: number | null) => void;
+  updateFilters: (columnId: string, filterKeywords: string, excludeKeywords: string) => void;
   updateTabGroup: (columnId: string, tabGroup: string) => void;
   updatePinned: (columnId: string, pinned: boolean) => void;
   updateColor: (columnId: string, color: string) => void;
@@ -300,11 +285,7 @@ interface DeckState {
   reorderColumnsInDeck: (deckId: string, order: string[]) => void;
 
   applyFetchedItems: (columnId: string, items: FeedItem[]) => Promise<number>;
-  autoFetchColumn: (
-    columnId: string,
-    type: AnyColumnUI,
-    ready?: Promise<void>,
-  ) => Promise<void>;
+  autoFetchColumn: (columnId: string, type: AnyColumnUI, ready?: Promise<void>) => Promise<void>;
 
   exportDeck: (deckId: string) => Promise<string>;
   importDeck: (json: string) => Promise<ImportedDeckResult>;
@@ -316,10 +297,7 @@ interface DeckState {
 // Build the store patch that lands a freshly imported/restored deck (a new deck
 // plus its columns) and activates it. Shared by importDeck and
 // restoreDeckSnapshot since both create a new deck from a DeckExport payload.
-function importedDeckPatch(
-  s: DeckState,
-  result: ImportedDeckResult,
-): Partial<DeckState> {
+function importedDeckPatch(s: DeckState, result: ImportedDeckResult): Partial<DeckState> {
   const cols = { ...s.columns };
   for (const c of result.columns) {
     // `ImportedDeckColumn` is exactly `Column` minus the runtime-only `items` /
@@ -547,9 +525,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       const activeColorFilter = { ...s.activeColorFilter };
       delete activeColorFilter[deckId];
       const focusedColumnId =
-        s.focusedColumnId && deck.columnIds.includes(s.focusedColumnId)
-          ? null
-          : s.focusedColumnId;
+        s.focusedColumnId && deck.columnIds.includes(s.focusedColumnId) ? null : s.focusedColumnId;
       const pendingSearchOpen =
         s.pendingSearchOpen && deck.columnIds.includes(s.pendingSearchOpen)
           ? null
@@ -640,11 +616,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       const nextColumnIds =
         insertAt < 0
           ? [...deck.columnIds, id]
-          : [
-              ...deck.columnIds.slice(0, insertAt + 1),
-              id,
-              ...deck.columnIds.slice(insertAt + 1),
-            ];
+          : [...deck.columnIds.slice(0, insertAt + 1), id, ...deck.columnIds.slice(insertAt + 1)];
       return {
         columns: {
           ...s.columns,
@@ -709,10 +681,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
         },
       };
     });
-    fireAndLog(
-      "updateColumnAlertKeywords",
-      serverUpdateAlertKeywords(columnId, next),
-    );
+    fireAndLog("updateColumnAlertKeywords", serverUpdateAlertKeywords(columnId, next));
   },
 
   updateWebhookUrl: (columnId, webhookUrl) => {
@@ -737,9 +706,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
     // Mirror the server-side allowlist locally so the optimistic state can't
     // drift from what was actually persisted. Anything outside the allowlist
     // collapses to manual-only (undefined / null on the wire).
-    const next = isAllowedRefreshInterval(refreshIntervalSeconds)
-      ? refreshIntervalSeconds
-      : null;
+    const next = isAllowedRefreshInterval(refreshIntervalSeconds) ? refreshIntervalSeconds : null;
     set((s) => {
       const col = s.columns[columnId];
       if (!col) return s;
@@ -753,10 +720,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
         },
       };
     });
-    fireAndLog(
-      "updateColumnRefreshInterval",
-      serverUpdateRefreshInterval(columnId, next),
-    );
+    fireAndLog("updateColumnRefreshInterval", serverUpdateRefreshInterval(columnId, next));
   },
 
   updateFilters: (columnId, filterKeywords, excludeKeywords) => {
@@ -776,10 +740,7 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
         },
       };
     });
-    fireAndLog(
-      "updateColumnFilters",
-      serverUpdateFilters(columnId, nextInclude, nextExclude),
-    );
+    fireAndLog("updateColumnFilters", serverUpdateFilters(columnId, nextInclude, nextExclude));
   },
 
   updateTabGroup: (columnId, tabGroup) => {
@@ -873,10 +834,8 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       delete searchByColumn[columnId];
       const widthByColumn = { ...s.widthByColumn };
       delete widthByColumn[columnId];
-      const focusedColumnId =
-        s.focusedColumnId === columnId ? null : s.focusedColumnId;
-      const pendingSearchOpen =
-        s.pendingSearchOpen === columnId ? null : s.pendingSearchOpen;
+      const focusedColumnId = s.focusedColumnId === columnId ? null : s.focusedColumnId;
+      const pendingSearchOpen = s.pendingSearchOpen === columnId ? null : s.pendingSearchOpen;
       let pendingRefreshIds = s.pendingRefreshIds;
       if (pendingRefreshIds.has(columnId)) {
         pendingRefreshIds = new Set(s.pendingRefreshIds);
@@ -920,10 +879,9 @@ export const useDeckStore = create<DeckState>()((set, get) => ({
       if (ready) await ready.catch(() => undefined);
       const { items } = await callColumnApi(type.id, col.config);
       const count = await get().applyFetchedItems(columnId, items);
-      toast.success(
-        count > 0 ? `${count} new item${count === 1 ? "" : "s"}` : "No new items",
-        { description: col.title },
-      );
+      toast.success(count > 0 ? `${count} new item${count === 1 ? "" : "s"}` : "No new items", {
+        description: col.title,
+      });
     } catch (err) {
       toast.error("Fetch failed", {
         description: err instanceof Error ? err.message : "Unknown error",

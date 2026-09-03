@@ -43,9 +43,7 @@ describe("ttlForMeta", () => {
   });
   it("uses a positive hint, clamped to the ceiling", () => {
     expect(ttlForMeta({ capabilities: { refreshIntervalHintMs: 5_000 } })).toBe(5_000);
-    expect(
-      ttlForMeta({ capabilities: { refreshIntervalHintMs: 10_000_000 } }),
-    ).toBe(MAX_TTL_MS);
+    expect(ttlForMeta({ capabilities: { refreshIntervalHintMs: 10_000_000 } })).toBe(MAX_TTL_MS);
   });
 });
 
@@ -99,9 +97,7 @@ describe("cachedColumnFetch — coalescing", () => {
       if (calls === 1) throw new Error("boom");
       return page("ok");
     };
-    await expect(cachedColumnFetch("k", DEFAULT_TTL_MS, producer)).rejects.toThrow(
-      "boom",
-    );
+    await expect(cachedColumnFetch("k", DEFAULT_TTL_MS, producer)).rejects.toThrow("boom");
     const res = await cachedColumnFetch("k", DEFAULT_TTL_MS, producer);
     expect(calls).toBe(2);
     expect(res.items[0].id).toBe("ok");

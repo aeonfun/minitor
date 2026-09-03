@@ -88,7 +88,7 @@ function mapProtocol(p: DefillamaProtocol): FeedItem<DefillamaMeta> | null {
   if (tvl <= 0) return null;
   const symbol = (p.symbol ?? "").toUpperCase().trim();
   const id = (p.slug || p.id || p.name).toString();
-  const chains = Array.isArray(p.chains) ? p.chains.join(", ") : p.chain ?? "";
+  const chains = Array.isArray(p.chains) ? p.chains.join(", ") : (p.chain ?? "");
   return {
     id: `defillama:protocol:${id}`,
     author: {
@@ -149,9 +149,7 @@ async function fetchJson<T>(path: string): Promise<T> {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `defillama ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`defillama ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   return (await res.json()) as T;
 }

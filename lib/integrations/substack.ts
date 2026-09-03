@@ -43,14 +43,10 @@ export function parseHandles(input: string): ParsedHandle[] {
   return out;
 }
 
-function handleFromInput(
-  s: string,
-): { handle: string; host: string } | null {
+function handleFromInput(s: string): { handle: string; host: string } | null {
   const lower = s.toLowerCase();
   // Full URL or bare host on .substack.com → bare handle, canonical host.
-  const subMatch = lower.match(
-    /^(?:https?:\/\/)?([a-z0-9-]+)\.substack\.com\b/,
-  );
+  const subMatch = lower.match(/^(?:https?:\/\/)?([a-z0-9-]+)\.substack\.com\b/);
   if (subMatch) {
     const handle = subMatch[1];
     return { handle, host: `${handle}.substack.com` };
@@ -129,9 +125,7 @@ export async function searchSubstackPublications(
     if (r.status === "fulfilled") {
       merged.push(...r.value);
     } else {
-      errors.push(
-        r.reason instanceof Error ? r.reason.message : String(r.reason),
-      );
+      errors.push(r.reason instanceof Error ? r.reason.message : String(r.reason));
     }
   }
 
@@ -142,14 +136,9 @@ export async function searchSubstackPublications(
     throw new Error(`All feeds failed:\n${errors.join("\n")}`);
   }
 
-  const filtered = query.trim()
-    ? merged.filter((it) => matchesQuery(it, query))
-    : merged;
+  const filtered = query.trim() ? merged.filter((it) => matchesQuery(it, query)) : merged;
 
-  filtered.sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return filtered.slice(0, totalLimit);
 }
@@ -191,9 +180,7 @@ export async function searchSubstackByKeyword(
     const publication = publicationFromUrl(i.url);
     if (!publication || !isSubstackUrl(i.url)) continue;
     const feedTitle =
-      typeof i.author?.name === "string" && i.author.name
-        ? i.author.name
-        : publication;
+      typeof i.author?.name === "string" && i.author.name ? i.author.name : publication;
     out.push({
       ...i,
       meta: { publication, feedTitle, source: feedTitle },
@@ -203,11 +190,7 @@ export async function searchSubstackByKeyword(
   return out;
 }
 
-function tagWithPublication(
-  item: FeedItem,
-  host: string,
-  feedUrl: string,
-): FeedItem<SubstackMeta> {
+function tagWithPublication(item: FeedItem, host: string, feedUrl: string): FeedItem<SubstackMeta> {
   const publication = host;
   const prevMeta = item.meta as { source?: string; feedTitle?: string } | undefined;
   const feedTitle = prevMeta?.feedTitle ?? publication;
@@ -220,9 +203,7 @@ function tagWithPublication(
       ...item.author,
       name: feedTitle,
       handle: publication,
-      avatarUrl:
-        item.author.avatarUrl ??
-        identiconUrl(publication),
+      avatarUrl: item.author.avatarUrl ?? identiconUrl(publication),
     },
     meta: { publication, feedTitle, source },
   };

@@ -43,15 +43,9 @@ export function AvatarPostItem({
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[13px] leading-tight">
-            <span className="truncate font-medium text-foreground">
-              {display}
-            </span>
+            <span className="truncate font-medium text-foreground">{display}</span>
             {powerBadge && (
-              <BadgeCheck
-                className="size-3.5"
-                style={{ color: "#7c65c1" }}
-                strokeWidth={2.5}
-              />
+              <BadgeCheck className="size-3.5" style={{ color: "#7c65c1" }} strokeWidth={2.5} />
             )}
             <span className="truncate text-muted-foreground">@{handle}</span>
             {channel && (

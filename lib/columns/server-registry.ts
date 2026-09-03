@@ -112,18 +112,14 @@ const SERVERS_BY_ID: Record<string, AnyColumnServer> = {
 // 404'ing at request time. The manifest is the canonical id list; both the
 // UI registry and this file are validated against it.
 const serverIds = new Set(Object.keys(SERVERS_BY_ID));
-const missingFromServer = [...REGISTERED_IDS].filter(
-  (id) => !serverIds.has(id),
-);
+const missingFromServer = [...REGISTERED_IDS].filter((id) => !serverIds.has(id));
 const stale = [...serverIds].filter((id) => !REGISTERED_IDS.has(id));
 if (missingFromServer.length || stale.length) {
   const parts = [
     missingFromServer.length
       ? `In manifest but missing a server fetcher: ${missingFromServer.join(", ")}`
       : "",
-    stale.length
-      ? `In server-registry.ts but not in manifest: ${stale.join(", ")}`
-      : "",
+    stale.length ? `In server-registry.ts but not in manifest: ${stale.join(", ")}` : "",
   ].filter(Boolean);
   throw new Error(`Column registry parity check failed. ${parts.join(" | ")}`);
 }
@@ -133,9 +129,7 @@ if (missingFromServer.length || stale.length) {
 for (const m of PLUGIN_METAS) {
   const s = SERVERS_BY_ID[m.id];
   if (s.meta.id !== m.id) {
-    throw new Error(
-      `Server fetcher under key "${m.id}" registered as id "${s.meta.id}"`,
-    );
+    throw new Error(`Server fetcher under key "${m.id}" registered as id "${s.meta.id}"`);
   }
 }
 

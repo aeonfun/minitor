@@ -3,17 +3,8 @@
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
-import {
-  meta,
-  type BacklinksConfig,
-  type BacklinkSource,
-  type BacklinksItemMeta,
-} from "./plugin";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
+import { meta, type BacklinksConfig, type BacklinkSource, type BacklinksItemMeta } from "./plugin";
 
 const SOURCE_LABEL: Record<BacklinkSource, string> = {
   hn: "HN",
@@ -43,8 +34,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<BacklinksConfig>) {
           onChange={(e) => onChange({ ...value, repo: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Watches HN, Reddit, Google News, and Bing News for posts linking to
-          this repo. Dedupes by canonical URL.
+          Watches HN, Reddit, Google News, and Bing News for posts linking to this repo. Dedupes by
+          canonical URL.
         </p>
       </div>
       <label className="flex items-start gap-2 text-sm">
@@ -52,9 +43,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<BacklinksConfig>) {
           type="checkbox"
           className="mt-0.5 size-3.5 accent-foreground"
           checked={value.includeIssues}
-          onChange={(e) =>
-            onChange({ ...value, includeIssues: e.target.checked })
-          }
+          onChange={(e) => onChange({ ...value, includeIssues: e.target.checked })}
         />
         <span>
           <span className="font-medium">Include GitHub issues / PRs</span>
@@ -69,10 +58,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<BacklinksConfig>) {
 
 function ItemRenderer({ item }: ItemRendererProps<BacklinksItemMeta>) {
   const source = item.meta?.source;
-  const sourceLabel =
-    (source && SOURCE_LABEL[source as BacklinkSource]) ?? source ?? "Web";
-  const bg =
-    (source && SOURCE_BG[source as BacklinkSource]) ?? "rgba(0,0,0,0.06)";
+  const sourceLabel = (source && SOURCE_LABEL[source as BacklinkSource]) ?? source ?? "Web";
+  const bg = (source && SOURCE_BG[source as BacklinkSource]) ?? "rgba(0,0,0,0.06)";
 
   const [title, ...rest] = item.content.split("\n\n");
   const snippet = rest.join("\n\n").trim();
@@ -98,11 +85,7 @@ function ItemRenderer({ item }: ItemRendererProps<BacklinksItemMeta>) {
         >
           {sourceLabel}
         </span>
-        {hostName && (
-          <span className="truncate max-w-[200px] text-foreground/80">
-            {hostName}
-          </span>
-        )}
+        {hostName && <span className="truncate max-w-[200px] text-foreground/80">{hostName}</span>}
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">
           <RelativeTime date={item.createdAt} addSuffix />

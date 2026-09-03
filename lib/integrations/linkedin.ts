@@ -25,10 +25,7 @@ function composeQuery(input: string): string {
   return `site:linkedin.com/posts ${term}`;
 }
 
-export async function searchLinkedinPosts(
-  query: string,
-  limit = 8,
-): Promise<FeedItem[]> {
+export async function searchLinkedinPosts(query: string, limit = 8): Promise<FeedItem[]> {
   const composed = composeQuery(query);
   const items = await grokWebSearch(composed, limit * 2);
   return items
@@ -36,10 +33,7 @@ export async function searchLinkedinPosts(
     .map((i) => ({
       ...i,
       meta: {
-        source:
-          typeof i.author?.name === "string" && i.author.name
-            ? i.author.name
-            : "LinkedIn",
+        source: typeof i.author?.name === "string" && i.author.name ? i.author.name : "LinkedIn",
         isLinkedin: true,
       },
     }))

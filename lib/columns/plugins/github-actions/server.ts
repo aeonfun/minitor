@@ -1,17 +1,11 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchWorkflowRuns } from "@/lib/integrations/github";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type GHActionsConfig, type GHActionsMeta } from "./plugin";
 
-const fetch: ServerFetcher<GHActionsConfig, GHActionsMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<GHActionsConfig, GHActionsMeta> = async (config, cursor) => {
   const repo = config.repo.trim();
   if (!repo) throw new Error("Repository is required (owner/repo).");
   const page = cursor ? Number(cursor) || 1 : 1;

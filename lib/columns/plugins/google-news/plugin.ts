@@ -17,13 +17,13 @@ export type GoogleNewsMeta = RssItemMeta;
 export const meta: PluginMeta<GoogleNewsConfig, GoogleNewsMeta> = {
   id: "google-news",
   label: "Google News",
-  description: "Search-driven news from Google's index. Defaults to all languages/countries (RSS, no key).",
+  description:
+    "Search-driven news from Google's index. Defaults to all languages/countries (RSS, no key).",
   icon: Megaphone,
   accent: "#9fc9a2",
   category: "news",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.query.trim() ? `Google · ${c.query.trim()}` : "Google News",
+  defaultTitle: (c) => (c.query.trim() ? `Google · ${c.query.trim()}` : "Google News"),
   capabilities: { paginated: true },
 };

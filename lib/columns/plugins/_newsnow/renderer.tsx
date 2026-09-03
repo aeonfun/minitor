@@ -32,16 +32,8 @@ function rgbaWithAlpha(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function makeNewsNowItemRenderer({
-  icon: Icon,
-  accent,
-  badgeLabel,
-}: RendererOptions) {
-  return function ItemRenderer({
-    item,
-  }: {
-    item: FeedItem<NewsNowItemMeta>;
-  }) {
+export function makeNewsNowItemRenderer({ icon: Icon, accent, badgeLabel }: RendererOptions) {
+  return function ItemRenderer({ item }: { item: FeedItem<NewsNowItemMeta> }) {
     const m = item.meta;
     const rank = m?.rank;
     const info = m?.info ?? "";
@@ -60,10 +52,7 @@ export function makeNewsNowItemRenderer({
             <span
               className="grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold tabular-nums ring-1 ring-black/5"
               style={{
-                backgroundColor:
-                  rank <= 3
-                    ? rgbaWithAlpha(accent, 0.18)
-                    : "rgba(0, 0, 0, 0.05)",
+                backgroundColor: rank <= 3 ? rgbaWithAlpha(accent, 0.18) : "rgba(0, 0, 0, 0.05)",
                 color: rank <= 3 ? accent : "var(--muted-foreground)",
               }}
             >
@@ -76,11 +65,7 @@ export function makeNewsNowItemRenderer({
                 className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-foreground ring-1 ring-black/5"
                 style={{ backgroundColor: rgbaWithAlpha(accent, 0.12) }}
               >
-                <Icon
-                  className="size-3"
-                  style={{ color: accent }}
-                  strokeWidth={2.5}
-                />
+                <Icon className="size-3" style={{ color: accent }} strokeWidth={2.5} />
                 {badgeLabel}
               </span>
               <span className="text-muted-foreground/50">·</span>
@@ -103,9 +88,7 @@ export function makeNewsNowItemRenderer({
               </p>
             )}
             {info && !description && (
-              <p className="mt-1 text-[11.5px] tabular-nums text-muted-foreground">
-                {info}
-              </p>
+              <p className="mt-1 text-[11.5px] tabular-nums text-muted-foreground">{info}</p>
             )}
           </div>
         </div>

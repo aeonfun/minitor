@@ -38,9 +38,7 @@ export function NavStats() {
   }, [deckOrder, columns]);
 
   const lastFetchAgo =
-    latestFetchMs === null
-      ? null
-      : Math.max(0, nowMinute * 60_000 - latestFetchMs);
+    latestFetchMs === null ? null : Math.max(0, nowMinute * 60_000 - latestFetchMs);
 
   const data: { name: string; value: string }[] = [
     { name: "Decks", value: formatCompactCount(decksCount) },
@@ -64,10 +62,7 @@ export function NavStats() {
   return (
     <div className="mx-2 my-2 grid grid-cols-2 gap-px overflow-hidden rounded-md bg-sidebar-border">
       {data.map((stat) => (
-        <div
-          key={stat.name}
-          className="flex flex-col gap-0.5 bg-sidebar px-2.5 py-2"
-        >
+        <div key={stat.name} className="flex flex-col gap-0.5 bg-sidebar px-2.5 py-2">
           <div className="text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/55">
             {stat.name}
           </div>

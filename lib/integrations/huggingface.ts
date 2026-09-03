@@ -96,10 +96,7 @@ function isGated(value: HFRepo["gated"]): boolean {
   return !!value;
 }
 
-function mapRepo(
-  repo: HFRepo,
-  resource: HuggingfaceResource,
-): FeedItem<HuggingfaceMeta> | null {
+function mapRepo(repo: HFRepo, resource: HuggingfaceResource): FeedItem<HuggingfaceMeta> | null {
   const id = repo.id ?? repo.modelId;
   if (!id) return null;
 
@@ -119,21 +116,14 @@ function mapRepo(
     },
     // The "title" line of the card is "owner / name" so users can identify
     // the repo at a glance. Description, when present, lives one block down.
-    content:
-      author === "huggingface" || !author ? name : `${author} / ${name}`,
+    content: author === "huggingface" || !author ? name : `${author} / ${name}`,
     url: permalinkFor(resource, id),
-    createdAt: new Date(
-      Number.isFinite(createdMs) ? createdMs : Date.now(),
-    ).toISOString(),
+    createdAt: new Date(Number.isFinite(createdMs) ? createdMs : Date.now()).toISOString(),
     meta: {
       resource,
       likes: typeof repo.likes === "number" ? repo.likes : 0,
-      downloads:
-        typeof repo.downloads === "number" ? repo.downloads : undefined,
-      trendingScore:
-        typeof repo.trendingScore === "number"
-          ? repo.trendingScore
-          : undefined,
+      downloads: typeof repo.downloads === "number" ? repo.downloads : undefined,
+      trendingScore: typeof repo.trendingScore === "number" ? repo.trendingScore : undefined,
       pipelineTag: repo.pipeline_tag,
       libraryName: repo.library_name,
       sdk: repo.sdk,

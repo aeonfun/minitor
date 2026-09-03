@@ -54,12 +54,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
   return ok;
 }
 
-export function NavHeader({
-  onAddDeck,
-  onAddColumn,
-  onImportDeck,
-  onBrowseTemplates,
-}: Props) {
+export function NavHeader({ onAddDeck, onAddColumn, onImportDeck, onBrowseTemplates }: Props) {
   const [open, setOpen] = useState(false);
   const decks = useDeckStore((s) => s.decks);
   const deckOrder = useDeckStore((s) => s.deckOrder);
@@ -104,8 +99,7 @@ export function NavHeader({
         toast.success("Share link copied", { description: activeDeck.name });
       } else {
         toast.error("Could not copy to clipboard", {
-          description:
-            "Your browser blocked clipboard access — copy the URL from the console.",
+          description: "Your browser blocked clipboard access — copy the URL from the console.",
         });
         console.log(url);
       }
@@ -210,8 +204,7 @@ export function NavHeader({
                   void handleExportActiveDeck();
                 }}
               >
-                <Download className="mr-2 size-4" /> Export current deck (copy
-                JSON)
+                <Download className="mr-2 size-4" /> Export current deck (copy JSON)
               </CommandItem>
             ) : null}
             {activeDeck ? (
@@ -222,8 +215,7 @@ export function NavHeader({
                   void handleShareActiveDeck();
                 }}
               >
-                <Share2 className="mr-2 size-4" /> Share current deck (copy
-                URL)
+                <Share2 className="mr-2 size-4" /> Share current deck (copy URL)
               </CommandItem>
             ) : null}
             <CommandItem
@@ -242,8 +234,7 @@ export function NavHeader({
                 onBrowseTemplates();
               }}
             >
-              <LayoutTemplate className="mr-2 size-4" /> Browse starter
-              templates
+              <LayoutTemplate className="mr-2 size-4" /> Browse starter templates
             </CommandItem>
           </CommandGroup>
 

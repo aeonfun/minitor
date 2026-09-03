@@ -4,11 +4,7 @@ import { Tag } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type GHReleasesConfig, type GHReleasesMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<GHReleasesConfig>) {
@@ -31,9 +27,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHReleasesConfig>) {
           type="checkbox"
           className="size-3.5 accent-current"
           checked={value.includePrereleases}
-          onChange={(e) =>
-            onChange({ ...value, includePrereleases: e.target.checked })
-          }
+          onChange={(e) => onChange({ ...value, includePrereleases: e.target.checked })}
         />
         Include pre-releases
       </label>
@@ -66,15 +60,11 @@ function ItemRenderer({ item }: ItemRendererProps<GHReleasesMeta>) {
           <Tag className="size-3" />
           {isPre ? "pre-release" : "release"}
         </span>
-        {repo && (
-          <span className="truncate text-foreground/80">{repo}</span>
-        )}
+        {repo && <span className="truncate text-foreground/80">{repo}</span>}
         {tag && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="truncate font-mono text-[10.5px] text-foreground/70">
-              {tag}
-            </span>
+            <span className="truncate font-mono text-[10.5px] text-foreground/70">{tag}</span>
           </>
         )}
         <span className="text-muted-foreground/50">·</span>

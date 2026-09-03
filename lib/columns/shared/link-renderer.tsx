@@ -34,11 +34,7 @@ export function LinkItem({
             {badgeLabel}
           </span>
         )}
-        {source && (
-          <span className="truncate max-w-[180px] text-foreground/80">
-            {source}
-          </span>
-        )}
+        {source && <span className="truncate max-w-[180px] text-foreground/80">{source}</span>}
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">
           <RelativeTime date={item.createdAt} addSuffix />

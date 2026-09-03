@@ -45,9 +45,7 @@ interface YTVideosResponse {
   error?: { message?: string };
 }
 
-function pickThumbnail(
-  thumbs?: Record<string, { url?: string }>,
-): string | undefined {
+function pickThumbnail(thumbs?: Record<string, { url?: string }>): string | undefined {
   if (!thumbs) return undefined;
   return (
     thumbs.medium?.url ??
@@ -102,9 +100,7 @@ export async function fetchSearchPage(
   const sJson = (await sRes.json()) as YTSearchResponse;
   if (sJson.error) throw new Error(`YouTube: ${sJson.error.message}`);
   const items = sJson.items ?? [];
-  const ids = items
-    .map((i) => i.id?.videoId)
-    .filter((v): v is string => typeof v === "string");
+  const ids = items.map((i) => i.id?.videoId).filter((v): v is string => typeof v === "string");
   if (ids.length === 0) {
     return { items: [], nextPageToken: sJson.nextPageToken };
   }
@@ -149,12 +145,8 @@ export async function fetchSearchPage(
           channelTitle: sn.channelTitle,
           thumbnail: pickThumbnail(sn.thumbnails),
           duration: parseDuration(d?.contentDetails?.duration),
-          views: d?.statistics?.viewCount
-            ? Number(d.statistics.viewCount)
-            : undefined,
-          likes: d?.statistics?.likeCount
-            ? Number(d.statistics.likeCount)
-            : undefined,
+          views: d?.statistics?.viewCount ? Number(d.statistics.viewCount) : undefined,
+          likes: d?.statistics?.likeCount ? Number(d.statistics.likeCount) : undefined,
         },
       };
     })
@@ -162,31 +154,21 @@ export async function fetchSearchPage(
   return { items: mapped, nextPageToken: sJson.nextPageToken };
 }
 
-async function fetchSearch(
-  query: string,
-  order: YTOrder,
-  limit: number,
-): Promise<FeedItem[]> {
+async function fetchSearch(query: string, order: YTOrder, limit: number): Promise<FeedItem[]> {
   const { items } = await fetchSearchPage(query, order, limit);
   return items;
 }
 
 function videoIdFromUrl(url: string): string | undefined {
-  const m =
-    /(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([\w-]{11})/.exec(url) ?? undefined;
+  const m = /(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([\w-]{11})/.exec(url) ?? undefined;
   return m?.[1];
 }
 
-async function fetchByXmlFeed(
-  feedUrl: string,
-  limit: number,
-): Promise<FeedItem[]> {
+async function fetchByXmlFeed(feedUrl: string, limit: number): Promise<FeedItem[]> {
   const items = await fetchFeed(feedUrl, limit);
   return items.map((it) => {
     const videoId = it.url ? videoIdFromUrl(it.url) : undefined;
-    const thumbnail = videoId
-      ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
-      : undefined;
+    const thumbnail = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : undefined;
     return {
       ...it,
       meta: {
@@ -199,18 +181,12 @@ async function fetchByXmlFeed(
   });
 }
 
-async function fetchChannel(
-  channel: string,
-  limit: number,
-): Promise<FeedItem[]> {
+async function fetchChannel(channel: string, limit: number): Promise<FeedItem[]> {
   const raw = channel.trim();
   if (!raw) throw new Error("Channel id or @handle is required.");
   // Channel ID (UCxxx, 24 chars) → channel_id feed; otherwise treat as handle.
   if (/^UC[\w-]{20,}$/.test(raw)) {
-    return fetchByXmlFeed(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${raw}`,
-      limit,
-    );
+    return fetchByXmlFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${raw}`, limit);
   }
   const handle = raw.replace(/^@/, "");
   // Resolve handle → channel id via the channel page (no key needed).
@@ -218,26 +194,18 @@ async function fetchChannel(
     headers: { "user-agent": "minitor/0.1", accept: "text/html" },
     cache: "no-store",
   }).then((r) => (r.ok ? r.text() : ""));
-  const idMatch = /"channelId":"(UC[\w-]{20,})"/.exec(html) ?? /channel_id=(UC[\w-]{20,})/.exec(html);
+  const idMatch =
+    /"channelId":"(UC[\w-]{20,})"/.exec(html) ?? /channel_id=(UC[\w-]{20,})/.exec(html);
   if (!idMatch) {
     throw new Error(`Couldn't resolve YouTube channel @${handle}.`);
   }
-  return fetchByXmlFeed(
-    `https://www.youtube.com/feeds/videos.xml?channel_id=${idMatch[1]}`,
-    limit,
-  );
+  return fetchByXmlFeed(`https://www.youtube.com/feeds/videos.xml?channel_id=${idMatch[1]}`, limit);
 }
 
-async function fetchPlaylist(
-  playlistId: string,
-  limit: number,
-): Promise<FeedItem[]> {
+async function fetchPlaylist(playlistId: string, limit: number): Promise<FeedItem[]> {
   const id = playlistId.trim();
   if (!id) throw new Error("Playlist id is required.");
-  return fetchByXmlFeed(
-    `https://www.youtube.com/feeds/videos.xml?playlist_id=${id}`,
-    limit,
-  );
+  return fetchByXmlFeed(`https://www.youtube.com/feeds/videos.xml?playlist_id=${id}`, limit);
 }
 
 export async function fetchYouTube(
@@ -252,11 +220,11 @@ export async function fetchYouTube(
       return fetchPlaylist(config.playlist ?? "", limit);
     case "search":
     default: {
-      const order = (config.order === "relevance" ||
-      config.order === "viewCount" ||
-      config.order === "rating"
-        ? config.order
-        : "date") as YTOrder;
+      const order = (
+        config.order === "relevance" || config.order === "viewCount" || config.order === "rating"
+          ? config.order
+          : "date"
+      ) as YTOrder;
       return fetchSearch(config.query ?? "", order, limit);
     }
   }

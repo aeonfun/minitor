@@ -13,11 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { SidebarFooter, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
 import { RenameDialog } from "@/components/dialogs/rename-dialog";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import { AddColumnDialog } from "@/components/column/add-column-dialog";
@@ -59,10 +55,7 @@ export function NavFooter() {
                     <Plus className="ml-auto size-4" />
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setAddColOpen(true)}
-                    disabled={!activeDeckId}
-                  >
+                  <DropdownMenuItem onClick={() => setAddColOpen(true)} disabled={!activeDeckId}>
                     <span>Add column</span>
                     <Plus className="ml-auto size-4" />
                   </DropdownMenuItem>
@@ -94,11 +87,7 @@ export function NavFooter() {
         }}
       />
       {activeDeckId && (
-        <AddColumnDialog
-          open={addColOpen}
-          onOpenChange={setAddColOpen}
-          deckId={activeDeckId}
-        />
+        <AddColumnDialog open={addColOpen} onOpenChange={setAddColOpen} deckId={activeDeckId} />
       )}
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </>

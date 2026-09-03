@@ -6,11 +6,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type TemplateConfig, type TemplateMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<TemplateConfig>) {
@@ -30,9 +26,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<TemplateConfig>) {
 function ItemRenderer({ item }: ItemRendererProps<TemplateMeta>) {
   return (
     <article className="border-b border-border px-3.5 py-3">
-      <div className="text-[11px] text-muted-foreground">
-        {item.meta?.source ?? "source"}
-      </div>
+      <div className="text-[11px] text-muted-foreground">{item.meta?.source ?? "source"}</div>
       <p className="mt-1 text-[12.5px] text-foreground">{item.content}</p>
     </article>
   );

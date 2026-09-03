@@ -3,11 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type InstagramConfig, type InstagramMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<InstagramConfig>) {
@@ -16,13 +12,12 @@ function ConfigForm({ value, onChange }: ConfigFormProps<InstagramConfig>) {
       <Label htmlFor="ig-q">Keyword or URL</Label>
       <Input
         id="ig-q"
-        placeholder='claude code  ·  https://example.com'
+        placeholder="claude code  ·  https://example.com"
         value={value.query}
         onChange={(e) => onChange({ query: e.target.value })}
       />
       <p className="text-xs text-muted-foreground">
-        Surfaces public Instagram posts (via web search) that mention your
-        keyword, hashtag, or URL.
+        Surfaces public Instagram posts (via web search) that mention your keyword, hashtag, or URL.
       </p>
     </div>
   );

@@ -4,39 +4,21 @@ import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  useDeckStore,
-  getVisibleColumnIds,
-  TAB_GROUP_ALL,
-} from "@/lib/store/use-deck-store";
+import { useDeckStore, getVisibleColumnIds, TAB_GROUP_ALL } from "@/lib/store/use-deck-store";
 import { DeckBoard } from "@/components/deck/deck-board";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/sidebar-01/app-sidebar";
 import { Onboarding } from "@/components/onboarding/welcome";
 import { loadSnapshot } from "@/app/actions";
-import {
-  DECK_SHARE_HASH_KEY,
-  decodeDeckShareHash,
-  readDeckShareFragment,
-} from "@/lib/deck-share";
+import { DECK_SHARE_HASH_KEY, decodeDeckShareHash, readDeckShareFragment } from "@/lib/deck-share";
 
 export function DeckView() {
   const hydrated = useDeckStore((s) => s.hydrated);
   const deckOrder = useDeckStore((s) => s.deckOrder);
   const activeDeckId = useDeckStore((s) => s.activeDeckId);
-  const activeDeck = useDeckStore((s) =>
-    s.activeDeckId ? s.decks[s.activeDeckId] : null,
-  );
+  const activeDeck = useDeckStore((s) => (s.activeDeckId ? s.decks[s.activeDeckId] : null));
   const setActiveDeck = useDeckStore((s) => s.setActiveDeck);
   const requestRefreshColumns = useDeckStore((s) => s.requestRefreshColumns);
   // We render a small spinner on the button while ANY column owned by the
@@ -89,7 +71,9 @@ export function DeckView() {
         .split("&")
         .filter((p) => !p.startsWith(`${DECK_SHARE_HASH_KEY}=`))
         .join("&");
-      const next = stripped ? `${window.location.pathname}${window.location.search}#${stripped}` : `${window.location.pathname}${window.location.search}`;
+      const next = stripped
+        ? `${window.location.pathname}${window.location.search}#${stripped}`
+        : `${window.location.pathname}${window.location.search}`;
       window.history.replaceState(null, "", next);
     };
 
@@ -194,10 +178,9 @@ export function DeckView() {
                     );
                     if (ids.length === 0) return;
                     requestRefreshColumns(ids);
-                    toast.success(
-                      `Refreshing ${ids.length} column${ids.length === 1 ? "" : "s"}`,
-                      { description: activeDeck.name },
-                    );
+                    toast.success(`Refreshing ${ids.length} column${ids.length === 1 ? "" : "s"}`, {
+                      description: activeDeck.name,
+                    });
                   }}
                   title="Refresh all columns"
                   aria-label="Refresh all columns in this deck"

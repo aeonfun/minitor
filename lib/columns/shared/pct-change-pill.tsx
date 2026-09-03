@@ -17,11 +17,7 @@ export function PctChangePill({ value }: { value: number }) {
       className="inline-flex items-center gap-0.5 tabular-nums"
       style={{ color: up ? "#10b981" : "#ef4444" }}
     >
-      {up ? (
-        <ArrowUpRight className="size-3" />
-      ) : (
-        <ArrowDownRight className="size-3" />
-      )}
+      {up ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
       {value.toFixed(2)}%
     </span>
   );

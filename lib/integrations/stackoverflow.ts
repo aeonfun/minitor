@@ -92,11 +92,8 @@ function mapQuestion(q: SOQuestion): FeedItem<StackOverflowMeta> | null {
   if (!q.question_id || !q.title || !q.link) return null;
 
   const owner = q.owner;
-  const displayName = owner?.display_name
-    ? decodeEntities(owner.display_name)
-    : "anonymous";
-  const createdMs =
-    typeof q.creation_date === "number" ? q.creation_date * 1000 : Date.now();
+  const displayName = owner?.display_name ? decodeEntities(owner.display_name) : "anonymous";
+  const createdMs = typeof q.creation_date === "number" ? q.creation_date * 1000 : Date.now();
 
   return {
     id: String(q.question_id),
@@ -147,9 +144,7 @@ export async function fetchStackOverflowPage(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `Stack Overflow ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`Stack Overflow ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
   const json = (await res.json()) as SOResponse;
@@ -158,9 +153,7 @@ export async function fetchStackOverflowPage(
   }
 
   const items = Array.isArray(json.items)
-    ? json.items
-        .map(mapQuestion)
-        .filter((q): q is FeedItem<StackOverflowMeta> => q !== null)
+    ? json.items.map(mapQuestion).filter((q): q is FeedItem<StackOverflowMeta> => q !== null)
     : [];
 
   return { items, hasMore: !!json.has_more };

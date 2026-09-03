@@ -31,9 +31,7 @@ interface GrokResponse {
   usage?: { total_tokens?: number; cost_in_usd_ticks?: number };
 }
 
-export type GrokTool =
-  | { type: "x_search" }
-  | { type: "web_search" };
+export type GrokTool = { type: "x_search" } | { type: "web_search" };
 
 // Meta emitted by the web/news searches (grokWebSearch, grokNewsSearch,
 // grokFacebookSearch). Owned here so the consuming plugins alias it.
@@ -91,9 +89,7 @@ async function callGrok(options: GrokSearchOptions): Promise<GrokItem[]> {
   // `xai-...` fails with a clear "not set" message instead of being shipped
   // upstream and bouncing back as an opaque "Incorrect API key".
   if (isPlaceholderValue(apiKey)) {
-    throw new Error(
-      "XAI_API_KEY is not set in .env.local (still the .env.example placeholder?)",
-    );
+    throw new Error("XAI_API_KEY is not set in .env.local (still the .env.example placeholder?)");
   }
   const model = options.model ?? process.env.XAI_MODEL ?? "grok-4-fast-reasoning";
 
@@ -132,9 +128,7 @@ function toXFeedItem(g: GrokItem): FeedItem | null {
   const content = (g.content ?? "").trim();
   if (!content) return null;
   const id = g.id !== undefined ? String(g.id) : nanoid();
-  const url =
-    g.url ??
-    (handle ? `https://x.com/${handle}/status/${id}` : undefined);
+  const url = g.url ?? (handle ? `https://x.com/${handle}/status/${id}` : undefined);
 
   return {
     id,
@@ -155,10 +149,7 @@ function toXFeedItem(g: GrokItem): FeedItem | null {
   };
 }
 
-function toWebFeedItem(
-  g: GrokItem,
-  kind: "web" | "news",
-): FeedItem<WebSearchMeta> | null {
+function toWebFeedItem(g: GrokItem, kind: "web" | "news"): FeedItem<WebSearchMeta> | null {
   const url = g.url;
   const content = (g.content ?? g.snippet ?? g.title ?? "").trim();
   if (!url || !content) return null;

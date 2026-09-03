@@ -51,7 +51,10 @@ interface MastodonStatus {
 }
 
 function normalizeInstance(raw: string | undefined): string {
-  const s = (raw ?? "").trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  const s = (raw ?? "")
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "");
   return s || DEFAULT_INSTANCE;
 }
 
@@ -79,9 +82,7 @@ function stripHtml(html: string): string {
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
     .replace(/<\/?p[^>]*>/gi, "")
-    .replace(/<a [^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/gi, (_m, _href, text) =>
-      String(text),
-    )
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/gi, (_m, _href, text) => String(text))
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -100,10 +101,7 @@ function avatarUrl(account: MastodonAccount | undefined): string {
   return `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
 }
 
-function authorHandle(
-  account: MastodonAccount | undefined,
-  fallbackInstance: string,
-): string {
+function authorHandle(account: MastodonAccount | undefined, fallbackInstance: string): string {
   const acct = account?.acct ?? account?.username ?? "";
   if (!acct) return "unknown";
   // Local accounts return `acct: "user"`; remote accounts return
@@ -119,10 +117,7 @@ function statusUrl(s: MastodonStatus): string | undefined {
   return s.url ?? s.uri;
 }
 
-function statusToFeedItem(
-  s: MastodonStatus,
-  instance: string,
-): FeedItem | null {
+function statusToFeedItem(s: MastodonStatus, instance: string): FeedItem | null {
   // Skip boosts (reblogs) on author timelines — the column attribution would
   // otherwise be misleading ("by @actor" but content authored by someone
   // else). Hashtag timeline doesn't include reblogs by default, but keep the
@@ -147,9 +142,7 @@ function statusToFeedItem(
       handle,
       avatarUrl: avatarUrl(account),
     },
-    content: s.spoiler_text
-      ? `[CW: ${s.spoiler_text.trim()}] ${text}`
-      : text,
+    content: s.spoiler_text ? `[CW: ${s.spoiler_text.trim()}] ${text}` : text,
     url,
     createdAt: s.created_at ?? new Date().toISOString(),
     meta: {
@@ -164,11 +157,7 @@ function statusToFeedItem(
   };
 }
 
-function mapStatuses(
-  statuses: MastodonStatus[],
-  instance: string,
-  limit: number,
-): FeedItem[] {
+function mapStatuses(statuses: MastodonStatus[], instance: string, limit: number): FeedItem[] {
   return statuses
     .map((s) => statusToFeedItem(s, instance))
     .filter((it): it is FeedItem => it !== null)
@@ -187,9 +176,7 @@ export async function fetchMastodonHashtag(
     limit: String(limit),
     only_media: "false",
   });
-  const url = `https://${instance}/api/v1/timelines/tag/${encodeURIComponent(
-    tag,
-  )}?${params}`;
+  const url = `https://${instance}/api/v1/timelines/tag/${encodeURIComponent(tag)}?${params}`;
   const json = await mastodonGet<MastodonStatus[]>(url);
   return mapStatuses(json, instance, limit);
 }
@@ -226,9 +213,7 @@ export async function fetchMastodonAuthor(
   // Look the account up on its own server — that's the only place /lookup
   // can resolve a local username without authentication on most instances.
   const acct = `${localpart}`;
-  const lookupUrl = `https://${server}/api/v1/accounts/lookup?acct=${encodeURIComponent(
-    acct,
-  )}`;
+  const lookupUrl = `https://${server}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`;
   const account = await mastodonGet<MastodonAccount>(lookupUrl);
   if (!account.id) {
     throw new Error(`Couldn't resolve @${localpart} on ${server}.`);

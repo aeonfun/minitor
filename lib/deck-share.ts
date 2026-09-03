@@ -94,7 +94,10 @@ export function readDeckShareFragment(hash: string): string | null {
  * receiver lands on the same route the sharer was on (the canonical app shell).
  * Throws when the JSON exceeds MAX_SHARE_JSON_BYTES — propagate to the toast.
  */
-export function buildDeckShareUrl(json: string, locationLike: { origin: string; pathname: string }): string {
+export function buildDeckShareUrl(
+  json: string,
+  locationLike: { origin: string; pathname: string },
+): string {
   const encoded = encodeDeckShareHash(json);
   return `${locationLike.origin}${locationLike.pathname}#${DECK_SHARE_HASH_KEY}=${encoded}`;
 }

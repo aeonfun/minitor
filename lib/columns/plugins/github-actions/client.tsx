@@ -13,11 +13,7 @@ import {
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type GHActionsConfig, type GHActionsMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<GHActionsConfig>) {
@@ -44,9 +40,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHActionsConfig>) {
           onChange={(e) => onChange({ ...value, workflow: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Match by workflow display name (e.g. <code>CI</code>) or the file
-          inside <code>.github/workflows/</code> (e.g. <code>ci.yml</code>).
-          Empty = every workflow.
+          Match by workflow display name (e.g. <code>CI</code>) or the file inside{" "}
+          <code>.github/workflows/</code> (e.g. <code>ci.yml</code>). Empty = every workflow.
         </p>
       </div>
       <div className="grid gap-1.5">
@@ -58,8 +53,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHActionsConfig>) {
           onChange={(e) => onChange({ ...value, branch: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Exact branch match only — the API doesn&apos;t support partials.
-          Empty = every branch.
+          Exact branch match only — the API doesn&apos;t support partials. Empty = every branch.
         </p>
       </div>
     </div>
@@ -76,10 +70,7 @@ interface ConclusionStyle {
 // One pill per terminal conclusion. Pending / in-flight runs are rendered
 // separately so the colour pop is reserved for finished outcomes — that's
 // what the user actually scans for ("did it break?").
-const CONCLUSION_STYLES: Record<
-  NonNullable<GHActionsMeta["conclusion"]>,
-  ConclusionStyle
-> = {
+const CONCLUSION_STYLES: Record<NonNullable<GHActionsMeta["conclusion"]>, ConclusionStyle> = {
   success: {
     Icon: CheckCircle2,
     iconColor: "#10b981",
@@ -164,7 +155,12 @@ function StatusPill({ meta: m }: { meta: GHActionsMeta }) {
       </span>
     );
   }
-  if (m.status === "queued" || m.status === "waiting" || m.status === "pending" || m.status === "requested") {
+  if (
+    m.status === "queued" ||
+    m.status === "waiting" ||
+    m.status === "pending" ||
+    m.status === "requested"
+  ) {
     return (
       <span
         className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-medium"
@@ -209,9 +205,7 @@ function ItemRenderer({ item }: ItemRendererProps<GHActionsMeta>) {
     >
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-muted-foreground">
         <StatusPill meta={m} />
-        <span className="truncate font-medium text-foreground/80">
-          {m.workflowName}
-        </span>
+        <span className="truncate font-medium text-foreground/80">{m.workflowName}</span>
         <span className="text-muted-foreground/50">·</span>
         <span className="truncate text-foreground/70">{m.fullRepo}</span>
         <span className="text-muted-foreground/50">·</span>

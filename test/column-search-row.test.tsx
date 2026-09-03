@@ -49,10 +49,7 @@ const column: Column = {
   typeId: "hacker-news",
   title: "HN",
   config: { mode: "top" },
-  items: [
-    hnItem("i1", "Postgres index internals"),
-    hnItem("i2", "The LSM tree"),
-  ],
+  items: [hnItem("i1", "Postgres index internals"), hnItem("i2", "The LSM tree")],
 } as unknown as Column;
 
 function renderCard() {

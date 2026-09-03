@@ -9,10 +9,7 @@ import "server-only";
 // next_page_params. We slice 10 at a time and only re-fetch a new batch when
 // the current one is exhausted.
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchAddressTransactions } from "@/lib/integrations/blockscout";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type WalletTxConfig, type WalletTxMeta } from "./plugin";
@@ -41,10 +38,7 @@ function encode(c: WalletCursor): string {
   return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
 }
 
-const fetch: ServerFetcher<WalletTxConfig, WalletTxMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<WalletTxConfig, WalletTxMeta> = async (config, cursor) => {
   const address = config.address.trim();
   if (!address) return { items: [] };
 

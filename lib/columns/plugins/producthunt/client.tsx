@@ -11,16 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
-import {
-  meta,
-  type ProductHuntConfig,
-  type ProductHuntMeta,
-} from "./plugin";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
+import { meta, type ProductHuntConfig, type ProductHuntMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<ProductHuntConfig>) {
   return (
@@ -29,9 +21,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<ProductHuntConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as ProductHuntConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as ProductHuntConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -51,9 +41,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<ProductHuntConfig>) {
           onChange={(e) => onChange({ ...value, topic: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Up to five keywords, comma- or space-separated. Keywords OR-match
-          against the product name, tagline, description, and link. Leave empty
-          to see every launch in today&apos;s slate.
+          Up to five keywords, comma- or space-separated. Keywords OR-match against the product
+          name, tagline, description, and link. Leave empty to see every launch in today&apos;s
+          slate.
         </p>
       </div>
     </div>
@@ -88,12 +78,7 @@ function ItemRenderer({ item }: ItemRendererProps<ProductHuntMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-serif text-[16px] leading-[1.3] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{

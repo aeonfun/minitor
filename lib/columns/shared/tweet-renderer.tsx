@@ -36,9 +36,7 @@ export function TweetItem({ item }: ItemRendererProps<TweetMeta>) {
           {item.author.name}
         </span>
         {item.author.handle && (
-          <span className="truncate text-muted-foreground">
-            @{item.author.handle}
-          </span>
+          <span className="truncate text-muted-foreground">@{item.author.handle}</span>
         )}
         <span className="text-muted-foreground/50">·</span>
         <span className="shrink-0 text-muted-foreground tabular-nums">

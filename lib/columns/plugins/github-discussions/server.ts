@@ -1,21 +1,11 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchDiscussions } from "@/lib/integrations/github-discussions";
 import { sliceForPage } from "@/lib/columns/paginate";
-import {
-  meta,
-  type GHDiscussionsConfig,
-  type GHDiscussionsMeta,
-} from "./plugin";
+import { meta, type GHDiscussionsConfig, type GHDiscussionsMeta } from "./plugin";
 
-const fetch: ServerFetcher<GHDiscussionsConfig, GHDiscussionsMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<GHDiscussionsConfig, GHDiscussionsMeta> = async (config, cursor) => {
   const repo = config.repo.trim();
   if (!repo) throw new Error("Repository is required (owner/repo).");
   // GraphQL doesn't expose a native cursor for the orderings we use here
@@ -26,10 +16,7 @@ const fetch: ServerFetcher<GHDiscussionsConfig, GHDiscussionsMeta> = async (
   return sliceForPage(items, cursor);
 };
 
-export const server = defineColumnServer<
-  GHDiscussionsConfig,
-  GHDiscussionsMeta
->({
+export const server = defineColumnServer<GHDiscussionsConfig, GHDiscussionsMeta>({
   meta,
   fetch,
 });

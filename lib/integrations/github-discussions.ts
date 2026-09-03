@@ -77,8 +77,7 @@ const DISCUSSIONS_QUERY = `
   }
 `;
 
-const REPO_REGEX =
-  /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const REPO_REGEX = /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 export function parseRepo(input: string): { owner: string; name: string } {
   const clean = input
@@ -87,9 +86,7 @@ export function parseRepo(input: string): { owner: string; name: string } {
     .replace(/^github\.com\//, "")
     .replace(/\/+$/, "");
   if (!REPO_REGEX.test(clean)) {
-    throw new Error(
-      `Invalid repo "${input}". Use owner/repo (e.g. vercel/next.js).`,
-    );
+    throw new Error(`Invalid repo "${input}". Use owner/repo (e.g. vercel/next.js).`);
   }
   const [owner, name] = clean.split("/");
   return { owner, name };
@@ -156,9 +153,7 @@ export async function fetchDiscussions(
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(
-      `GitHub GraphQL ${res.status}: ${body.slice(0, 200)}`,
-    );
+    throw new Error(`GitHub GraphQL ${res.status}: ${body.slice(0, 200)}`);
   }
   const json = (await res.json()) as GHDiscussionsResponse;
 

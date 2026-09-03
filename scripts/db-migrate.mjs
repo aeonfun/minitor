@@ -39,9 +39,7 @@ if (kind === "memory") {
   process.exit(0);
 }
 
-const files = (await readdir(MIGRATION_DIR))
-  .filter((f) => f.endsWith(".sql"))
-  .sort();
+const files = (await readdir(MIGRATION_DIR)).filter((f) => f.endsWith(".sql")).sort();
 
 if (files.length === 0) {
   console.log("No migration files found in ./drizzle");

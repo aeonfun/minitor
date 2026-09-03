@@ -22,10 +22,7 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export async function login(
-  _prev: LoginState,
-  formData: FormData,
-): Promise<LoginState> {
+export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const password = process.env.MINITOR_PASSWORD;
   if (!password) {
     // No gate configured — nothing to log into.

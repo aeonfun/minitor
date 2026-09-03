@@ -13,11 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type CoingeckoConfig, type CoingeckoMeta } from "./plugin";
 
@@ -28,25 +24,20 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CoingeckoConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as CoingeckoConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as CoingeckoConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="trending">
-              Trending — top searches (24h)
-            </SelectItem>
+            <SelectItem value="trending">Trending — top searches (24h)</SelectItem>
             <SelectItem value="top">Top by market cap</SelectItem>
             <SelectItem value="watchlist">Watchlist — custom ids</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Trending</strong> reads CoinGecko&apos;s 24h search-volume
-          leaderboard (fixed 7-coin window).{" "}
-          <strong>Top</strong> reads the market-cap leaderboard with full
+          <strong>Trending</strong> reads CoinGecko&apos;s 24h search-volume leaderboard (fixed
+          7-coin window). <strong>Top</strong> reads the market-cap leaderboard with full
           pagination. <strong>Watchlist</strong> shows the coins you list below.
         </p>
       </div>
@@ -60,16 +51,15 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CoingeckoConfig>) {
             onChange={(e) => onChange({ ...value, watchlist: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Comma-, semicolon-, or space-separated. Use CoinGecko ids (lowercase
-            slugs), not tickers — e.g. <code>bitcoin</code> not{" "}
-            <code>BTC</code>. Find the id in the URL on coingecko.com.
+            Comma-, semicolon-, or space-separated. Use CoinGecko ids (lowercase slugs), not tickers
+            — e.g. <code>bitcoin</code> not <code>BTC</code>. Find the id in the URL on
+            coingecko.com.
           </p>
         </div>
       )}
       <p className="text-xs text-muted-foreground">
-        Keyless by default. For higher rate limits, set{" "}
-        <code>COINGECKO_DEMO_API_KEY</code> in Settings · API keys (the free
-        Demo plan is fine).
+        Keyless by default. For higher rate limits, set <code>COINGECKO_DEMO_API_KEY</code> in
+        Settings · API keys (the free Demo plan is fine).
       </p>
     </div>
   );
@@ -152,9 +142,7 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
         {typeof rank === "number" && rank > 0 && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="tabular-nums text-muted-foreground/90">
-              #{rank}
-            </span>
+            <span className="tabular-nums text-muted-foreground/90">#{rank}</span>
           </>
         )}
         <span className="text-muted-foreground/50">·</span>
@@ -162,12 +150,7 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 flex items-center gap-2"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2">
         {imageUrl && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -189,9 +172,7 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
         </h3>
       </a>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted-foreground">
-        <span className="tabular-nums text-foreground/90">
-          {formatPriceUsd(priceUsd)}
-        </span>
+        <span className="tabular-nums text-foreground/90">{formatPriceUsd(priceUsd)}</span>
         <PctChangePill value={pct} />
         {sparkline.length > 1 && <Sparkline values={sparkline} />}
         {marketCap > 0 && (
@@ -206,8 +187,7 @@ function ItemRenderer({ item }: ItemRendererProps<CoingeckoMeta>) {
           <>
             <span className="text-muted-foreground/50">·</span>
             <span>
-              Vol{" "}
-              <span className="tabular-nums">${formatCompactCount(volume)}</span>
+              Vol <span className="tabular-nums">${formatCompactCount(volume)}</span>
             </span>
           </>
         )}

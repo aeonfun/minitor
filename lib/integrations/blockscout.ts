@@ -38,8 +38,18 @@ interface ChainInfo {
 const CHAINS: Record<Chain, ChainInfo> = {
   ethereum: { chainId: 1, host: "eth.blockscout.com", nativeSymbol: "ETH", label: "Ethereum" },
   base: { chainId: 8453, host: "base.blockscout.com", nativeSymbol: "ETH", label: "Base" },
-  optimism: { chainId: 10, host: "optimism.blockscout.com", nativeSymbol: "ETH", label: "Optimism" },
-  arbitrum: { chainId: 42161, host: "arbitrum.blockscout.com", nativeSymbol: "ETH", label: "Arbitrum" },
+  optimism: {
+    chainId: 10,
+    host: "optimism.blockscout.com",
+    nativeSymbol: "ETH",
+    label: "Optimism",
+  },
+  arbitrum: {
+    chainId: 42161,
+    host: "arbitrum.blockscout.com",
+    nativeSymbol: "ETH",
+    label: "Arbitrum",
+  },
   polygon: { chainId: 137, host: "polygon.blockscout.com", nativeSymbol: "POL", label: "Polygon" },
   gnosis: { chainId: 100, host: "gnosis.blockscout.com", nativeSymbol: "xDAI", label: "Gnosis" },
   scroll: { chainId: 534352, host: "scroll.blockscout.com", nativeSymbol: "ETH", label: "Scroll" },
@@ -101,11 +111,7 @@ export function isValidEvmAddress(addr: string): boolean {
   return EVM_ADDR_RE.test(addr.trim());
 }
 
-function buildUrl(
-  chain: Chain,
-  path: string,
-  params?: Record<string, string>,
-): string {
+function buildUrl(chain: Chain, path: string, params?: Record<string, string>): string {
   const url = new URL(`https://${CHAINS[chain].host}/api/v2${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
@@ -275,11 +281,7 @@ function shortAddress(addr: string): string {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function inferMethodLabel(
-  tx: BSTransaction,
-  watched: string,
-  from: string,
-): string | undefined {
+function inferMethodLabel(tx: BSTransaction, watched: string, from: string): string | undefined {
   const types = tx.tx_types ?? tx.transaction_types ?? [];
   if (types.includes("token_transfer")) return "Token transfer";
   if (types.includes("coin_transfer")) {

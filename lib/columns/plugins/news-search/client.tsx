@@ -3,11 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type NewsSearchConfig, type NewsSearchMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<NewsSearchConfig>) {

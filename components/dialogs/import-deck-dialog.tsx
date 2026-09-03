@@ -76,8 +76,8 @@ export function ImportDeckDialog({ open, onOpenChange }: Props) {
               onChange={(e) => setValue(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              The imported deck is added as a new deck with “(imported)” appended to
-              its name — your existing decks aren’t touched.
+              The imported deck is added as a new deck with “(imported)” appended to its name — your
+              existing decks aren’t touched.
             </p>
           </div>
           <DialogFooter>

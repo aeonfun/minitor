@@ -3,10 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TweetItem } from "@/lib/columns/shared/tweet-renderer";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps } from "@/lib/columns/types";
 import { meta, type XSearchConfig, type TweetMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<XSearchConfig>) {

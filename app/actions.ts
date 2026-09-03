@@ -11,10 +11,7 @@ import type { Column, Deck, FeedItem } from "@/lib/columns/types";
 import { MAX_ITEMS_PER_COLUMN } from "@/lib/columns/constants";
 import { ENV_KEYS, ENV_KEY_NAMES, isPlaceholderValue } from "@/lib/env-keys";
 import { isHostedDeployment } from "@/lib/hosted";
-import {
-  parseAlertKeywords,
-  matchedAlertKeywords,
-} from "@/lib/columns/keyword-match";
+import { parseAlertKeywords, matchedAlertKeywords } from "@/lib/columns/keyword-match";
 import {
   sendColumnWebhook,
   validateWebhookUrl,
@@ -50,9 +47,7 @@ type ItemRow = {
 // Returns whether each env var is set on the server, without ever leaking
 // the values themselves. Used by the AddColumn dialog to grey out / filter
 // plugins whose required keys aren't configured.
-export async function getKeyAvailability(
-  keys: string[],
-): Promise<Record<string, boolean>> {
+export async function getKeyAvailability(keys: string[]): Promise<Record<string, boolean>> {
   const out: Record<string, boolean> = {};
   for (const k of keys) {
     if (!/^[A-Z][A-Z0-9_]*$/.test(k)) continue;
@@ -81,10 +76,7 @@ export async function loadSnapshot(): Promise<Snapshot> {
 
   const [deckRows, columnRows, itemResult] = await Promise.all([
     db.select().from(decks).orderBy(asc(decks.position), asc(decks.createdAt)),
-    db
-      .select()
-      .from(columns)
-      .orderBy(asc(columns.position), asc(columns.createdAt)),
+    db.select().from(columns).orderBy(asc(columns.position), asc(columns.createdAt)),
     itemQuery,
   ]);
 
@@ -159,10 +151,7 @@ export async function renameDeck(id: string, name: string): Promise<void> {
  * can never bypass the hex check. Mirrors `updateColumnColor` exactly —
  * the deck-level analog of the column color labels.
  */
-export async function updateDeckColor(
-  id: string,
-  color: string,
-): Promise<void> {
+export async function updateDeckColor(id: string, color: string): Promise<void> {
   // Same hex shape as columns — reuse the canonical column normalizer so
   // the two label surfaces (deck-level + per-column) can never drift on
   // case-folding or shorthand acceptance.
@@ -223,10 +212,7 @@ export async function updateColumnConfig(
  * Validated to 512 chars to bound storage; longer inputs are truncated so the
  * UI never silently rejects a paste.
  */
-export async function updateColumnAlertKeywords(
-  id: string,
-  alertKeywords: string,
-): Promise<void> {
+export async function updateColumnAlertKeywords(id: string, alertKeywords: string): Promise<void> {
   const trimmed = alertKeywords.slice(0, 512);
   await db
     .update(columns)
@@ -240,26 +226,17 @@ export async function updateColumnAlertKeywords(
  * the dashboard can't be used to make the server POST to internal addresses.
  * Throws on an invalid non-empty URL so the caller can surface the reason.
  */
-export async function updateColumnWebhookUrl(
-  id: string,
-  webhookUrl: string,
-): Promise<void> {
+export async function updateColumnWebhookUrl(id: string, webhookUrl: string): Promise<void> {
   const trimmed = webhookUrl.trim();
   if (trimmed.length === 0) {
-    await db
-      .update(columns)
-      .set({ notifyWebhookUrl: null })
-      .where(eq(columns.id, id));
+    await db.update(columns).set({ notifyWebhookUrl: null }).where(eq(columns.id, id));
     return;
   }
   const check = validateWebhookUrl(trimmed);
   if (!check.ok) {
     throw new Error(check.reason);
   }
-  await db
-    .update(columns)
-    .set({ notifyWebhookUrl: check.url })
-    .where(eq(columns.id, id));
+  await db.update(columns).set({ notifyWebhookUrl: check.url }).where(eq(columns.id, id));
 }
 
 /**
@@ -271,13 +248,8 @@ export async function updateColumnRefreshInterval(
   id: string,
   refreshIntervalSeconds: number | null,
 ): Promise<void> {
-  const next = isAllowedRefreshInterval(refreshIntervalSeconds)
-    ? refreshIntervalSeconds
-    : null;
-  await db
-    .update(columns)
-    .set({ refreshIntervalSeconds: next })
-    .where(eq(columns.id, id));
+  const next = isAllowedRefreshInterval(refreshIntervalSeconds) ? refreshIntervalSeconds : null;
+  await db.update(columns).set({ refreshIntervalSeconds: next }).where(eq(columns.id, id));
 }
 
 /**
@@ -309,10 +281,7 @@ export async function updateColumnFilters(
  * "AI  " all bucket to the same tab — operators don't have to think about
  * exact-match casing when typing the same label across columns.
  */
-export async function updateColumnTabGroup(
-  id: string,
-  tabGroup: string,
-): Promise<void> {
+export async function updateColumnTabGroup(id: string, tabGroup: string): Promise<void> {
   const normalized = tabGroup.replace(/\s+/g, " ").trim().slice(0, TAB_GROUP_MAX);
   await db
     .update(columns)
@@ -327,14 +296,8 @@ export async function updateColumnTabGroup(
  * DnD reorder still works within each group (pinned among pinned, unpinned
  * among unpinned) — `position` keeps the stable relative order.
  */
-export async function updateColumnPinned(
-  id: string,
-  pinned: boolean,
-): Promise<void> {
-  await db
-    .update(columns)
-    .set({ pinned })
-    .where(eq(columns.id, id));
+export async function updateColumnPinned(id: string, pinned: boolean): Promise<void> {
+  await db.update(columns).set({ pinned }).where(eq(columns.id, id));
 }
 
 /**
@@ -344,15 +307,9 @@ export async function updateColumnPinned(
  * validates before calling). Validation is server-authoritative so a
  * hand-edited payload can never bypass the hex check.
  */
-export async function updateColumnColor(
-  id: string,
-  color: string,
-): Promise<void> {
+export async function updateColumnColor(id: string, color: string): Promise<void> {
   const normalized = normalizeColumnColor(color);
-  await db
-    .update(columns)
-    .set({ color: normalized })
-    .where(eq(columns.id, id));
+  await db.update(columns).set({ color: normalized }).where(eq(columns.id, id));
 }
 
 export async function renameColumn(id: string, title: string): Promise<void> {
@@ -410,12 +367,7 @@ export async function duplicateColumn(
     await tx
       .update(columns)
       .set({ position: sql`${columns.position} + 1` })
-      .where(
-        and(
-          eq(columns.deckId, src.deckId),
-          sql`${columns.position} > ${src.position}`,
-        ),
-      );
+      .where(and(eq(columns.deckId, src.deckId), sql`${columns.position} > ${src.position}`));
 
     await tx.insert(columns).values({
       id: newId,
@@ -454,18 +406,12 @@ export async function duplicateColumn(
 export async function deleteColumn(id: string): Promise<void> {
   // Snapshot the deck (still holding this column) before the delete, so an
   // accidental removal can be recovered from version history.
-  const [col] = await db
-    .select({ deckId: columns.deckId })
-    .from(columns)
-    .where(eq(columns.id, id));
+  const [col] = await db.select({ deckId: columns.deckId }).from(columns).where(eq(columns.id, id));
   if (col) await captureDeckSnapshot(col.deckId);
   await db.delete(columns).where(eq(columns.id, id));
 }
 
-export async function reorderColumnsInDeck(
-  deckId: string,
-  orderedIds: string[],
-): Promise<void> {
+export async function reorderColumnsInDeck(deckId: string, orderedIds: string[]): Promise<void> {
   if (orderedIds.length === 0) return;
   // Snapshot the pre-reorder column order before mutating positions.
   await captureDeckSnapshot(deckId);
@@ -663,8 +609,7 @@ export async function importDeck(
     for (let i = 0; i < data.columns.length; i++) {
       const c = data.columns[i];
       const id = nanoid();
-      const alertKeywords =
-        c.alertKeywords && c.alertKeywords.length > 0 ? c.alertKeywords : null;
+      const alertKeywords = c.alertKeywords && c.alertKeywords.length > 0 ? c.alertKeywords : null;
       // Re-validate any imported webhook URL through the SSRF guard. A bad or
       // internal-pointing URL is dropped (null), not fatal — the rest of the
       // column still imports.
@@ -673,27 +618,18 @@ export async function importDeck(
         const check = validateWebhookUrl(c.notifyWebhookUrl);
         if (check.ok) notifyWebhookUrl = check.url;
       }
-      const refreshIntervalSeconds = isAllowedRefreshInterval(
-        c.refreshIntervalSeconds,
-      )
+      const refreshIntervalSeconds = isAllowedRefreshInterval(c.refreshIntervalSeconds)
         ? c.refreshIntervalSeconds
         : null;
       const filterKeywords =
-        c.filterKeywords && c.filterKeywords.length > 0
-          ? c.filterKeywords.slice(0, 512)
-          : null;
+        c.filterKeywords && c.filterKeywords.length > 0 ? c.filterKeywords.slice(0, 512) : null;
       const excludeKeywords =
-        c.excludeKeywords && c.excludeKeywords.length > 0
-          ? c.excludeKeywords.slice(0, 512)
-          : null;
+        c.excludeKeywords && c.excludeKeywords.length > 0 ? c.excludeKeywords.slice(0, 512) : null;
       // Normalize the imported tab-group label through the same rule as the
       // server action (collapse internal whitespace, trim, cap) so a hand-edited
       // payload can't smuggle "  AI  " and "AI" as two distinct buckets.
       const tabGroupRaw = c.tabGroup ?? "";
-      const tabGroupNormalized = tabGroupRaw
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, TAB_GROUP_MAX);
+      const tabGroupNormalized = tabGroupRaw.replace(/\s+/g, " ").trim().slice(0, TAB_GROUP_MAX);
       const tabGroup = tabGroupNormalized.length === 0 ? null : tabGroupNormalized;
       // Pinned is a plain boolean — coerce missing/non-true to false so a
       // hand-edited payload can't smuggle a truthy non-boolean into the DB.
@@ -794,9 +730,7 @@ export async function captureDeckSnapshot(deckId: string): Promise<void> {
  * Return the most recent snapshots for a deck (newest first), each with a
  * lightweight column count parsed from the stored payload for the UI.
  */
-export async function loadDeckSnapshots(
-  deckId: string,
-): Promise<DeckSnapshotMeta[]> {
+export async function loadDeckSnapshots(deckId: string): Promise<DeckSnapshotMeta[]> {
   const rows = await db
     .select({
       id: deckSnapshots.id,
@@ -831,9 +765,7 @@ export async function loadDeckSnapshots(
  * itself be undone by deleting the new deck. Reuses importDeck's full Zod
  * validation + SSRF re-check + new-deck contract.
  */
-export async function restoreDeckSnapshot(
-  snapshotId: number,
-): Promise<ImportedDeckResult> {
+export async function restoreDeckSnapshot(snapshotId: number): Promise<ImportedDeckResult> {
   const [row] = await db
     .select({ snapshotJson: deckSnapshots.snapshotJson })
     .from(deckSnapshots)
@@ -885,10 +817,7 @@ export async function persistFetchedItems(
       .onConflictDoNothing({ target: [feedItems.columnId, feedItems.id] });
   }
 
-  await db
-    .update(columns)
-    .set({ lastFetchedAt: fetchedAt })
-    .where(eq(columns.id, columnId));
+  await db.update(columns).set({ lastFetchedAt: fetchedAt }).where(eq(columns.id, columnId));
 
   // Cap history per column
   await db.execute(sql`
@@ -991,9 +920,7 @@ export async function getEnvKeysStatus(): Promise<EnvKeyStatus[]> {
  * Only keys in the `ENV_KEYS` allowlist are accepted — prevents the UI from
  * being abused to write arbitrary env vars.
  */
-export async function setEnvKeys(
-  updates: Record<string, string>,
-): Promise<void> {
+export async function setEnvKeys(updates: Record<string, string>): Promise<void> {
   // On a hosted deployment, keys come from host environment variables — the
   // filesystem is often read-only, and (behind the password gate or not) the
   // UI must never be usable to write arbitrary allowlisted keys. Authoritative

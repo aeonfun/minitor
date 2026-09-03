@@ -23,11 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import {
   meta,
   type AeonConfig,
@@ -46,40 +42,28 @@ const SOURCE_LABELS: Record<AeonConfig["source"], string> = {
 };
 
 function ConfigForm({ value, onChange }: ConfigFormProps<AeonConfig>) {
-  const isGithub =
-    value.source === "github-runs" || value.source === "github-articles";
+  const isGithub = value.source === "github-runs" || value.source === "github-articles";
   return (
     <div className="grid gap-3">
       <div className="grid gap-1.5">
         <Label>Source</Label>
         <Select
           value={value.source}
-          onValueChange={(v) =>
-            onChange({ ...value, source: v as AeonConfig["source"] })
-          }
+          onValueChange={(v) => onChange({ ...value, source: v as AeonConfig["source"] })}
         >
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="github-runs">
-              {SOURCE_LABELS["github-runs"]}
-            </SelectItem>
-            <SelectItem value="github-articles">
-              {SOURCE_LABELS["github-articles"]}
-            </SelectItem>
-            <SelectItem value="dashboard-outputs">
-              {SOURCE_LABELS["dashboard-outputs"]}
-            </SelectItem>
-            <SelectItem value="dashboard-runs">
-              {SOURCE_LABELS["dashboard-runs"]}
-            </SelectItem>
+            <SelectItem value="github-runs">{SOURCE_LABELS["github-runs"]}</SelectItem>
+            <SelectItem value="github-articles">{SOURCE_LABELS["github-articles"]}</SelectItem>
+            <SelectItem value="dashboard-outputs">{SOURCE_LABELS["dashboard-outputs"]}</SelectItem>
+            <SelectItem value="dashboard-runs">{SOURCE_LABELS["dashboard-runs"]}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          GitHub sources read a fork remotely. Dashboard sources need the local
-          Aeon dashboard running — the <code>Feed cards</code> source is the
-          rich, per-run view.
+          GitHub sources read a fork remotely. Dashboard sources need the local Aeon dashboard
+          running — the <code>Feed cards</code> source is the rich, per-run view.
         </p>
       </div>
 
@@ -108,8 +92,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<AeonConfig>) {
               onChange={(e) => onChange({ ...value, baseUrl: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">
-              Where <code>./aeon</code> serves the dashboard. Must be reachable
-              from this machine.
+              Where <code>./aeon</code> serves the dashboard. Must be reachable from this machine.
             </p>
           </div>
           <div className="grid gap-1.5">
@@ -181,15 +164,7 @@ function StatusPill({ meta: m }: { meta: AeonMeta }) {
   );
 }
 
-function Pill({
-  children,
-  bg,
-  color,
-}: {
-  children: React.ReactNode;
-  bg: string;
-  color?: string;
-}) {
+function Pill({ children, bg, color }: { children: React.ReactNode; bg: string; color?: string }) {
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-medium text-foreground/90"
@@ -222,9 +197,7 @@ function RunRenderer({ item }: ItemRendererProps<AeonMeta>) {
     >
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-muted-foreground">
         <StatusPill meta={m} />
-        <span className="truncate font-medium text-foreground/80">
-          {m.skill ?? "aeon"}
-        </span>
+        <span className="truncate font-medium text-foreground/80">{m.skill ?? "aeon"}</span>
         {m.runNumber != null && (
           <>
             <span className="text-muted-foreground/50">·</span>
@@ -236,9 +209,7 @@ function RunRenderer({ item }: ItemRendererProps<AeonMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <h3 className="mt-1 text-[13px] leading-snug text-foreground break-words">
-        {item.content}
-      </h3>
+      <h3 className="mt-1 text-[13px] leading-snug text-foreground break-words">{item.content}</h3>
       {(m.branch || m.shortSha || duration || m.event) && (
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted-foreground">
           {m.branch && (
@@ -343,14 +314,10 @@ function SpecNode({
       return (
         <div className="grid gap-2 rounded-md border border-border/60 p-2.5">
           {s(p.title) && (
-            <div className="text-[12.5px] font-semibold text-foreground">
-              {s(p.title)}
-            </div>
+            <div className="text-[12.5px] font-semibold text-foreground">{s(p.title)}</div>
           )}
           {s(p.description) && (
-            <div className="text-[11.5px] text-muted-foreground">
-              {s(p.description)}
-            </div>
+            <div className="text-[11.5px] text-muted-foreground">{s(p.description)}</div>
           )}
           {kids}
         </div>
@@ -378,17 +345,8 @@ function SpecNode({
       return <div className="my-1 h-px w-full bg-border" />;
     case "Heading": {
       const level = s(p.level) || "h3";
-      const size =
-        level === "h1"
-          ? "text-[15px]"
-          : level === "h2"
-            ? "text-[14px]"
-            : "text-[13px]";
-      return (
-        <div className={`${size} font-semibold text-foreground`}>
-          {s(p.text)}
-        </div>
-      );
+      const size = level === "h1" ? "text-[15px]" : level === "h2" ? "text-[14px]" : "text-[13px]";
+      return <div className={`${size} font-semibold text-foreground`}>{s(p.text)}</div>;
     }
     case "Text":
       return (
@@ -566,9 +524,7 @@ function OutputRenderer({ item }: ItemRendererProps<AeonMeta>) {
     <article className="border-b border-border px-3.5 py-3">
       <div className="mb-2 flex items-center gap-x-1.5 text-[11px] text-muted-foreground">
         <Bot className="size-3.5" />
-        <span className="truncate font-medium text-foreground/80">
-          {m.skill ?? "aeon"}
-        </span>
+        <span className="truncate font-medium text-foreground/80">{m.skill ?? "aeon"}</span>
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">
           <RelativeTime date={item.createdAt} addSuffix />

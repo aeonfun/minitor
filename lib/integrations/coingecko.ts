@@ -101,7 +101,10 @@ function permalinkFor(id: string): string {
   return `https://www.coingecko.com/en/coins/${encodeURIComponent(id)}`;
 }
 
-function authorOf(symbol: string, id: string): {
+function authorOf(
+  symbol: string,
+  id: string,
+): {
   name: string;
   handle: string;
 } {
@@ -147,8 +150,7 @@ function mapTrendingItem(t: TrendingItem): FeedItem<CoingeckoMeta> | null {
       priceUsd,
       priceChange24h: typeof pct === "number" ? pct : 0,
       marketCapUsd: num(data.market_cap),
-      marketCapRank:
-        typeof item.market_cap_rank === "number" ? item.market_cap_rank : undefined,
+      marketCapRank: typeof item.market_cap_rank === "number" ? item.market_cap_rank : undefined,
       volume24hUsd: num(data.total_volume),
     },
   };
@@ -169,17 +171,14 @@ function mapMarketCoin(c: MarketCoin): FeedItem<CoingeckoMeta> | null {
     author: authorOf(symbol, c.id),
     content: description,
     url: permalinkFor(c.id),
-    createdAt: new Date(
-      Number.isFinite(createdMs) ? createdMs : Date.now(),
-    ).toISOString(),
+    createdAt: new Date(Number.isFinite(createdMs) ? createdMs : Date.now()).toISOString(),
     meta: {
       symbol,
       imageUrl: c.image ?? undefined,
       priceUsd,
       priceChange24h: num(c.price_change_percentage_24h),
       marketCapUsd: num(c.market_cap),
-      marketCapRank:
-        typeof c.market_cap_rank === "number" ? c.market_cap_rank : undefined,
+      marketCapRank: typeof c.market_cap_rank === "number" ? c.market_cap_rank : undefined,
       volume24hUsd: num(c.total_volume),
       high24hUsd: c.high_24h ?? undefined,
       low24hUsd: c.low_24h ?? undefined,
@@ -198,9 +197,7 @@ async function fetchJson<T>(url: string): Promise<T> {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `coingecko ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`coingecko ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   return (await res.json()) as T;
 }
@@ -239,9 +236,7 @@ async function fetchMarkets(
   const url = `${apiBase()}/coins/markets?${params}`;
   const json = await fetchJson<MarketCoin[]>(url);
   const arr = Array.isArray(json) ? json : [];
-  return arr
-    .map(mapMarketCoin)
-    .filter((a): a is FeedItem<CoingeckoMeta> => a !== null);
+  return arr.map(mapMarketCoin).filter((a): a is FeedItem<CoingeckoMeta> => a !== null);
 }
 
 function parseWatchlistIds(raw: string): string {

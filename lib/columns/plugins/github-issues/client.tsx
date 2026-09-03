@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  CircleDot,
-  GitMerge,
-  GitPullRequest,
-  MessageSquareText,
-} from "lucide-react";
+import { CircleDot, GitMerge, GitPullRequest, MessageSquareText } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type GHIssuesConfig, type GHIssuesMeta } from "./plugin";
 
@@ -24,14 +15,13 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHIssuesConfig>) {
         <Label htmlFor="ghi-q">Query</Label>
         <Input
           id="ghi-q"
-          placeholder='repo:vercel/next.js is:open label:bug'
+          placeholder="repo:vercel/next.js is:open label:bug"
           value={value.query}
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Full GitHub issue-search syntax (
-          <code>is:open</code>, <code>repo:</code>, <code>label:</code>,{" "}
-          <code>author:</code>, <code>is:pr</code>, etc.).
+          Full GitHub issue-search syntax (<code>is:open</code>, <code>repo:</code>,{" "}
+          <code>label:</code>, <code>author:</code>, <code>is:pr</code>, etc.).
         </p>
       </div>
     </div>
@@ -41,20 +31,13 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHIssuesConfig>) {
 function KindBadge({ m }: { m: GHIssuesMeta }) {
   const kind = m.kind;
   const state = m.state ?? "open";
-  const Icon =
-    kind === "pr"
-      ? state === "closed"
-        ? GitMerge
-        : GitPullRequest
-      : CircleDot;
+  const Icon = kind === "pr" ? (state === "closed" ? GitMerge : GitPullRequest) : CircleDot;
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-foreground ring-1 ring-black/5"
       style={{
         backgroundColor:
-          state === "closed"
-            ? "rgba(192, 168, 221, 0.32)"
-            : "rgba(223, 168, 143, 0.28)",
+          state === "closed" ? "rgba(192, 168, 221, 0.32)" : "rgba(223, 168, 143, 0.28)",
       }}
     >
       <Icon className="size-3" />
@@ -100,9 +83,7 @@ function ItemRenderer({ item }: ItemRendererProps<GHIssuesMeta>) {
         </p>
       )}
       <div className="mt-2 flex items-center gap-4 text-[11.5px] text-muted-foreground">
-        {number !== undefined && (
-          <span className="tabular-nums text-foreground/70">#{number}</span>
-        )}
+        {number !== undefined && <span className="tabular-nums text-foreground/70">#{number}</span>}
         <span className="flex items-center gap-1">
           <MessageSquareText className="size-3.5" />
           <span className="tabular-nums">{formatCompactCount(comments)}</span>

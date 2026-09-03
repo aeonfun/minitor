@@ -2,11 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { AvatarPostItem } from "@/lib/columns/shared/avatar-post-item";
 import { meta, type MastodonConfig, type MastodonMeta } from "./plugin";
 
@@ -23,10 +19,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<MastodonConfig>) {
           onChange={(e) => onChange({ ...value, instance: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Server to query (e.g. <code>mastodon.social</code>,{" "}
-          <code>fosstodon.org</code>, <code>hachyderm.io</code>). For author
-          mode you can also use the <code>user@server</code> form in the
-          handle field and we&apos;ll route to that server automatically.
+          Server to query (e.g. <code>mastodon.social</code>, <code>fosstodon.org</code>,{" "}
+          <code>hachyderm.io</code>). For author mode you can also use the <code>user@server</code>{" "}
+          form in the handle field and we&apos;ll route to that server automatically.
         </p>
       </div>
       <div className="grid gap-1.5">
@@ -66,8 +61,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<MastodonConfig>) {
             onChange={(e) => onChange({ ...value, handle: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Bare username uses the configured instance. Use{" "}
-            <code>user@server</code> to follow someone on a different server.
+            Bare username uses the configured instance. Use <code>user@server</code> to follow
+            someone on a different server.
           </p>
         </div>
       ) : (
@@ -80,8 +75,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<MastodonConfig>) {
             onChange={(e) => onChange({ ...value, query: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Tag name with or without the <code>#</code>. Hashtag timelines are
-            keyless on every public Mastodon instance.
+            Tag name with or without the <code>#</code>. Hashtag timelines are keyless on every
+            public Mastodon instance.
           </p>
         </div>
       )}

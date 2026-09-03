@@ -103,12 +103,7 @@ function weightsFor(mode: NpmMode): {
   }
 }
 
-function endpointFor(
-  query: string,
-  mode: NpmMode,
-  perPage: number,
-  page: number,
-): string {
+function endpointFor(query: string, mode: NpmMode, perPage: number, page: number): string {
   const params = new URLSearchParams();
   // npm's search endpoint requires a non-empty `text=` query — there is no
   // "list all packages" mode. We default the query upstream so the caller
@@ -169,10 +164,7 @@ async function fetchWeeklyDownloads(pkgName: string): Promise<number> {
   }
 }
 
-function mapObject(
-  obj: NpmSearchObject,
-  weeklyDownloads: number,
-): FeedItem<NpmMeta> | null {
+function mapObject(obj: NpmSearchObject, weeklyDownloads: number): FeedItem<NpmMeta> | null {
   const pkg = obj.package;
   // Schema-drift safe: a search result without a name, version, or registry
   // link is unrenderable, drop it rather than emit a dead row.
@@ -232,9 +224,7 @@ export async function fetchNpmPage(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `npm registry ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`npm registry ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
   const json = (await res.json()) as NpmSearchResponse;

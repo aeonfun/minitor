@@ -146,18 +146,13 @@ function parseUpdateTitle(title: string): { name: string; version?: string } {
   return { name, version: version || undefined };
 }
 
-function rssItemToFeedItem(
-  item: RssItem,
-  weeklyDownloads: number,
-): FeedItem<PypiMeta> | null {
+function rssItemToFeedItem(item: RssItem, weeklyDownloads: number): FeedItem<PypiMeta> | null {
   const { name, version } = parseUpdateTitle(item.title);
   if (!name) return null;
 
   const summary = item.description.trim();
   const content = summary ? `${item.title}\n\n${summary}` : item.title;
-  const created = item.pubDate
-    ? new Date(item.pubDate).toISOString()
-    : new Date().toISOString();
+  const created = item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString();
   const author = item.author.trim() || undefined;
 
   return {
@@ -190,9 +185,7 @@ async function fetchRssMode(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `PyPI ${feed} feed ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`PyPI ${feed} feed ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const xml = await res.text();
   const all = parseRss(xml);
@@ -245,9 +238,7 @@ async function fetchTopMode(
     next: { revalidate: 3600 },
   });
   if (!res.ok) {
-    throw new Error(
-      `top-pypi-packages ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`top-pypi-packages ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const json = (await res.json()) as TopPackagesResponse;
   const rows = Array.isArray(json.rows) ? json.rows : [];
@@ -256,9 +247,7 @@ async function fetchTopMode(
   // insensitive. Top-mode has no description, only names, so the filter
   // is name-only.
   const kw = keyword.trim().toLowerCase();
-  const filtered = kw
-    ? rows.filter((r) => (r.project ?? "").toLowerCase().includes(kw))
-    : rows;
+  const filtered = kw ? rows.filter((r) => (r.project ?? "").toLowerCase().includes(kw)) : rows;
 
   const start = Math.max(page, 0) * limit;
   const slice = filtered.slice(start, start + limit);
@@ -267,9 +256,7 @@ async function fetchTopMode(
   // monthly number into a more digestible weekly figure that matches
   // the npm column's badge convention.
   const downloads = await Promise.all(
-    slice.map((r) =>
-      r.project ? fetchWeeklyDownloads(r.project) : Promise.resolve(0),
-    ),
+    slice.map((r) => (r.project ? fetchWeeklyDownloads(r.project) : Promise.resolve(0))),
   );
 
   // Generate a synthetic createdAt from the mirror's last_update — every

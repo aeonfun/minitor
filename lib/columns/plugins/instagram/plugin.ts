@@ -22,8 +22,7 @@ export const meta: PluginMeta<InstagramConfig, InstagramMeta> = {
   category: "social",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.query.trim() ? `Instagram · ${c.query.trim()}` : "Instagram",
+  defaultTitle: (c) => (c.query.trim() ? `Instagram · ${c.query.trim()}` : "Instagram"),
   capabilities: {
     paginated: true,
     requiresEnv: ["XAI_API_KEY"],

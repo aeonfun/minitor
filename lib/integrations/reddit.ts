@@ -56,10 +56,10 @@ function parseRedditFeed(xml: string, fallbackSub: string): FeedItem[] {
     const title = decodeEntities(stripHtml(getTag(entry, "title"))).trim();
     const permalink = permalinkOf(entry);
     const author =
-      stripHtml(getTag(getTag(entry, "author"), "name")).replace(/^\/u\//, "").trim() ||
-      "unknown";
-    const subreddit =
-      entry.match(/<category\b[^>]*\bterm=["']([^"']+)["']/i)?.[1] || fallbackSub;
+      stripHtml(getTag(getTag(entry, "author"), "name"))
+        .replace(/^\/u\//, "")
+        .trim() || "unknown";
+    const subreddit = entry.match(/<category\b[^>]*\bterm=["']([^"']+)["']/i)?.[1] || fallbackSub;
     const published = getTag(entry, "published") || getTag(entry, "updated");
     const outbound = outboundLink(getTag(entry, "content"));
 
@@ -103,10 +103,7 @@ export async function fetchSubredditPage(
   return { items, nextAfter: undefined };
 }
 
-export async function searchReddit(
-  query: string,
-  limit = 12,
-): Promise<FeedItem[]> {
+export async function searchReddit(query: string, limit = 12): Promise<FeedItem[]> {
   const q = query.trim();
   if (!q) return [];
   const url = `https://www.reddit.com/search.rss?q=${encodeURIComponent(q)}&sort=new&limit=${limit}`;

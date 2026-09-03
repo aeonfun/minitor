@@ -2,11 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
 import { meta, type RssConfig, type RssMeta } from "./plugin";
 
@@ -21,8 +17,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<RssConfig>) {
         onChange={(e) => onChange({ url: e.target.value })}
       />
       <p className="text-xs text-muted-foreground">
-        Any RSS or Atom feed. Works with blogs, Substacks, YouTube channel feeds,
-        Google Alerts feeds, RSSHub URLs, etc.
+        Any RSS or Atom feed. Works with blogs, Substacks, YouTube channel feeds, Google Alerts
+        feeds, RSSHub URLs, etc.
       </p>
     </div>
   );

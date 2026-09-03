@@ -74,27 +74,15 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   const updateColor = useDeckStore((s) => s.updateColor);
 
   const [draft, setDraft] = useState<Record<string, unknown>>(column.config);
-  const [alertDraft, setAlertDraft] = useState<string>(
-    column.alertKeywords ?? "",
-  );
-  const [webhookDraft, setWebhookDraft] = useState<string>(
-    column.notifyWebhookUrl ?? "",
-  );
+  const [alertDraft, setAlertDraft] = useState<string>(column.alertKeywords ?? "");
+  const [webhookDraft, setWebhookDraft] = useState<string>(column.notifyWebhookUrl ?? "");
   const [refreshDraft, setRefreshDraft] = useState<string>(
     refreshIntervalToOption(column.refreshIntervalSeconds),
   );
-  const [filterDraft, setFilterDraft] = useState<string>(
-    column.filterKeywords ?? "",
-  );
-  const [excludeDraft, setExcludeDraft] = useState<string>(
-    column.excludeKeywords ?? "",
-  );
-  const [tabGroupDraft, setTabGroupDraft] = useState<string>(
-    column.tabGroup ?? "",
-  );
-  const [pinnedDraft, setPinnedDraft] = useState<boolean>(
-    column.pinned === true,
-  );
+  const [filterDraft, setFilterDraft] = useState<string>(column.filterKeywords ?? "");
+  const [excludeDraft, setExcludeDraft] = useState<string>(column.excludeKeywords ?? "");
+  const [tabGroupDraft, setTabGroupDraft] = useState<string>(column.tabGroup ?? "");
+  const [pinnedDraft, setPinnedDraft] = useState<boolean>(column.pinned === true);
   const [colorDraft, setColorDraft] = useState<string>(column.color ?? "");
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
@@ -124,11 +112,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
   // Validate only when the field is shown (keywords present) and non-empty.
   const trimmedWebhook = webhookDraft.trim();
   const webhookValidation =
-    keywordsPresent && trimmedWebhook.length > 0
-      ? validateWebhookUrl(trimmedWebhook)
-      : null;
-  const webhookError =
-    webhookValidation && !webhookValidation.ok ? webhookValidation.reason : null;
+    keywordsPresent && trimmedWebhook.length > 0 ? validateWebhookUrl(trimmedWebhook) : null;
+  const webhookError = webhookValidation && !webhookValidation.ok ? webhookValidation.reason : null;
 
   function save() {
     if (webhookError) return;
@@ -147,8 +132,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
         updateWebhookUrl(column.id, nextWebhook);
       }
     }
-    const nextRefresh =
-      refreshDraft === REFRESH_MANUAL ? null : Number(refreshDraft);
+    const nextRefresh = refreshDraft === REFRESH_MANUAL ? null : Number(refreshDraft);
     const currentRefresh = column.refreshIntervalSeconds ?? null;
     if (nextRefresh !== currentRefresh) {
       updateRefreshInterval(column.id, nextRefresh);
@@ -202,9 +186,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <Label htmlFor="alert-keywords" className="flex items-center gap-1.5">
               <Bell className="size-3.5" />
               Alert keywords
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Input
               id="alert-keywords"
@@ -214,8 +196,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               onChange={(e) => setAlertDraft(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Comma- or space-separated. Matching items get a highlight ring and
-              the column header shows a badge with the match count.
+              Comma- or space-separated. Matching items get a highlight ring and the column header
+              shows a badge with the match count.
               {previewCount > 0 && (
                 <>
                   {" "}
@@ -227,15 +209,10 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
 
           {keywordsPresent && (
             <div className="grid gap-1.5">
-              <Label
-                htmlFor="alert-webhook"
-                className="flex items-center gap-1.5"
-              >
+              <Label htmlFor="alert-webhook" className="flex items-center gap-1.5">
                 <Webhook className="size-3.5" />
                 Alert webhook URL
-                <span className="text-[11px] font-normal text-muted-foreground">
-                  (optional)
-                </span>
+                <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
               </Label>
               <Input
                 id="alert-webhook"
@@ -251,24 +228,18 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
                 <p className="text-xs text-destructive">{webhookError}</p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  POST to this URL when alert keywords match new items. HTTPS
-                  only. Sent server-side; not included in deck exports or share
-                  links.
+                  POST to this URL when alert keywords match new items. HTTPS only. Sent
+                  server-side; not included in deck exports or share links.
                 </p>
               )}
             </div>
           )}
 
           <div className="grid gap-1.5">
-            <Label
-              htmlFor="refresh-interval"
-              className="flex items-center gap-1.5"
-            >
+            <Label htmlFor="refresh-interval" className="flex items-center gap-1.5">
               <Clock className="size-3.5" />
               Refresh interval
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Select
               value={refreshDraft}
@@ -286,8 +257,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Auto-refresh pauses while the browser tab is hidden so background
-              tabs don&rsquo;t burn upstream rate limits.
+              Auto-refresh pauses while the browser tab is hidden so background tabs don&rsquo;t
+              burn upstream rate limits.
             </p>
           </div>
 
@@ -297,9 +268,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <Label htmlFor="filter-keywords" className="flex items-center gap-1.5">
               <Filter className="size-3.5" />
               Show only
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Input
               id="filter-keywords"
@@ -309,8 +278,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               onChange={(e) => setFilterDraft(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Comma- or space-separated. When set, the column hides items that
-              match none of these terms (in title, body, or link).
+              Comma- or space-separated. When set, the column hides items that match none of these
+              terms (in title, body, or link).
               {filterTermCount > 0 && (
                 <>
                   {" "}
@@ -324,9 +293,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <Label htmlFor="exclude-keywords" className="flex items-center gap-1.5">
               <EyeOff className="size-3.5" />
               Hide items matching
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Input
               id="exclude-keywords"
@@ -336,8 +303,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               onChange={(e) => setExcludeDraft(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Items matching any of these terms are hidden. Exclude wins over
-              &ldquo;show only&rdquo; when an item matches both.
+              Items matching any of these terms are hidden. Exclude wins over &ldquo;show
+              only&rdquo; when an item matches both.
               {excludeTermCount > 0 && (
                 <>
                   {" "}
@@ -350,15 +317,10 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
           <Separator />
 
           <div className="grid gap-1.5">
-            <Label
-              htmlFor="pin-to-front"
-              className="flex items-center gap-1.5"
-            >
+            <Label htmlFor="pin-to-front" className="flex items-center gap-1.5">
               <Pin className="size-3.5" />
               Pin to front
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <label
               htmlFor="pin-to-front"
@@ -372,9 +334,9 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
                 className="mt-0.5 size-4 cursor-pointer accent-[color:var(--brand)]"
               />
               <span className="text-xs text-muted-foreground">
-                Pinned columns render before every other column in the deck and
-                stay visible regardless of the active tab. DnD reorder still
-                works within the pinned and unpinned groups.
+                Pinned columns render before every other column in the deck and stay visible
+                regardless of the active tab. DnD reorder still works within the pinned and unpinned
+                groups.
               </span>
             </label>
           </div>
@@ -383,9 +345,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <Label htmlFor="column-color" className="flex items-center gap-1.5">
               <Palette className="size-3.5" />
               Color label
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <div className="flex flex-wrap items-center gap-1.5">
               {COLOR_SWATCHES.map((swatch) => {
@@ -400,8 +360,8 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
                     onClick={() => setColorDraft(swatch.value)}
                     className={cn(
                       "size-7 shrink-0 rounded-full ring-1 ring-black/10 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-card",
-                      isSelected
-                        && "ring-2 ring-[color:var(--brand)] ring-offset-2 ring-offset-card",
+                      isSelected &&
+                        "ring-2 ring-[color:var(--brand)] ring-offset-2 ring-offset-card",
                     )}
                     style={{ backgroundColor: swatch.value }}
                   />
@@ -414,8 +374,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
                 title="No color"
                 className={cn(
                   "ml-1 inline-flex h-7 items-center justify-center rounded-full border border-border bg-surface/40 px-2.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-card",
-                  previewColor === ""
-                    && "ring-1 ring-[color:var(--brand)] text-foreground",
+                  previewColor === "" && "ring-1 ring-[color:var(--brand)] text-foreground",
                 )}
               >
                 Clear
@@ -435,14 +394,12 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <p className="text-xs text-muted-foreground">
               {colorInputInvalid ? (
                 <span className="text-destructive">
-                  Enter a 6-digit hex color (e.g. <code>#f97316</code>) or pick
-                  a preset above.
+                  Enter a 6-digit hex color (e.g. <code>#f97316</code>) or pick a preset above.
                 </span>
               ) : (
                 <>
-                  Group columns visually at a glance — e.g. orange for DeFi,
-                  blue for repos. Shows as a dot in the column header and as
-                  the accent line on the collapsed strip.
+                  Group columns visually at a glance — e.g. orange for DeFi, blue for repos. Shows
+                  as a dot in the column header and as the accent line on the collapsed strip.
                 </>
               )}
             </p>
@@ -452,9 +409,7 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
             <Label htmlFor="tab-group" className="flex items-center gap-1.5">
               <LayoutGrid className="size-3.5" />
               Tab group
-              <span className="text-[11px] font-normal text-muted-foreground">
-                (optional)
-              </span>
+              <span className="text-[11px] font-normal text-muted-foreground">(optional)</span>
             </Label>
             <Input
               id="tab-group"
@@ -464,9 +419,9 @@ export function ConfigureColumnDialog({ open, onOpenChange, column }: Props) {
               onChange={(e) => setTabGroupDraft(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              When any column in the deck has a tab group, a tab bar appears
-              above the grid. Untagged columns live under an &ldquo;All&rdquo;
-              tab. Leave blank to keep the column visible on every tab.
+              When any column in the deck has a tab group, a tab bar appears above the grid.
+              Untagged columns live under an &ldquo;All&rdquo; tab. Leave blank to keep the column
+              visible on every tab.
             </p>
           </div>
         </div>

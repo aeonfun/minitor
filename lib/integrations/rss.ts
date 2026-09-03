@@ -30,7 +30,10 @@ function stripCdata(s: string): string {
 }
 
 function stripTags(s: string): string {
-  return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return s
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getTag(xml: string, tag: string): string {
@@ -61,18 +64,9 @@ function parseRss(xml: string): ParsedFeed {
       id: guid || link,
       title: clean(getTag(block, "title"), 280),
       link,
-      description: clean(
-        getTag(block, "description") || getTag(block, "content:encoded"),
-        600,
-      ),
-      pubDate:
-        getTag(block, "pubDate") ||
-        getTag(block, "dc:date") ||
-        getTag(block, "published"),
-      author: clean(
-        getTag(block, "dc:creator") || getTag(block, "author"),
-        100,
-      ),
+      description: clean(getTag(block, "description") || getTag(block, "content:encoded"), 600),
+      pubDate: getTag(block, "pubDate") || getTag(block, "dc:date") || getTag(block, "published"),
+      author: clean(getTag(block, "dc:creator") || getTag(block, "author"), 100),
       source: sourceBlock ? clean(sourceBlock, 100) : undefined,
     });
   }
@@ -100,17 +94,12 @@ function parseAtom(xml: string): ParsedFeed {
       }
     }
     const authorBlock = getTag(block, "author");
-    const author = authorBlock
-      ? clean(getTag(authorBlock, "name") || authorBlock, 100)
-      : "";
+    const author = authorBlock ? clean(getTag(authorBlock, "name") || authorBlock, 100) : "";
     items.push({
       id: stripCdata(getTag(block, "id")).trim() || link,
       title: clean(getTag(block, "title"), 280),
       link,
-      description: clean(
-        getTag(block, "summary") || getTag(block, "content"),
-        600,
-      ),
+      description: clean(getTag(block, "summary") || getTag(block, "content"), 600),
       pubDate: getTag(block, "updated") || getTag(block, "published"),
       author,
     });
@@ -195,11 +184,7 @@ export async function fetchFeed(url: string, limit = 12): Promise<FeedItem[]> {
   });
 }
 
-export function googleNewsUrl(
-  query: string,
-  hl?: string,
-  gl?: string,
-): string {
+export function googleNewsUrl(query: string, hl?: string, gl?: string): string {
   const params = new URLSearchParams({ q: query.trim() });
   // Region/language are optional. When unset, Google News returns its
   // global default (mixed languages, IP-region-detected) — closer to an

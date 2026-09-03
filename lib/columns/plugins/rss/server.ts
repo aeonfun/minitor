@@ -1,10 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type FeedItem,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type FeedItem, type ServerFetcher } from "@/lib/columns/types";
 import { fetchFeed } from "@/lib/integrations/rss";
 import { sliceForPage } from "@/lib/columns/paginate";
 import { meta, type RssConfig, type RssMeta } from "./plugin";

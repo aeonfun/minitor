@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type YTConfig, type YTMeta } from "./plugin";
 
@@ -26,9 +22,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<YTConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as YTConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as YTConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -59,9 +53,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<YTConfig>) {
             <Label>Sort by</Label>
             <Select
               value={value.order}
-              onValueChange={(v) =>
-                onChange({ ...value, order: v as YTConfig["order"] })
-              }
+              onValueChange={(v) => onChange({ ...value, order: v as YTConfig["order"] })}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -102,8 +94,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<YTConfig>) {
             onChange={(e) => onChange({ ...value, playlist: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            From the playlist URL: <code>?list=PLxxxxxxxxxxxx</code>. No API
-            key needed.
+            From the playlist URL: <code>?list=PLxxxxxxxxxxxx</code>. No API key needed.
           </p>
         </div>
       )}
@@ -151,11 +142,7 @@ function ItemRenderer({ item }: ItemRendererProps<YTMeta>) {
             className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-foreground ring-1 ring-black/5"
             style={{ backgroundColor: "rgba(255, 0, 0, 0.12)" }}
           >
-            <PlaySquare
-              className="size-3"
-              style={{ color: "#ff0000" }}
-              strokeWidth={2.5}
-            />
+            <PlaySquare className="size-3" style={{ color: "#ff0000" }} strokeWidth={2.5} />
             YouTube
           </span>
           <span className="truncate text-foreground/80">{channelTitle}</span>

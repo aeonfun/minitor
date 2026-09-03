@@ -41,11 +41,15 @@ export const meta: PluginMeta<StackOverflowConfig, StackOverflowMeta> = {
   defaultConfig: schema.parse({}),
   defaultTitle: (c) =>
     c.tag.trim()
-      ? `SO · ${c.tag.trim().split(/[,;\s]+/).filter(Boolean).slice(0, 3).join(", ")}`
+      ? `SO · ${c.tag
+          .trim()
+          .split(/[,;\s]+/)
+          .filter(Boolean)
+          .slice(0, 3)
+          .join(", ")}`
       : `SO · ${MODE_LABELS[c.mode]}`,
   capabilities: {
     paginated: true,
-    rateLimitHint:
-      "300 requests / IP / day (anonymous Stack Exchange API quota)",
+    rateLimitHint: "300 requests / IP / day (anonymous Stack Exchange API quota)",
   },
 };

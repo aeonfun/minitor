@@ -119,9 +119,7 @@ const COLUMNS_BY_ID: Record<string, AnyColumnUI> = {
 const ALL: AnyColumnUI[] = PLUGIN_METAS.map((m) => {
   const col = COLUMNS_BY_ID[m.id];
   if (!col) {
-    throw new Error(
-      `lib/columns/registry.ts is missing a UI entry for plugin "${m.id}"`,
-    );
+    throw new Error(`lib/columns/registry.ts is missing a UI entry for plugin "${m.id}"`);
   }
   return col;
 });

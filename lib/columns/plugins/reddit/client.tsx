@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type RedditConfig, type RedditMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<RedditConfig>) {
@@ -37,9 +33,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<RedditConfig>) {
         <Label>Sort by</Label>
         <Select
           value={value.sortBy}
-          onValueChange={(v) =>
-            onChange({ ...value, sortBy: v as RedditConfig["sortBy"] })
-          }
+          onValueChange={(v) => onChange({ ...value, sortBy: v as RedditConfig["sortBy"] })}
         >
           <SelectTrigger>
             <SelectValue />

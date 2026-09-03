@@ -22,7 +22,6 @@ export const meta: PluginMeta<RedditConfig, RedditMeta> = {
   category: "social",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.subreddit.trim() ? `r/${c.subreddit.trim()}` : "Reddit · Subreddit",
+  defaultTitle: (c) => (c.subreddit.trim() ? `r/${c.subreddit.trim()}` : "Reddit · Subreddit"),
   capabilities: { paginated: true },
 };

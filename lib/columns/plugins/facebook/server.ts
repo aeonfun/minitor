@@ -4,19 +4,12 @@ import "server-only";
 // anonymous scraping, so we piggyback on Grok's web_search with a
 // site:facebook.com filter — no extra env beyond XAI_API_KEY.
 
-import {
-  defineColumnServer,
-  type FeedItem,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type FeedItem, type ServerFetcher } from "@/lib/columns/types";
 import { grokFacebookSearch } from "@/lib/integrations/xai";
 import { sliceForPage } from "@/lib/columns/paginate";
 import { meta, type FacebookConfig, type FacebookMeta } from "./plugin";
 
-const fetch: ServerFetcher<FacebookConfig, FacebookMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<FacebookConfig, FacebookMeta> = async (config, cursor) => {
   const q = config.query.trim();
   if (!q) throw new Error("Search query is required.");
 

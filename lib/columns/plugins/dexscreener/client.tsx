@@ -13,11 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type DexscreenerConfig, type DexscreenerMeta } from "./plugin";
 
@@ -30,9 +26,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DexscreenerConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as DexscreenerConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as DexscreenerConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -43,9 +37,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DexscreenerConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Search</strong> queries every chain at once and shows the most
-          active matching pairs. <strong>Watchlist</strong> tracks specific token
-          contracts and lists every pair they trade in.
+          <strong>Search</strong> queries every chain at once and shows the most active matching
+          pairs. <strong>Watchlist</strong> tracks specific token contracts and lists every pair
+          they trade in.
         </p>
       </div>
       {value.mode === "search" ? (
@@ -58,8 +52,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DexscreenerConfig>) {
             onChange={(e) => onChange({ ...value, query: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            A ticker (<code>AEON</code>), a token name, or a contract address.
-            Pairs are ranked by 24h volume.
+            A ticker (<code>AEON</code>), a token name, or a contract address. Pairs are ranked by
+            24h volume.
           </p>
         </div>
       ) : (
@@ -72,14 +66,12 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DexscreenerConfig>) {
             onChange={(e) => onChange({ ...value, watchlist: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Comma-, semicolon-, or space-separated token contract addresses (up
-            to 30). Every pair across every chain those tokens trade in is shown.
+            Comma-, semicolon-, or space-separated token contract addresses (up to 30). Every pair
+            across every chain those tokens trade in is shown.
           </p>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
-        Keyless — no API key required.
-      </p>
+      <p className="text-xs text-muted-foreground">Keyless — no API key required.</p>
     </div>
   );
 }
@@ -129,12 +121,7 @@ function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 flex items-center gap-2"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2">
         {imageUrl && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -154,23 +141,16 @@ function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
         >
           {pair}
         </h3>
-        {baseName && (
-          <span className="truncate text-[11px] text-muted-foreground">
-            {baseName}
-          </span>
-        )}
+        {baseName && <span className="truncate text-[11px] text-muted-foreground">{baseName}</span>}
       </a>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted-foreground">
-        <span className="tabular-nums text-foreground/90">
-          {formatPriceUsd(priceUsd)}
-        </span>
+        <span className="tabular-nums text-foreground/90">{formatPriceUsd(priceUsd)}</span>
         <PctChangePill value={pct} />
         {liquidity > 0 && (
           <>
             <span className="text-muted-foreground/50">·</span>
             <span>
-              Liq{" "}
-              <span className="tabular-nums">${formatCompactCount(liquidity)}</span>
+              Liq <span className="tabular-nums">${formatCompactCount(liquidity)}</span>
             </span>
           </>
         )}
@@ -178,8 +158,7 @@ function ItemRenderer({ item }: ItemRendererProps<DexscreenerMeta>) {
           <>
             <span className="text-muted-foreground/50">·</span>
             <span>
-              Vol{" "}
-              <span className="tabular-nums">${formatCompactCount(volume)}</span>
+              Vol <span className="tabular-nums">${formatCompactCount(volume)}</span>
             </span>
           </>
         )}

@@ -34,8 +34,6 @@ export const meta: PluginMeta<HNConfig, HNMeta> = {
   schema,
   defaultConfig: schema.parse({}),
   defaultTitle: (c) =>
-    c.mode === "query" && c.query.trim()
-      ? `HN · ${c.query.trim()}`
-      : `HN · ${MODE_LABELS[c.mode]}`,
+    c.mode === "query" && c.query.trim() ? `HN · ${c.query.trim()}` : `HN · ${MODE_LABELS[c.mode]}`,
   capabilities: { paginated: true },
 };

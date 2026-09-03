@@ -14,14 +14,12 @@ export type FacebookMeta = WebSearchMeta;
 export const meta: PluginMeta<FacebookConfig, FacebookMeta> = {
   id: "facebook",
   label: "Facebook",
-  description:
-    "Watch public Facebook posts and pages for mentions of a keyword or URL.",
+  description: "Watch public Facebook posts and pages for mentions of a keyword or URL.",
   icon: ThumbsUp,
   accent: "#1877F2",
   category: "social",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.query.trim() ? `Facebook · ${c.query.trim()}` : "Facebook",
+  defaultTitle: (c) => (c.query.trim() ? `Facebook · ${c.query.trim()}` : "Facebook"),
   capabilities: { paginated: true, requiresEnv: ["XAI_API_KEY"] },
 };

@@ -1,9 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchDevtoPage } from "@/lib/integrations/devto";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type DevtoConfig, type DevtoMeta } from "./plugin";

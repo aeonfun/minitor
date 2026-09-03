@@ -2,17 +2,9 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { ReviewItem } from "@/lib/columns/shared/review-renderer";
-import {
-  meta,
-  type AppleReviewsConfig,
-  type AppleReviewsItemMeta,
-} from "./plugin";
+import { meta, type AppleReviewsConfig, type AppleReviewsItemMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<AppleReviewsConfig>) {
   return (
@@ -37,9 +29,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<AppleReviewsConfig>) {
           placeholder="us"
           maxLength={2}
           value={value.country}
-          onChange={(e) =>
-            onChange({ ...value, country: e.target.value.toLowerCase() })
-          }
+          onChange={(e) => onChange({ ...value, country: e.target.value.toLowerCase() })}
         />
         <p className="text-xs text-muted-foreground">
           Two-letter country code. Defaults to <code>us</code>.
@@ -50,13 +40,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<AppleReviewsConfig>) {
 }
 
 function ItemRenderer({ item }: ItemRendererProps<AppleReviewsItemMeta>) {
-  return (
-    <ReviewItem
-      item={item}
-      badgeLabel="App Store"
-      badgeColor="rgba(0, 122, 255, 0.18)"
-    />
-  );
+  return <ReviewItem item={item} badgeLabel="App Store" badgeColor="rgba(0, 122, 255, 0.18)" />;
 }
 
 export const column = defineColumnUI<AppleReviewsConfig, AppleReviewsItemMeta>({

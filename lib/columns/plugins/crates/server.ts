@@ -1,9 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchCratesPage } from "@/lib/integrations/crates";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type CratesConfig, type CratesMeta } from "./plugin";

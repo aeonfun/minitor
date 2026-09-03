@@ -12,8 +12,7 @@ export type ToutiaoMeta = NewsNowItemMeta;
 export const meta: PluginMeta<ToutiaoConfig, ToutiaoMeta> = {
   id: "toutiao",
   label: "Toutiao",
-  description:
-    '"Today\'s Headlines" — an algorithmic news aggregator (also ByteDance).',
+  description: '"Today\'s Headlines" — an algorithmic news aggregator (also ByteDance).',
   icon: Newspaper,
   accent: "#fc4f4f",
   category: "news",

@@ -32,13 +32,7 @@ export interface PageResult<TMeta = unknown> {
   nextCursor?: string;
 }
 
-export type ColumnCategory =
-  | "ai"
-  | "social"
-  | "news"
-  | "video"
-  | "blockchain"
-  | "other";
+export type ColumnCategory = "ai" | "social" | "news" | "video" | "blockchain" | "other";
 
 /**
  * Declarative capabilities a plugin opts into. The UI reads these to render
@@ -85,10 +79,8 @@ export interface PluginMeta<
  * Full client-side description: metadata + UI components. Registered in
  * `lib/columns/registry.ts` and consumed by the dashboard.
  */
-export interface ColumnUI<
-  TConfig extends Record<string, unknown>,
-  TMeta = unknown,
-> extends PluginMeta<TConfig, TMeta> {
+export interface ColumnUI<TConfig extends Record<string, unknown>, TMeta = unknown>
+  extends PluginMeta<TConfig, TMeta> {
   ConfigForm: ComponentType<ConfigFormProps<TConfig>>;
   ItemRenderer: ComponentType<ItemRendererProps<TMeta>>;
 }
@@ -101,16 +93,13 @@ export type AnyColumnUI = ColumnUI<Record<string, unknown>, unknown>;
  * Server-side fetch contract. Receives a validated config (already passed
  * through the plugin's Zod schema) and an opaque cursor for pagination.
  */
-export type ServerFetcher<
-  TConfig extends Record<string, unknown>,
-  TMeta = unknown,
-> = (config: TConfig, cursor?: string) => Promise<PageResult<TMeta>>;
+export type ServerFetcher<TConfig extends Record<string, unknown>, TMeta = unknown> = (
+  config: TConfig,
+  cursor?: string,
+) => Promise<PageResult<TMeta>>;
 
 /** Server-side plugin registration: meta (incl. schema for validation) + fetcher. */
-export interface ColumnServer<
-  TConfig extends Record<string, unknown>,
-  TMeta = unknown,
-> {
+export interface ColumnServer<TConfig extends Record<string, unknown>, TMeta = unknown> {
   meta: PluginMeta<TConfig, TMeta>;
   fetch: ServerFetcher<TConfig, TMeta>;
 }
@@ -122,17 +111,15 @@ export type AnyColumnServer = ColumnServer<Record<string, unknown>, unknown>;
  * `as unknown as` casts. The cast is unsafe in principle (TConfig is invariant)
  * but safe in practice because every consumer treats config + meta as opaque.
  */
-export function defineColumnUI<
-  TConfig extends Record<string, unknown>,
-  TMeta = unknown,
->(ui: ColumnUI<TConfig, TMeta>): AnyColumnUI {
+export function defineColumnUI<TConfig extends Record<string, unknown>, TMeta = unknown>(
+  ui: ColumnUI<TConfig, TMeta>,
+): AnyColumnUI {
   return ui as unknown as AnyColumnUI;
 }
 
-export function defineColumnServer<
-  TConfig extends Record<string, unknown>,
-  TMeta = unknown,
->(server: ColumnServer<TConfig, TMeta>): AnyColumnServer {
+export function defineColumnServer<TConfig extends Record<string, unknown>, TMeta = unknown>(
+  server: ColumnServer<TConfig, TMeta>,
+): AnyColumnServer {
   return server as unknown as AnyColumnServer;
 }
 

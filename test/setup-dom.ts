@@ -20,7 +20,10 @@ if (typeof document !== "undefined") {
   // the search input after the row commits, and matchMedia via next-themes in
   // some child components.
   globalThis.requestAnimationFrame ??= ((cb: FrameRequestCallback) =>
-    setTimeout(() => cb(performance.now()), 0) as unknown as number) as typeof requestAnimationFrame;
+    setTimeout(
+      () => cb(performance.now()),
+      0,
+    ) as unknown as number) as typeof requestAnimationFrame;
   globalThis.cancelAnimationFrame ??= ((id: number) =>
     clearTimeout(id)) as typeof cancelAnimationFrame;
 

@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type PypiConfig, type PypiMeta } from "./plugin";
 
@@ -26,9 +22,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PypiConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as PypiConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as PypiConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -40,10 +34,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PypiConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Updates</strong> and <strong>New packages</strong> read PyPI&rsquo;s
-          public RSS feeds (last ~40 entries, time-ordered).{" "}
-          <strong>Top · 30d</strong> ranks the top 8000 packages by 30-day
-          downloads via the community-maintained mirror — no API key required.
+          <strong>Updates</strong> and <strong>New packages</strong> read PyPI&rsquo;s public RSS
+          feeds (last ~40 entries, time-ordered). <strong>Top · 30d</strong> ranks the top 8000
+          packages by 30-day downloads via the community-maintained mirror — no API key required.
         </p>
       </div>
       <div className="grid gap-1.5">
@@ -55,8 +48,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PypiConfig>) {
           onChange={(e) => onChange({ ...value, keyword: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Case-insensitive substring match. Updates/new-packages search title
-          and description; Top · 30d searches the project name only.
+          Case-insensitive substring match. Updates/new-packages search title and description; Top ·
+          30d searches the project name only.
         </p>
       </div>
     </div>
@@ -96,9 +89,7 @@ function ItemRenderer({ item }: ItemRendererProps<PypiMeta>) {
         {version && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="tabular-nums text-muted-foreground/90">
-              v{version}
-            </span>
+            <span className="tabular-nums text-muted-foreground/90">v{version}</span>
           </>
         )}
         {author && (
@@ -116,12 +107,7 @@ function ItemRenderer({ item }: ItemRendererProps<PypiMeta>) {
           </>
         )}
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-mono text-[14px] leading-[1.25] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em" }}
@@ -138,18 +124,14 @@ function ItemRenderer({ item }: ItemRendererProps<PypiMeta>) {
         {weeklyDownloads > 0 && (
           <span className="flex items-center gap-1">
             <Download className="size-3.5" />
-            <span className="tabular-nums">
-              {formatCompactCount(weeklyDownloads)}
-            </span>
+            <span className="tabular-nums">{formatCompactCount(weeklyDownloads)}</span>
             <span className="text-muted-foreground/70">/wk</span>
           </span>
         )}
         {monthlyDownloads > 0 && (
           <span className="flex items-center gap-1">
             <Calendar className="size-3.5" />
-            <span className="tabular-nums">
-              {formatCompactCount(monthlyDownloads)}
-            </span>
+            <span className="tabular-nums">{formatCompactCount(monthlyDownloads)}</span>
             <span className="text-muted-foreground/70">/30d</span>
           </span>
         )}

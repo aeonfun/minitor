@@ -8,9 +8,7 @@ import { SearchCode } from "lucide-react";
 import type { PluginMeta } from "@/lib/columns/types";
 
 export const schema = z.object({
-  scope: z
-    .enum(["repositories", "issues", "code", "commits"])
-    .default("issues"),
+  scope: z.enum(["repositories", "issues", "code", "commits"]).default("issues"),
   query: z.string().default(""),
 });
 
@@ -56,7 +54,6 @@ export const meta: PluginMeta<GHSearchConfig, GHSearchMeta> = {
     paginated: true,
     // GITHUB_TOKEN is genuinely optional — fetcher upgrades automatically when
     // it's set — so it's not in requiresEnv (which renders as "Requires:" in UI).
-    rateLimitHint:
-      "60 req/hr without GITHUB_TOKEN, 5000 with. Code search requires the token.",
+    rateLimitHint: "60 req/hr without GITHUB_TOKEN, 5000 with. Code search requires the token.",
   },
 };

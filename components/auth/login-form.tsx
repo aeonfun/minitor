@@ -28,8 +28,7 @@ export function LoginForm({ next }: { next: string }) {
           <div className="space-y-1">
             <h1 className="font-serif text-2xl">Minitor</h1>
             <p className="text-[13px] text-muted-foreground">
-              This instance is password-protected. Enter the password to
-              continue.
+              This instance is password-protected. Enter the password to continue.
             </p>
           </div>
         </div>
@@ -53,21 +52,12 @@ export function LoginForm({ next }: { next: string }) {
           </div>
 
           {state.error && (
-            <p
-              id="login-error"
-              role="alert"
-              className="text-[12.5px] text-destructive"
-            >
+            <p id="login-error" role="alert" className="text-[12.5px] text-destructive">
               {state.error}
             </p>
           )}
 
-          <Button
-            type="submit"
-            size="lg"
-            disabled={pending}
-            className="h-10 w-full"
-          >
+          <Button type="submit" size="lg" disabled={pending} className="h-10 w-full">
             {pending ? "Logging in…" : "Log in"}
           </Button>
         </form>

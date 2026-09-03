@@ -11,22 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
-import {
-  meta,
-  type HuggingfaceConfig,
-  type HuggingfaceMeta,
-} from "./plugin";
+import { meta, type HuggingfaceConfig, type HuggingfaceMeta } from "./plugin";
 
-function ConfigForm({
-  value,
-  onChange,
-}: ConfigFormProps<HuggingfaceConfig>) {
+function ConfigForm({ value, onChange }: ConfigFormProps<HuggingfaceConfig>) {
   return (
     <div className="grid gap-3">
       <div className="grid gap-1.5">
@@ -54,9 +43,7 @@ function ConfigForm({
         <Label>Sort</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as HuggingfaceConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as HuggingfaceConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -77,8 +64,7 @@ function ConfigForm({
           onChange={(e) => onChange({ ...value, search: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Substring match against the repo id. Leave empty to browse the full
-          ranked list. See{" "}
+          Substring match against the repo id. Leave empty to browse the full ranked list. See{" "}
           <a
             href="https://huggingface.co/docs/hub/api"
             target="_blank"
@@ -112,9 +98,7 @@ function ItemRenderer({ item }: ItemRendererProps<HuggingfaceMeta>) {
   const m = item.meta;
   const likes = m?.likes ?? 0;
   const downloads = m?.downloads;
-  const tags = (m?.tags ?? []).filter(
-    (t) => !t.startsWith("region:") && !t.startsWith("license:"),
-  );
+  const tags = (m?.tags ?? []).filter((t) => !t.startsWith("region:") && !t.startsWith("license:"));
   const descriptor = descriptorFor(m);
   const gated = !!m?.gated;
 
@@ -157,12 +141,7 @@ function ItemRenderer({ item }: ItemRendererProps<HuggingfaceMeta>) {
           </>
         )}
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-serif text-[16px] leading-[1.3] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em", fontFeatureSettings: '"cswh" 1' }}
@@ -190,20 +169,13 @@ function ItemRenderer({ item }: ItemRendererProps<HuggingfaceMeta>) {
         {typeof downloads === "number" && (
           <span className="flex items-center gap-1" title="Downloads (last 30 days)">
             <Download className="size-3.5" />
-            <span className="tabular-nums">
-              {formatCompactCount(downloads)}
-            </span>
+            <span className="tabular-nums">{formatCompactCount(downloads)}</span>
           </span>
         )}
         {typeof m?.trendingScore === "number" && m.trendingScore > 0 && (
-          <span
-            className="flex items-center gap-1"
-            title="Hugging Face trending score"
-          >
+          <span className="flex items-center gap-1" title="Hugging Face trending score">
             <Flame className="size-3.5" />
-            <span className="tabular-nums">
-              {formatCompactCount(Math.round(m.trendingScore))}
-            </span>
+            <span className="tabular-nums">{formatCompactCount(Math.round(m.trendingScore))}</span>
           </span>
         )}
       </div>

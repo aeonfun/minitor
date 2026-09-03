@@ -5,19 +5,10 @@ import { ArrowRight, Layers, Rocket, Sparkles, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { getColumnType } from "@/lib/columns/registry";
-import {
-  TEMPLATES,
-  templateAsImportJson,
-  type DeckTemplate,
-} from "@/lib/deck-templates";
+import { TEMPLATES, templateAsImportJson, type DeckTemplate } from "@/lib/deck-templates";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import { cn } from "@/lib/utils";
 
@@ -64,8 +55,8 @@ export function TemplatesDialog({ open, onOpenChange }: Props) {
           <DialogTitle>Start from a template</DialogTitle>
         </DialogHeader>
         <p className="text-xs text-muted-foreground">
-          Each template imports as a new deck. Your existing decks aren&apos;t
-          touched — feel free to try several.
+          Each template imports as a new deck. Your existing decks aren&apos;t touched — feel free
+          to try several.
         </p>
         <ul role="list" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {TEMPLATES.map((template) => {
@@ -122,22 +113,13 @@ function TemplateCard({ template, Icon, submitting, disabled, onPick }: CardProp
           >
             {template.name}
           </div>
-          <div className="truncate text-[11px] text-muted-foreground">
-            {template.tagline}
-          </div>
+          <div className="truncate text-[11px] text-muted-foreground">{template.tagline}</div>
         </div>
       </div>
-      <p className="text-[11.5px] leading-relaxed text-muted-foreground">
-        {template.description}
-      </p>
+      <p className="text-[11.5px] leading-relaxed text-muted-foreground">{template.description}</p>
       <TemplateColumnPills template={template} />
       <div className="mt-auto flex justify-end pt-1">
-        <Button
-          size="sm"
-          onClick={onPick}
-          disabled={submitting || disabled}
-          className="gap-1.5"
-        >
+        <Button size="sm" onClick={onPick} disabled={submitting || disabled} className="gap-1.5">
           {submitting ? "Importing…" : "Use this deck"}
           {!submitting && <ArrowRight className="size-3.5" />}
         </Button>

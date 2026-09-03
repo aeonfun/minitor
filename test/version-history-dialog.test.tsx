@@ -42,16 +42,12 @@ beforeEach(() => {
 
 describe("VersionHistoryDialog", () => {
   it("does not read snapshots while closed", () => {
-    render(
-      <VersionHistoryDialog deckId={DECK_A} open={false} onOpenChange={() => {}} />,
-    );
+    render(<VersionHistoryDialog deckId={DECK_A} open={false} onOpenChange={() => {}} />);
     expect(loadDeckSnapshots).not.toHaveBeenCalled();
   });
 
   it("loads and lists snapshots on open", async () => {
-    render(
-      <VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />,
-    );
+    render(<VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />);
 
     expect(await screen.findByText("1 column")).toBeInTheDocument();
     expect(loadDeckSnapshots).toHaveBeenCalledWith(DECK_A);
@@ -64,12 +60,8 @@ describe("VersionHistoryDialog", () => {
     await screen.findByText("1 column");
     expect(loadDeckSnapshots).toHaveBeenCalledTimes(1);
 
-    rerender(
-      <VersionHistoryDialog deckId={DECK_A} open={false} onOpenChange={() => {}} />,
-    );
-    rerender(
-      <VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />,
-    );
+    rerender(<VersionHistoryDialog deckId={DECK_A} open={false} onOpenChange={() => {}} />);
+    rerender(<VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />);
 
     await waitFor(() => expect(loadDeckSnapshots).toHaveBeenCalledTimes(2));
     expect(await screen.findByText("1 column")).toBeInTheDocument();
@@ -82,9 +74,7 @@ describe("VersionHistoryDialog", () => {
       loadDeckSnapshots: vi.fn(() => new Promise<DeckSnapshotMeta[]>(() => {})),
     } as never);
 
-    render(
-      <VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />,
-    );
+    render(<VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />);
 
     expect(screen.getByText("Loading…")).toBeInTheDocument();
     expect(screen.queryByText(/No version history yet/)).not.toBeInTheDocument();
@@ -92,9 +82,7 @@ describe("VersionHistoryDialog", () => {
 
   it("reports an empty history once a read comes back with no rows", async () => {
     seedStore({ [DECK_A]: [] });
-    render(
-      <VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />,
-    );
+    render(<VersionHistoryDialog deckId={DECK_A} open onOpenChange={() => {}} />);
 
     expect(await screen.findByText(/No version history yet/)).toBeInTheDocument();
   });
@@ -121,9 +109,7 @@ describe("VersionHistoryDialog", () => {
     );
     expect(await screen.findByText("1 column")).toBeInTheDocument();
 
-    rerender(
-      <VersionHistoryDialog deckId={DECK_B} open onOpenChange={() => {}} />,
-    );
+    rerender(<VersionHistoryDialog deckId={DECK_B} open onOpenChange={() => {}} />);
 
     // Deck B is still in flight: the list must be back at its loading state,
     // showing nothing carried over from deck A.

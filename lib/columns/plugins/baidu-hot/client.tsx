@@ -1,10 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps } from "@/lib/columns/types";
 import {
   makeNewsNowItemRenderer,
   NewsNowConfigHint,

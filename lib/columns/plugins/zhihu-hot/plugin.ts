@@ -12,8 +12,7 @@ export type ZhihuHotMeta = NewsNowItemMeta;
 export const meta: PluginMeta<ZhihuHotConfig, ZhihuHotMeta> = {
   id: "zhihu-hot",
   label: "Zhihu · Hot",
-  description:
-    "Q&A platform like Quora, known for longer, more in-depth discussions.",
+  description: "Q&A platform like Quora, known for longer, more in-depth discussions.",
   icon: MessageCircleQuestion,
   accent: "#0084ff",
   category: "news",

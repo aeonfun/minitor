@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type DevtoConfig, type DevtoMeta } from "./plugin";
 
@@ -26,9 +22,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DevtoConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as DevtoConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as DevtoConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -49,8 +43,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DevtoConfig>) {
           onChange={(e) => onChange({ ...value, tag: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Up to five tags, comma- or space-separated. Multiple tags AND-match
-          (returns articles tagged with <em>all</em> of them). See{" "}
+          Up to five tags, comma- or space-separated. Multiple tags AND-match (returns articles
+          tagged with <em>all</em> of them). See{" "}
           <a
             href="https://dev.to/tags"
             target="_blank"
@@ -93,17 +87,13 @@ function ItemRenderer({ item }: ItemRendererProps<DevtoMeta>) {
           DEV
         </span>
         <span className="text-muted-foreground/80">
-          by{" "}
-          <span className="text-foreground/90">
-            {item.author.handle ?? item.author.name}
-          </span>
+          by <span className="text-foreground/90">{item.author.handle ?? item.author.name}</span>
         </span>
         {organization && (
           <>
             <span className="text-muted-foreground/50">·</span>
             <span className="text-muted-foreground/80">
-              for{" "}
-              <span className="text-foreground/90">{organization.name}</span>
+              for <span className="text-foreground/90">{organization.name}</span>
             </span>
           </>
         )}
@@ -112,12 +102,7 @@ function ItemRenderer({ item }: ItemRendererProps<DevtoMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-serif text-[16px] leading-[1.3] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em", fontFeatureSettings: '"cswh" 1' }}

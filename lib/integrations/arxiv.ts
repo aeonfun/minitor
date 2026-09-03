@@ -133,9 +133,7 @@ function extractCategories(entry: string): {
     const term = m[1].match(/\bterm=["']([^"']+)["']/)?.[1];
     if (term) all.push(term);
   }
-  const primaryMatch = entry.match(
-    /<arxiv:primary_category\b[^>]*\bterm=["']([^"']+)["']/i,
-  );
+  const primaryMatch = entry.match(/<arxiv:primary_category\b[^>]*\bterm=["']([^"']+)["']/i);
   const primary = primaryMatch ? primaryMatch[1] : (all[0] ?? "");
   return { primary, all };
 }
@@ -190,11 +188,7 @@ function mapEntry(entry: string): FeedItem<ArxivMeta> | null {
   // there are more — matches the convention every arXiv paper uses on its
   // own abs page. Identicon falls back to that name.
   const headlineAuthor =
-    authors.length === 0
-      ? "arXiv"
-      : authors.length === 1
-        ? authors[0]
-        : `${authors[0]} et al.`;
+    authors.length === 0 ? "arXiv" : authors.length === 1 ? authors[0] : `${authors[0]} et al.`;
 
   return {
     id: arxivId,
@@ -268,19 +262,13 @@ export async function fetchArxivPage(
   // `<opensearch:itemsPerPage>` near the head — read totalResults to decide
   // whether more pages exist. Falls back to `entries.length === limit` when
   // missing (very rare, only seen during upstream maintenance).
-  const totalMatch = xml.match(
-    /<opensearch:totalResults\b[^>]*>(\d+)<\/opensearch:totalResults>/i,
-  );
+  const totalMatch = xml.match(/<opensearch:totalResults\b[^>]*>(\d+)<\/opensearch:totalResults>/i);
   const total = totalMatch ? Number(totalMatch[1]) : Number.NaN;
 
   const entries = getAllTags(xml, "entry");
-  const items = entries
-    .map(mapEntry)
-    .filter((e): e is FeedItem<ArxivMeta> => e !== null);
+  const items = entries.map(mapEntry).filter((e): e is FeedItem<ArxivMeta> => e !== null);
 
-  const hasMore = Number.isFinite(total)
-    ? start + items.length < total
-    : entries.length >= limit;
+  const hasMore = Number.isFinite(total) ? start + items.length < total : entries.length >= limit;
 
   return { items, hasMore };
 }

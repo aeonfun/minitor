@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import {
   meta,
   type ArxivConfig,
@@ -31,9 +27,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<ArxivConfig>) {
         <Label>Category</Label>
         <Select
           value={value.category}
-          onValueChange={(v) =>
-            onChange({ ...value, category: v as ArxivConfig["category"] })
-          }
+          onValueChange={(v) => onChange({ ...value, category: v as ArxivConfig["category"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -51,9 +45,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<ArxivConfig>) {
         <Label>Sort</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as ArxivConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as ArxivConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -73,8 +65,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<ArxivConfig>) {
           onChange={(e) => onChange({ ...value, search: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Title + abstract keyword filter, ANDed with the category. Multiple
-          words are joined as AND. See{" "}
+          Title + abstract keyword filter, ANDed with the category. Multiple words are joined as
+          AND. See{" "}
           <a
             href="https://info.arxiv.org/help/api/user-manual.html"
             target="_blank"
@@ -118,17 +110,13 @@ function ItemRenderer({ item }: ItemRendererProps<ArxivMeta>) {
         {primary && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="font-mono text-[10.5px] text-muted-foreground/90">
-              {primary}
-            </span>
+            <span className="font-mono text-[10.5px] text-muted-foreground/90">{primary}</span>
           </>
         )}
         {arxivId && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="font-mono text-[10.5px] text-muted-foreground/70">
-              {arxivId}
-            </span>
+            <span className="font-mono text-[10.5px] text-muted-foreground/70">{arxivId}</span>
           </>
         )}
         {isRevision && (
@@ -148,12 +136,7 @@ function ItemRenderer({ item }: ItemRendererProps<ArxivMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-serif text-[16px] leading-[1.3] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em", fontFeatureSettings: '"cswh" 1' }}

@@ -84,9 +84,7 @@ function mapPair(p: DexPair): FeedItem<DexscreenerMeta> | null {
   // brand-new pair surfacing in a search is itself a signal. Fall back to "now"
   // when upstream omits it so the relative-time pill stays sensible.
   const createdMs =
-    typeof p.pairCreatedAt === "number" && p.pairCreatedAt > 0
-      ? p.pairCreatedAt
-      : Date.now();
+    typeof p.pairCreatedAt === "number" && p.pairCreatedAt > 0 ? p.pairCreatedAt : Date.now();
 
   const buys = p.txns?.h24?.buys;
   const sells = p.txns?.h24?.sells;
@@ -129,22 +127,22 @@ async function fetchPairs(url: string): Promise<DexPair[]> {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `dexscreener ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`dexscreener ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const json = (await res.json()) as PairsResponse;
   return Array.isArray(json.pairs) ? json.pairs : [];
 }
 
 function mapAndSort(pairs: DexPair[]): FeedItem<DexscreenerMeta>[] {
-  return pairs
-    .map(mapPair)
-    .filter((a): a is FeedItem<DexscreenerMeta> => a !== null)
-    // Highest 24h volume first — the most active pair for a token is the one
-    // worth watching, and it dedupes the noise of dead micro-pools.
-    .sort((a, b) => (b.meta?.volume24hUsd ?? 0) - (a.meta?.volume24hUsd ?? 0))
-    .slice(0, MAX_ITEMS);
+  return (
+    pairs
+      .map(mapPair)
+      .filter((a): a is FeedItem<DexscreenerMeta> => a !== null)
+      // Highest 24h volume first — the most active pair for a token is the one
+      // worth watching, and it dedupes the noise of dead micro-pools.
+      .sort((a, b) => (b.meta?.volume24hUsd ?? 0) - (a.meta?.volume24hUsd ?? 0))
+      .slice(0, MAX_ITEMS)
+  );
 }
 
 function parseAddresses(raw: string): string[] {

@@ -16,11 +16,7 @@ import { Label } from "@/components/ui/label";
 import { listColumnTypes } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import type { AnyColumnUI } from "@/lib/columns/types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getKeyAvailability } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
@@ -136,9 +132,7 @@ export function AddColumnDialog({ open, onOpenChange, deckId }: Props) {
             </div>
             {filteredTypes.length === 0 ? (
               <p className="px-1 py-6 text-center text-[13px] text-muted-foreground">
-                {filter
-                  ? `No sources match “${filter}”.`
-                  : "No sources match the current filter."}
+                {filter ? `No sources match “${filter}”.` : "No sources match the current filter."}
               </p>
             ) : (
               <ul
@@ -191,10 +185,7 @@ export function AddColumnDialog({ open, onOpenChange, deckId }: Props) {
                               {required.map((k) => {
                                 const have = keyAvailability[k];
                                 return (
-                                  <li
-                                    key={k}
-                                    className="flex items-center gap-1.5"
-                                  >
+                                  <li key={k} className="flex items-center gap-1.5">
                                     {have ? (
                                       <Check className="size-3 shrink-0 text-[color:var(--brand)]" />
                                     ) : (
@@ -212,9 +203,7 @@ export function AddColumnDialog({ open, onOpenChange, deckId }: Props) {
                             </ul>
                           )}
                           {rateLimitHint && (
-                            <p className="text-[11px] text-background/70">
-                              {rateLimitHint}
-                            </p>
+                            <p className="text-[11px] text-background/70">{rateLimitHint}</p>
                           )}
                         </TooltipContent>
                       </Tooltip>
@@ -245,20 +234,12 @@ export function AddColumnDialog({ open, onOpenChange, deckId }: Props) {
               <CapabilitiesNote type={selectedType} />
               <div className="grid gap-1.5">
                 <Label htmlFor="col-title">Column title</Label>
-                <Input
-                  id="col-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
+                <Input id="col-title" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
             </div>
 
             <DialogFooter className="gap-2 sm:gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setSelectedType(null)}
-              >
+              <Button type="button" variant="ghost" onClick={() => setSelectedType(null)}>
                 <ArrowLeft className="mr-1 size-4" />
                 Back
               </Button>

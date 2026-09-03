@@ -31,10 +31,7 @@ export function parseAlertKeywords(raw: string | null | undefined): string[] {
  * item's author, content, or URL. Comparison is case-insensitive — `terms` is
  * already lowercased by `parseAlertKeywords`.
  */
-export function itemMatchesAlertKeywords(
-  item: FeedItem,
-  terms: string[],
-): boolean {
+export function itemMatchesAlertKeywords(item: FeedItem, terms: string[]): boolean {
   if (terms.length === 0) return false;
   const haystack = [
     item.content,

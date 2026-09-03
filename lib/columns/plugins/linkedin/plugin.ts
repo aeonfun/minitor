@@ -22,7 +22,6 @@ export const meta: PluginMeta<LinkedinConfig, LinkedinMeta> = {
   category: "social",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.query.trim() ? `LinkedIn · ${c.query.trim()}` : "LinkedIn",
+  defaultTitle: (c) => (c.query.trim() ? `LinkedIn · ${c.query.trim()}` : "LinkedIn"),
   capabilities: { paginated: true, requiresEnv: ["XAI_API_KEY"] },
 };
