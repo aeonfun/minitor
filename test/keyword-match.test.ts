@@ -66,7 +66,10 @@ describe("itemMatchesAlertKeywords", () => {
   });
   it("does not match when no term is present", () => {
     expect(
-      itemMatchesAlertKeywords(item({ content: "golang only", url: "", author: { name: "x" } }), terms),
+      itemMatchesAlertKeywords(
+        item({ content: "golang only", url: "", author: { name: "x" } }),
+        terms,
+      ),
     ).toBe(false);
   });
   it("empty term list never matches", () => {

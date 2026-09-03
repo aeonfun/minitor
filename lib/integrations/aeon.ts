@@ -136,10 +136,7 @@ async function getDashboardJson<T>(baseUrl: string, path: string): Promise<T> {
 }
 
 /** dashboard-outputs — the rich json-render feed. Not paginated (route caps 100). */
-export async function fetchAeonOutputs(
-  baseUrl: string,
-  skill: string,
-): Promise<AeonItem[]> {
+export async function fetchAeonOutputs(baseUrl: string, skill: string): Promise<AeonItem[]> {
   const json = await getDashboardJson<OutputsResponse>(baseUrl, "/api/outputs");
   if (json.error) throw new Error(json.error);
   const outputs = (json.outputs ?? []).filter((o) => skillMatches(o.skill, skill));
@@ -159,10 +156,7 @@ export async function fetchAeonOutputs(
 }
 
 /** dashboard-runs — gh run list, already filtered to Aeon-launched events. */
-export async function fetchAeonDashboardRuns(
-  baseUrl: string,
-  skill: string,
-): Promise<AeonItem[]> {
+export async function fetchAeonDashboardRuns(baseUrl: string, skill: string): Promise<AeonItem[]> {
   const json = await getDashboardJson<RunsResponse>(baseUrl, "/api/runs");
   if (json.error) throw new Error(json.error);
   const runs = (json.runs ?? []).filter((r) => skillMatches(r.workflow, skill));
@@ -255,16 +249,10 @@ export async function fetchAeonSkillRuns(
         : undefined;
     const commitMessage = (r.head_commit?.message ?? "").split("\n")[0]?.trim();
     const title =
-      r.display_title?.trim() ||
-      commitMessage ||
-      (r.name ?? "").trim() ||
-      `Run #${r.run_number}`;
+      r.display_title?.trim() || commitMessage || (r.name ?? "").trim() || `Run #${r.run_number}`;
     const sha = r.head_sha ?? "";
     const actor =
-      r.actor?.login ??
-      r.triggering_actor?.login ??
-      r.head_commit?.author?.name ??
-      "aeon";
+      r.actor?.login ?? r.triggering_actor?.login ?? r.head_commit?.author?.name ?? "aeon";
     return {
       id: `aeon-run-${r.id}`,
       author: {
@@ -293,8 +281,7 @@ export async function fetchAeonSkillRuns(
   });
 
   const total = json.total_count;
-  const hasMore =
-    total != null ? Math.max(page, 1) * limit < total : items.length >= limit;
+  const hasMore = total != null ? Math.max(page, 1) * limit < total : items.length >= limit;
   return { items, hasMore };
 }
 

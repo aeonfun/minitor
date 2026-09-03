@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type WalletTxConfig, type WalletTxMeta } from "./plugin";
 
 const CHAIN_OPTIONS: { value: WalletTxConfig["chain"]; label: string }[] = [
@@ -55,9 +51,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<WalletTxConfig>) {
         <Label>Chain</Label>
         <Select
           value={value.chain}
-          onValueChange={(v) =>
-            onChange({ ...value, chain: v as WalletTxConfig["chain"] })
-          }
+          onValueChange={(v) => onChange({ ...value, chain: v as WalletTxConfig["chain"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -89,7 +83,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<WalletTxConfig>) {
               EVM address must be <code>0x</code>-prefixed and 42 characters.
             </span>
           ) : (
-            <>EVM address — 42 characters, starts with <code>0x</code>.</>
+            <>
+              EVM address — 42 characters, starts with <code>0x</code>.
+            </>
           )}
         </p>
       </div>
@@ -103,8 +99,7 @@ function ItemRenderer({ item }: ItemRendererProps<WalletTxMeta>) {
   const fromShort = shortHash(m.from);
   const toShort = m.to ? shortHash(m.to) : "—";
   const isFailed = m.status === "failed";
-  const isOutgoing =
-    item.author.handle?.toLowerCase() === m.from.toLowerCase();
+  const isOutgoing = item.author.handle?.toLowerCase() === m.from.toLowerCase();
   const DirectionIcon = isOutgoing ? ArrowUpRight : ArrowDownLeft;
 
   return (
@@ -142,9 +137,7 @@ function ItemRenderer({ item }: ItemRendererProps<WalletTxMeta>) {
       </div>
 
       <div className="mt-1.5 flex items-center gap-2 text-[12.5px] text-foreground">
-        <DirectionIcon
-          className={`size-4 ${isOutgoing ? "text-rose-500" : "text-emerald-500"}`}
-        />
+        <DirectionIcon className={`size-4 ${isOutgoing ? "text-rose-500" : "text-emerald-500"}`} />
         <span className="font-mono text-foreground/80">{fromShort}</span>
         <span className="text-muted-foreground/60">→</span>
         <span className="font-mono text-foreground/80">{toShort}</span>

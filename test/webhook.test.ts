@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  validateWebhookUrl,
-  WEBHOOK_URL_MAX,
-} from "@/lib/columns/webhook";
+import { validateWebhookUrl, WEBHOOK_URL_MAX } from "@/lib/columns/webhook";
 
 // `validateWebhookUrl` is the SSRF gate for the alert-webhook feature: it is the
 // only thing stopping the server from being coerced into POSTing to internal

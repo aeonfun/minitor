@@ -24,13 +24,7 @@ interface Props {
   onSubmit: (color: string) => void;
 }
 
-export function DeckColorDialog({
-  open,
-  onOpenChange,
-  deckName,
-  initialColor,
-  onSubmit,
-}: Props) {
+export function DeckColorDialog({ open, onOpenChange, deckName, initialColor, onSubmit }: Props) {
   const [draft, setDraft] = useState<string>(initialColor ?? "");
   const [prevOpen, setPrevOpen] = useState(open);
   if (open !== prevOpen) {
@@ -38,17 +32,14 @@ export function DeckColorDialog({
     if (open) setDraft(initialColor ?? "");
   }
 
-  const previewColor =
-    draft.trim().length === 0 ? "" : (normalizeColumnColor(draft) ?? draft);
-  const colorInputInvalid =
-    draft.trim().length > 0 && normalizeColumnColor(draft) === null;
+  const previewColor = draft.trim().length === 0 ? "" : (normalizeColumnColor(draft) ?? draft);
+  const colorInputInvalid = draft.trim().length > 0 && normalizeColumnColor(draft) === null;
   const initialNormalized = normalizeColumnColor(initialColor ?? "") ?? "";
   const draftNormalized = normalizeColumnColor(draft) ?? "";
   // Save lights up either when the operator picks a different valid color, or
   // when they explicitly clear (initial had a color, draft is now empty).
   const cleared = draft.trim().length === 0 && initialNormalized.length > 0;
-  const changedToValid =
-    draftNormalized.length > 0 && draftNormalized !== initialNormalized;
+  const changedToValid = draftNormalized.length > 0 && draftNormalized !== initialNormalized;
   const canSave = cleared || changedToValid;
 
   function commit() {
@@ -95,8 +86,8 @@ export function DeckColorDialog({
                     onClick={() => setDraft(swatch.value)}
                     className={cn(
                       "size-7 shrink-0 rounded-full ring-1 ring-black/10 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-card",
-                      isSelected
-                        && "ring-2 ring-[color:var(--brand)] ring-offset-2 ring-offset-card",
+                      isSelected &&
+                        "ring-2 ring-[color:var(--brand)] ring-offset-2 ring-offset-card",
                     )}
                     style={{ backgroundColor: swatch.value }}
                   />
@@ -109,8 +100,7 @@ export function DeckColorDialog({
                 title="No color"
                 className={cn(
                   "ml-1 inline-flex h-7 items-center justify-center rounded-full border border-border bg-surface/40 px-2.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-card",
-                  previewColor === ""
-                    && "ring-1 ring-[color:var(--brand)] text-foreground",
+                  previewColor === "" && "ring-1 ring-[color:var(--brand)] text-foreground",
                 )}
               >
                 Clear
@@ -124,30 +114,24 @@ export function DeckColorDialog({
               onChange={(e) => setDraft(e.target.value)}
               aria-invalid={colorInputInvalid}
               className={cn(
-                colorInputInvalid
-                  && "border-destructive focus-visible:ring-destructive",
+                colorInputInvalid && "border-destructive focus-visible:ring-destructive",
               )}
             />
             <p className="text-xs text-muted-foreground">
               {colorInputInvalid ? (
                 <span className="text-destructive">
-                  Enter a 6-digit hex color (e.g. <code>#f97316</code>) or
-                  pick a preset above.
+                  Enter a 6-digit hex color (e.g. <code>#f97316</code>) or pick a preset above.
                 </span>
               ) : (
                 <>
-                  Tag this deck with a color you can spot at a glance in the
-                  sidebar and top bar. Same palette as column color labels.
+                  Tag this deck with a color you can spot at a glance in the sidebar and top bar.
+                  Same palette as column color labels.
                 </>
               )}
             </p>
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={!canSave}>

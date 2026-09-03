@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import {
-  fetchUpstream,
-  parseRetryAfterMs,
-  UpstreamError,
-} from "@/lib/integrations/fetch";
+import { fetchUpstream, parseRetryAfterMs, UpstreamError } from "@/lib/integrations/fetch";
 
 afterEach(() => vi.unstubAllGlobals());
 

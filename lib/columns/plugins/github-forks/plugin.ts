@@ -26,7 +26,6 @@ export const meta: PluginMeta<GHForksConfig, GHForksMeta> = {
   },
   capabilities: {
     paginated: true,
-    rateLimitHint:
-      "60 req/hr without GITHUB_TOKEN, 5000 with.",
+    rateLimitHint: "60 req/hr without GITHUB_TOKEN, 5000 with.",
   },
 };

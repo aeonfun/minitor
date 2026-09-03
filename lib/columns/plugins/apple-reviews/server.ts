@@ -1,22 +1,11 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type FeedItem,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type FeedItem, type ServerFetcher } from "@/lib/columns/types";
 import { fetchReviews } from "@/lib/integrations/app-reviews";
 import { sliceForPage } from "@/lib/columns/paginate";
-import {
-  meta,
-  type AppleReviewsConfig,
-  type AppleReviewsItemMeta,
-} from "./plugin";
+import { meta, type AppleReviewsConfig, type AppleReviewsItemMeta } from "./plugin";
 
-const fetch: ServerFetcher<AppleReviewsConfig, AppleReviewsItemMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<AppleReviewsConfig, AppleReviewsItemMeta> = async (config, cursor) => {
   const appId = config.appId.trim();
   if (!appId) throw new Error("App Store numeric ID is required.");
   const country = (config.country.trim() || "us").toLowerCase();

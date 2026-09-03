@@ -43,26 +43,18 @@ interface NewsNowResponse {
   message?: string;
 }
 
-export async function fetchNewsNow(
-  platform: NewsNowPlatform,
-  limit = 20,
-): Promise<FeedItem[]> {
-  const res = await fetchUpstream(
-    `${BASE}/api/s?id=${encodeURIComponent(platform)}&latest`,
-    {
-      headers: {
-        // Cloudflare blocks default fetch UAs.
-        "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-        accept: "application/json",
-      },
-      cache: "no-store",
+export async function fetchNewsNow(platform: NewsNowPlatform, limit = 20): Promise<FeedItem[]> {
+  const res = await fetchUpstream(`${BASE}/api/s?id=${encodeURIComponent(platform)}&latest`, {
+    headers: {
+      // Cloudflare blocks default fetch UAs.
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      accept: "application/json",
     },
-  );
+    cache: "no-store",
+  });
   if (!res.ok) {
-    throw new Error(
-      `NewsNow ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`NewsNow ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const json = (await res.json()) as NewsNowResponse;
   if (json.message && !json.items) {

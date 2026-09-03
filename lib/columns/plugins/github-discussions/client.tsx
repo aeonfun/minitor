@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ArrowBigUp,
-  Check,
-  Circle,
-  MessageSquare,
-  MessageSquareText,
-} from "lucide-react";
+import { ArrowBigUp, Check, Circle, MessageSquare, MessageSquareText } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,17 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
-import {
-  meta,
-  type GHDiscussionsConfig,
-  type GHDiscussionsMeta,
-} from "./plugin";
+import { meta, type GHDiscussionsConfig, type GHDiscussionsMeta } from "./plugin";
 
 const MODE_LABELS: Record<GHDiscussionsConfig["mode"], string> = {
   recent: "Recent — newest first",
@@ -47,8 +33,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHDiscussionsConfig>) {
           onChange={(e) => onChange({ ...value, repo: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          <code>owner/repo</code> or full GitHub URL. The repo must have
-          Discussions enabled in its settings.
+          <code>owner/repo</code> or full GitHub URL. The repo must have Discussions enabled in its
+          settings.
         </p>
       </div>
       <div className="grid gap-1.5">
@@ -66,19 +52,16 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHDiscussionsConfig>) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.keys(MODE_LABELS) as GHDiscussionsConfig["mode"][]).map(
-              (m) => (
-                <SelectItem key={m} value={m}>
-                  {MODE_LABELS[m]}
-                </SelectItem>
-              ),
-            )}
+            {(Object.keys(MODE_LABELS) as GHDiscussionsConfig["mode"][]).map((m) => (
+              <SelectItem key={m} value={m}>
+                {MODE_LABELS[m]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <code>GITHUB_TOKEN</code> is optional — it raises the rate limit from
-          60 to 5000 requests/hour but isn&apos;t required for the column to
-          work.
+          <code>GITHUB_TOKEN</code> is optional — it raises the rate limit from 60 to 5000
+          requests/hour but isn&apos;t required for the column to work.
         </p>
       </div>
     </div>
@@ -167,15 +150,11 @@ function ItemRenderer({ item }: ItemRendererProps<GHDiscussionsMeta>) {
         <span className="tabular-nums text-foreground/70">#{m.number}</span>
         <span className="flex items-center gap-1">
           <ArrowBigUp className="size-3.5" />
-          <span className="tabular-nums">
-            {formatCompactCount(m.upvotes)}
-          </span>
+          <span className="tabular-nums">{formatCompactCount(m.upvotes)}</span>
         </span>
         <span className="flex items-center gap-1">
           <MessageSquareText className="size-3.5" />
-          <span className="tabular-nums">
-            {formatCompactCount(m.comments)}
-          </span>
+          <span className="tabular-nums">{formatCompactCount(m.comments)}</span>
         </span>
       </div>
     </a>

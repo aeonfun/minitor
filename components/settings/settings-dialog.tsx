@@ -17,11 +17,7 @@ import { Label } from "@/components/ui/label";
 import { ENV_KEYS } from "@/lib/env-keys";
 import { IS_HOSTED_CLIENT } from "@/lib/hosted";
 import { logout } from "@/app/login/actions";
-import {
-  getEnvKeysStatus,
-  setEnvKeys,
-  type EnvKeyStatus,
-} from "@/app/actions";
+import { getEnvKeysStatus, setEnvKeys, type EnvKeyStatus } from "@/app/actions";
 
 interface Props {
   open: boolean;
@@ -60,10 +56,7 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
     return map;
   }, [status]);
 
-  const dirty = useMemo(
-    () => Object.values(values).some((v) => v !== SENTINEL),
-    [values],
-  );
+  const dirty = useMemo(() => Object.values(values).some((v) => v !== SENTINEL), [values]);
 
   async function save() {
     const updates: Record<string, string> = {};
@@ -96,9 +89,9 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
         {IS_HOSTED_CLIENT ? (
           <p className="-mt-1 text-[12.5px] text-muted-foreground">
-            This is a hosted deployment. API keys are read from server
-            environment variables and can&apos;t be edited here — set them on
-            your host (e.g. Railway / Render variables) and redeploy.
+            This is a hosted deployment. API keys are read from server environment variables and
+            can&apos;t be edited here — set them on your host (e.g. Railway / Render variables) and
+            redeploy.
           </p>
         ) : (
           <p className="-mt-1 text-[12.5px] text-muted-foreground">
@@ -173,25 +166,17 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
                       value={value === SENTINEL ? "" : value}
                       placeholder={placeholder}
                       disabled={IS_HOSTED_CLIENT}
-                      onChange={(e) =>
-                        setValues((v) => ({ ...v, [spec.key]: e.target.value }))
-                      }
+                      onChange={(e) => setValues((v) => ({ ...v, [spec.key]: e.target.value }))}
                       className="pr-9 font-mono text-[12.5px] disabled:opacity-60"
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setReveal((r) => ({ ...r, [spec.key]: !r[spec.key] }))
-                      }
+                      onClick={() => setReveal((r) => ({ ...r, [spec.key]: !r[spec.key] }))}
                       className="absolute right-1.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                       aria-label={isRevealed ? "Hide value" : "Show value"}
                       tabIndex={-1}
                     >
-                      {isRevealed ? (
-                        <EyeOff className="size-3.5" />
-                      ) : (
-                        <Eye className="size-3.5" />
-                      )}
+                      {isRevealed ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                     </button>
                   </div>
                   <p className="text-[11.5px] leading-relaxed text-muted-foreground">
@@ -200,10 +185,7 @@ export function SettingsDialog({ open, onOpenChange }: Props) {
                   {set && value !== SENTINEL && value.trim() === "" && (
                     <p className="text-[11px] text-amber-600 dark:text-amber-400">
                       Saving an empty value will remove this key from{" "}
-                      <code className="rounded bg-foreground/[0.06] px-1">
-                        .env.local
-                      </code>
-                      .
+                      <code className="rounded bg-foreground/[0.06] px-1">.env.local</code>.
                     </p>
                   )}
                 </div>

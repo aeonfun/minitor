@@ -9,11 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { AggregatorItem } from "@/lib/columns/shared/aggregator-item";
 import { meta, type HNConfig, type HNMeta } from "./plugin";
 
@@ -24,9 +20,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<HNConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as HNConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as HNConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -49,9 +43,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<HNConfig>) {
             value={value.query}
             onChange={(e) => onChange({ ...value, query: e.target.value })}
           />
-          <p className="text-xs text-muted-foreground">
-            Searches HN stories via Algolia.
-          </p>
+          <p className="text-xs text-muted-foreground">Searches HN stories via Algolia.</p>
         </div>
       )}
     </div>

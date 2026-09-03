@@ -3,10 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TweetItem } from "@/lib/columns/shared/tweet-renderer";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps } from "@/lib/columns/types";
 import type { TweetMeta } from "@/lib/columns/plugins/x-search/plugin";
 import { meta, type XTrendingConfig } from "./plugin";
 
@@ -21,8 +18,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<XTrendingConfig>) {
         onChange={(e) => onChange({ topic: e.target.value })}
       />
       <p className="text-xs text-muted-foreground">
-        Leave blank for global trending. Returns highest-engagement posts from
-        the last 24 hours.
+        Leave blank for global trending. Returns highest-engagement posts from the last 24 hours.
       </p>
     </div>
   );

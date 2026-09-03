@@ -19,11 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 
-import {
-  useDeckStore,
-  getVisibleColumnIds,
-  TAB_GROUP_ALL,
-} from "@/lib/store/use-deck-store";
+import { useDeckStore, getVisibleColumnIds, TAB_GROUP_ALL } from "@/lib/store/use-deck-store";
 import { ColumnCard } from "@/components/column/column-card";
 import { AddColumnDialog } from "@/components/column/add-column-dialog";
 import { cn } from "@/lib/utils";
@@ -32,9 +28,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   const deck = useDeckStore((s) => s.decks[deckId]);
   const columns = useDeckStore((s) => s.columns);
   const reorderColumnsInDeck = useDeckStore((s) => s.reorderColumnsInDeck);
-  const selectedTab = useDeckStore(
-    (s) => s.selectedTabByDeck[deckId] ?? TAB_GROUP_ALL,
-  );
+  const selectedTab = useDeckStore((s) => s.selectedTabByDeck[deckId] ?? TAB_GROUP_ALL);
   const setSelectedTab = useDeckStore((s) => s.setSelectedTab);
   const focusedColumnId = useDeckStore((s) => s.focusedColumnId);
   const requestRefreshColumns = useDeckStore((s) => s.requestRefreshColumns);
@@ -42,9 +36,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   const toggleColumnCollapsed = useDeckStore((s) => s.toggleColumnCollapsed);
   const requestSearchOpen = useDeckStore((s) => s.requestSearchOpen);
   const setColumnSearch = useDeckStore((s) => s.setColumnSearch);
-  const activeColorFilter = useDeckStore(
-    (s) => s.activeColorFilter[deckId] ?? null,
-  );
+  const activeColorFilter = useDeckStore((s) => s.activeColorFilter[deckId] ?? null);
   const setColorFilter = useDeckStore((s) => s.setColorFilter);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -139,10 +131,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
   // refresh targets can never drift apart (an enqueued-but-unmounted column
   // would never drain its pending-refresh id).
   const visibleColumnIds = useMemo(
-    () =>
-      deck
-        ? getVisibleColumnIds(deck, columns, selectedTab, activeColorFilter)
-        : [],
+    () => (deck ? getVisibleColumnIds(deck, columns, selectedTab, activeColorFilter) : []),
     [deck, columns, selectedTab, activeColorFilter],
   );
 
@@ -187,19 +176,12 @@ export function DeckBoard({ deckId }: { deckId: string }) {
       const target = e.target as HTMLElement | null;
       if (target) {
         const tag = target.tagName;
-        if (
-          tag === "INPUT" ||
-          tag === "TEXTAREA" ||
-          tag === "SELECT" ||
-          target.isContentEditable
-        ) {
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable) {
           return;
         }
       }
       if (visibleColumnIds.length === 0) return;
-      const currentIndex = focusedColumnId
-        ? visibleColumnIds.indexOf(focusedColumnId)
-        : -1;
+      const currentIndex = focusedColumnId ? visibleColumnIds.indexOf(focusedColumnId) : -1;
       switch (e.key) {
         case "j":
         case "ArrowRight": {
@@ -402,10 +384,7 @@ export function DeckBoard({ deckId }: { deckId: string }) {
               draggingRef.current = false;
             }}
           >
-            <SortableContext
-              items={visibleColumnIds}
-              strategy={horizontalListSortingStrategy}
-            >
+            <SortableContext items={visibleColumnIds} strategy={horizontalListSortingStrategy}>
               {visibleColumnIds.map((id) => {
                 const col = columns[id];
                 if (!col) return null;

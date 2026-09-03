@@ -3,11 +3,7 @@
 import { GitFork } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { GitHubWatcherItem } from "@/lib/columns/shared/github-watcher-item";
 import { meta, type GHForksConfig, type GHForksMeta } from "./plugin";
 

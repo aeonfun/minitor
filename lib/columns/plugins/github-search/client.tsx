@@ -20,11 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type GHSearchConfig, type GHSearchMeta } from "./plugin";
 
@@ -36,9 +32,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHSearchConfig>) {
         <Label>Scope</Label>
         <Select
           value={value.scope}
-          onValueChange={(v) =>
-            onChange({ ...value, scope: v as GHSearchConfig["scope"] })
-          }
+          onValueChange={(v) => onChange({ ...value, scope: v as GHSearchConfig["scope"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -83,16 +77,13 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHSearchConfig>) {
 function ScopeBadge({ m }: { m: GHSearchMeta }) {
   if (m.scope === "issues") {
     const state = m.state ?? "open";
-    const Icon =
-      m.isPr ? (state === "closed" ? GitMerge : GitPullRequest) : CircleDot;
+    const Icon = m.isPr ? (state === "closed" ? GitMerge : GitPullRequest) : CircleDot;
     return (
       <span
         className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-foreground ring-1 ring-black/5"
         style={{
           backgroundColor:
-            state === "closed"
-              ? "rgba(192, 168, 221, 0.32)"
-              : "rgba(223, 168, 143, 0.28)",
+            state === "closed" ? "rgba(192, 168, 221, 0.32)" : "rgba(223, 168, 143, 0.28)",
         }}
       >
         <Icon className="size-3" />
@@ -147,9 +138,7 @@ function MetaRow({ m }: { m: GHSearchMeta }) {
           <GitBranch className="size-3.5" />
           <span className="tabular-nums">{formatCompactCount(forks)}</span>
         </span>
-        {m.language && (
-          <span className="truncate text-foreground/70">{m.language}</span>
-        )}
+        {m.language && <span className="truncate text-foreground/70">{m.language}</span>}
       </div>
     );
   }
@@ -164,21 +153,15 @@ function MetaRow({ m }: { m: GHSearchMeta }) {
           <MessageSquareText className="size-3.5" />
           <span className="tabular-nums">{formatCompactCount(comments)}</span>
         </span>
-        {m.repo && (
-          <span className="truncate text-foreground/70">{m.repo}</span>
-        )}
+        {m.repo && <span className="truncate text-foreground/70">{m.repo}</span>}
       </div>
     );
   }
   if (m.scope === "commits" && m.sha) {
     return (
       <div className="mt-2 flex items-center gap-4 text-[11.5px] text-muted-foreground">
-        <span className="font-mono text-foreground/70">
-          {m.sha.slice(0, 7)}
-        </span>
-        {m.repo && (
-          <span className="truncate text-foreground/70">{m.repo}</span>
-        )}
+        <span className="font-mono text-foreground/70">{m.sha.slice(0, 7)}</span>
+        {m.repo && <span className="truncate text-foreground/70">{m.repo}</span>}
       </div>
     );
   }

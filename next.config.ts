@@ -10,12 +10,7 @@ const nextConfig: NextConfig = {
   // external too so all three DB drivers land in `.next/standalone/node_modules`
   // — the standalone migration step (`scripts/db-migrate.mjs`) dynamically
   // imports whichever one `DATABASE_URL` selects, and can't if it was inlined.
-  serverExternalPackages: [
-    "@electric-sql/pglite",
-    "pg",
-    "pg-native",
-    "@neondatabase/serverless",
-  ],
+  serverExternalPackages: ["@electric-sql/pglite", "pg", "pg-native", "@neondatabase/serverless"],
 };
 
 export default nextConfig;

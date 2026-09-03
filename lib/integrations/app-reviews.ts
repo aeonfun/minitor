@@ -17,8 +17,7 @@ export interface AppReviewMeta {
   thumbsUp?: number;
 }
 
-const UA =
-  "minitor/0.1 (+https://github.com/anthropics/claude-code)";
+const UA = "minitor/0.1 (+https://github.com/anthropics/claude-code)";
 
 // App Store (iTunes RSS, keyless)
 
@@ -45,11 +44,7 @@ interface AppleFeedResponse {
   };
 }
 
-function appleReviewLink(
-  entry: AppleReviewEntry,
-  appId: string,
-  country: string,
-): string {
+function appleReviewLink(entry: AppleReviewEntry, appId: string, country: string): string {
   const link = Array.isArray(entry.link) ? entry.link[0] : entry.link;
   const href = link?.attributes?.href;
   if (href) return href;
@@ -66,9 +61,7 @@ async function fetchAppStoreReviews(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `App Store RSS ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`App Store RSS ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const json = (await res.json()) as AppleFeedResponse;
   const raw = json.feed?.entry;
@@ -161,12 +154,7 @@ async function fetchGooglePlayReviews(
   country: string,
 ): Promise<FeedItem<AppReviewMeta>[]> {
   // [null,null,[2,1,[40,null,null],null,[]],[appId,7]] — 7 = newest, 40 = page size
-  const reqArg = JSON.stringify([
-    null,
-    null,
-    [2, 1, [40, null, null], null, []],
-    [appId, 7],
-  ]);
+  const reqArg = JSON.stringify([null, null, [2, 1, [40, null, null], null, []], [appId, 7]]);
   const fReq = JSON.stringify([[[PLAY_RPC, reqArg, null, "generic"]]]);
   const body = new URLSearchParams({ "f.req": fReq });
   const url = `https://play.google.com/_/PlayStoreUi/data/batchexecute?hl=en&gl=${encodeURIComponent(country)}`;
@@ -182,9 +170,7 @@ async function fetchGooglePlayReviews(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `Google Play ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`Google Play ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const text = await res.text();
   // Strip `)]}'` prefix.

@@ -4,11 +4,7 @@ import { GitCommitHorizontal } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type GHCommitsConfig, type GHCommitsMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<GHCommitsConfig>) {
@@ -70,9 +66,7 @@ function ItemRenderer({ item }: ItemRendererProps<GHCommitsMeta>) {
         {shortSha && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="truncate font-mono text-[10.5px] text-foreground/70">
-              {shortSha}
-            </span>
+            <span className="truncate font-mono text-[10.5px] text-foreground/70">{shortSha}</span>
           </>
         )}
         <span className="text-muted-foreground/50">·</span>

@@ -132,9 +132,7 @@ async function fetchTrending(
     per_page: String(limit),
     page: String(page),
   });
-  const json = await ghFetch<GHSearchResponse<GHRepo>>(
-    `${API}/search/repositories?${params}`,
-  );
+  const json = await ghFetch<GHSearchResponse<GHRepo>>(`${API}/search/repositories?${params}`);
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((r) => {
     const owner = r.owner?.login ?? r.full_name.split("/")[0] ?? "github";
@@ -143,13 +141,9 @@ async function fetchTrending(
       author: {
         name: owner,
         handle: owner,
-        avatarUrl:
-          r.owner?.avatar_url ??
-          identiconUrl(owner),
+        avatarUrl: r.owner?.avatar_url ?? identiconUrl(owner),
       },
-      content: r.description
-        ? `${r.full_name}\n\n${r.description}`
-        : r.full_name,
+      content: r.description ? `${r.full_name}\n\n${r.description}` : r.full_name,
       url: r.html_url,
       createdAt: r.created_at,
       meta: {
@@ -163,11 +157,7 @@ async function fetchTrending(
   });
 }
 
-async function fetchReleases(
-  repo: string,
-  limit: number,
-  page = 1,
-): Promise<FeedItem[]> {
+async function fetchReleases(repo: string, limit: number, page = 1): Promise<FeedItem[]> {
   const clean = repo.trim().replace(/^https?:\/\/github\.com\//, "");
   if (!/^[\w.-]+\/[\w.-]+$/.test(clean)) {
     throw new Error(`Invalid repo "${repo}". Use owner/repo (e.g. vercel/next.js).`);
@@ -176,9 +166,7 @@ async function fetchReleases(
     per_page: String(limit),
     page: String(page),
   });
-  const releases = await ghFetch<GHRelease[]>(
-    `${API}/repos/${clean}/releases?${params}`,
-  );
+  const releases = await ghFetch<GHRelease[]>(`${API}/repos/${clean}/releases?${params}`);
   return releases
     .filter((r) => !r.draft)
     .slice(0, limit)
@@ -192,9 +180,7 @@ async function fetchReleases(
         author: {
           name: clean,
           handle: author,
-          avatarUrl:
-            r.author?.avatar_url ??
-            identiconUrl(clean),
+          avatarUrl: r.author?.avatar_url ?? identiconUrl(clean),
         },
         content: trimmed ? `${title}\n\n${trimmed}` : title,
         url: r.html_url,
@@ -209,11 +195,7 @@ async function fetchReleases(
     });
 }
 
-async function fetchIssues(
-  query: string,
-  limit: number,
-  page = 1,
-): Promise<FeedItem[]> {
+async function fetchIssues(query: string, limit: number, page = 1): Promise<FeedItem[]> {
   if (!query.trim()) {
     throw new Error("Query is required for issue search.");
   }
@@ -224,9 +206,7 @@ async function fetchIssues(
     per_page: String(limit),
     page: String(page),
   });
-  const json = await ghFetch<GHSearchResponse<GHIssue>>(
-    `${API}/search/issues?${params}`,
-  );
+  const json = await ghFetch<GHSearchResponse<GHIssue>>(`${API}/search/issues?${params}`);
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((i) => {
     const user = i.user?.login ?? "anonymous";
@@ -239,9 +219,7 @@ async function fetchIssues(
       author: {
         name: user,
         handle: user,
-        avatarUrl:
-          i.user?.avatar_url ??
-          identiconUrl(user),
+        avatarUrl: i.user?.avatar_url ?? identiconUrl(user),
       },
       content: trimmed ? `${i.title}\n\n${trimmed}` : i.title,
       url: i.html_url,
@@ -256,7 +234,6 @@ async function fetchIssues(
     } satisfies FeedItem;
   });
 }
-
 
 export async function fetchPullRequests(
   repo: string,
@@ -276,17 +253,11 @@ export async function fetchPullRequests(
     per_page: String(limit),
     page: String(page),
   });
-  const prs = await ghFetch<GHPullRequest[]>(
-    `${API}/repos/${clean}/pulls?${params}`,
-  );
+  const prs = await ghFetch<GHPullRequest[]>(`${API}/repos/${clean}/pulls?${params}`);
   return prs.slice(0, limit).map((p) => {
     const user = p.user?.login ?? "anonymous";
     const merged = p.state === "closed" && !!p.merged_at;
-    const display: GHPRMeta["state"] = merged
-      ? "merged"
-      : p.state === "closed"
-        ? "closed"
-        : "open";
+    const display: GHPRMeta["state"] = merged ? "merged" : p.state === "closed" ? "closed" : "open";
     const body = (p.body ?? "").trim();
     const trimmed = truncateText(body, 400);
     const sortField = sort === "created" ? p.created_at : p.updated_at;
@@ -295,9 +266,7 @@ export async function fetchPullRequests(
       author: {
         name: user,
         handle: user,
-        avatarUrl:
-          p.user?.avatar_url ??
-          identiconUrl(user),
+        avatarUrl: p.user?.avatar_url ?? identiconUrl(user),
       },
       content: trimmed ? `${p.title}\n\n${trimmed}` : p.title,
       url: p.html_url,
@@ -347,12 +316,9 @@ export async function fetchCommits(
   // `sha` accepts a branch name, tag, or commit SHA. Empty = the default branch.
   const ref = branch.trim();
   if (ref) params.set("sha", ref);
-  const commits = await ghFetch<GHCommitListItem[]>(
-    `${API}/repos/${clean}/commits?${params}`,
-  );
+  const commits = await ghFetch<GHCommitListItem[]>(`${API}/repos/${clean}/commits?${params}`);
   return commits.slice(0, limit).map((c) => {
-    const handle =
-      c.author?.login ?? c.commit.author?.name ?? clean.split("/")[0] ?? "github";
+    const handle = c.author?.login ?? c.commit.author?.name ?? clean.split("/")[0] ?? "github";
     const message = (c.commit.message ?? "").trim();
     const [firstLine, ...rest] = message.split("\n");
     const body = rest.join("\n").trim();
@@ -362,16 +328,11 @@ export async function fetchCommits(
       author: {
         name: handle,
         handle,
-        avatarUrl:
-          c.author?.avatar_url ??
-          identiconUrl(handle),
+        avatarUrl: c.author?.avatar_url ?? identiconUrl(handle),
       },
       content: trimmed ? `${firstLine}\n\n${trimmed}` : firstLine,
       url: c.html_url,
-      createdAt:
-        c.commit.author?.date ??
-        c.commit.committer?.date ??
-        new Date().toISOString(),
+      createdAt: c.commit.author?.date ?? c.commit.committer?.date ?? new Date().toISOString(),
       meta: {
         kind: "commit",
         repo: clean,
@@ -395,9 +356,9 @@ export async function fetchGitHub(
       return fetchIssues(config.query ?? "", limit, page);
     case "trending":
     default: {
-      const period = (config.period === "day" || config.period === "month"
-        ? config.period
-        : "week") as "day" | "week" | "month";
+      const period = (
+        config.period === "day" || config.period === "month" ? config.period : "week"
+      ) as "day" | "week" | "month";
       return fetchTrending(config.language ?? "", period, limit, page);
     }
   }
@@ -441,11 +402,7 @@ function buildQuery(raw: string): string {
   return trimmed;
 }
 
-async function searchRepos(
-  query: string,
-  limit: number,
-  page: number,
-): Promise<FeedItem[]> {
+async function searchRepos(query: string, limit: number, page: number): Promise<FeedItem[]> {
   const params = new URLSearchParams({
     q: query,
     sort: "updated",
@@ -453,9 +410,7 @@ async function searchRepos(
     per_page: String(limit),
     page: String(page),
   });
-  const json = await ghFetch<GHSearchResponse<GHRepo>>(
-    `${API}/search/repositories?${params}`,
-  );
+  const json = await ghFetch<GHSearchResponse<GHRepo>>(`${API}/search/repositories?${params}`);
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((r) => {
     const owner = r.owner?.login ?? r.full_name.split("/")[0] ?? "github";
@@ -464,13 +419,9 @@ async function searchRepos(
       author: {
         name: owner,
         handle: owner,
-        avatarUrl:
-          r.owner?.avatar_url ??
-          identiconUrl(owner),
+        avatarUrl: r.owner?.avatar_url ?? identiconUrl(owner),
       },
-      content: r.description
-        ? `${r.full_name}\n\n${r.description}`
-        : r.full_name,
+      content: r.description ? `${r.full_name}\n\n${r.description}` : r.full_name,
       url: r.html_url,
       createdAt: r.pushed_at ?? r.created_at,
       meta: {
@@ -484,11 +435,7 @@ async function searchRepos(
   });
 }
 
-async function searchIssuesScope(
-  query: string,
-  limit: number,
-  page: number,
-): Promise<FeedItem[]> {
+async function searchIssuesScope(query: string, limit: number, page: number): Promise<FeedItem[]> {
   const params = new URLSearchParams({
     q: query,
     sort: "updated",
@@ -496,9 +443,7 @@ async function searchIssuesScope(
     per_page: String(limit),
     page: String(page),
   });
-  const json = await ghFetch<GHSearchResponse<GHIssue>>(
-    `${API}/search/issues?${params}`,
-  );
+  const json = await ghFetch<GHSearchResponse<GHIssue>>(`${API}/search/issues?${params}`);
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((i) => {
     const user = i.user?.login ?? "anonymous";
@@ -511,9 +456,7 @@ async function searchIssuesScope(
       author: {
         name: user,
         handle: user,
-        avatarUrl:
-          i.user?.avatar_url ??
-          identiconUrl(user),
+        avatarUrl: i.user?.avatar_url ?? identiconUrl(user),
       },
       content: trimmed ? `${i.title}\n\n${trimmed}` : i.title,
       url: i.html_url,
@@ -530,11 +473,7 @@ async function searchIssuesScope(
   });
 }
 
-async function searchCode(
-  query: string,
-  limit: number,
-  page: number,
-): Promise<FeedItem[]> {
+async function searchCode(query: string, limit: number, page: number): Promise<FeedItem[]> {
   if (!process.env.GITHUB_TOKEN) {
     throw new Error(
       "GitHub code search requires a token. Set GITHUB_TOKEN in your env (read-only public scope is enough).",
@@ -560,10 +499,7 @@ async function searchCode(
   const json = (await res.json()) as GHSearchResponse<GHCodeResult>;
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((c) => {
-    const owner =
-      c.repository.owner?.login ??
-      c.repository.full_name.split("/")[0] ??
-      "github";
+    const owner = c.repository.owner?.login ?? c.repository.full_name.split("/")[0] ?? "github";
     const fragment = (c.text_matches?.[0]?.fragment ?? "").trim();
     const snippet = truncateText(fragment, 400);
     const title = `${c.repository.full_name} · ${c.path}`;
@@ -572,9 +508,7 @@ async function searchCode(
       author: {
         name: owner,
         handle: owner,
-        avatarUrl:
-          c.repository.owner?.avatar_url ??
-          identiconUrl(owner),
+        avatarUrl: c.repository.owner?.avatar_url ?? identiconUrl(owner),
       },
       content: snippet ? `${title}\n\n${snippet}` : title,
       url: c.html_url,
@@ -589,11 +523,7 @@ async function searchCode(
   });
 }
 
-async function searchCommits(
-  query: string,
-  limit: number,
-  page: number,
-): Promise<FeedItem[]> {
+async function searchCommits(query: string, limit: number, page: number): Promise<FeedItem[]> {
   const params = new URLSearchParams({
     q: query,
     sort: "author-date",
@@ -601,13 +531,10 @@ async function searchCommits(
     per_page: String(limit),
     page: String(page),
   });
-  const json = await ghFetch<GHSearchResponse<GHCommitResult>>(
-    `${API}/search/commits?${params}`,
-  );
+  const json = await ghFetch<GHSearchResponse<GHCommitResult>>(`${API}/search/commits?${params}`);
   if (json.message) throw new Error(json.message);
   return (json.items ?? []).slice(0, limit).map((c) => {
-    const handle =
-      c.author?.login ?? c.commit.author?.name ?? "unknown";
+    const handle = c.author?.login ?? c.commit.author?.name ?? "unknown";
     const message = (c.commit.message ?? "").trim();
     const [firstLine, ...rest] = message.split("\n");
     const restJoined = rest.join("\n").trim();
@@ -617,9 +544,7 @@ async function searchCommits(
       author: {
         name: handle,
         handle,
-        avatarUrl:
-          c.author?.avatar_url ??
-          identiconUrl(handle),
+        avatarUrl: c.author?.avatar_url ?? identiconUrl(handle),
       },
       content: trimmed ? `${firstLine}\n\n${trimmed}` : firstLine,
       url: c.html_url,
@@ -679,9 +604,7 @@ export function normalizeGitHubRepo(input: string): string {
     .replace(/^github\.com\//, "")
     .replace(/\/+$/, "");
   if (!/^[\w.-]+\/[\w.-]+$/.test(clean)) {
-    throw new Error(
-      `Invalid repo "${input}". Use owner/repo (e.g. vercel/next.js).`,
-    );
+    throw new Error(`Invalid repo "${input}". Use owner/repo (e.g. vercel/next.js).`);
   }
   return clean;
 }
@@ -746,9 +669,7 @@ async function fetchStargazersGraphQL(
       author: {
         name: u.login,
         handle: u.login,
-        avatarUrl:
-          u.avatarUrl ??
-          identiconUrl(u.login),
+        avatarUrl: u.avatarUrl ?? identiconUrl(u.login),
       },
       content: `${u.login} starred ${fullRepo}`,
       url: u.url ?? `https://github.com/${u.login}`,
@@ -763,9 +684,7 @@ async function fetchStargazersGraphQL(
   return {
     items,
     nextCursor:
-      sg.pageInfo.hasNextPage && sg.pageInfo.endCursor
-        ? `gql:${sg.pageInfo.endCursor}`
-        : undefined,
+      sg.pageInfo.hasNextPage && sg.pageInfo.endCursor ? `gql:${sg.pageInfo.endCursor}` : undefined,
   };
 }
 
@@ -812,9 +731,7 @@ export async function fetchForks(
     per_page: String(limit),
     page: String(page),
   });
-  const forks = await ghFetch<GHForkREST[]>(
-    `${API}/repos/${fullRepo}/forks?${params}`,
-  );
+  const forks = await ghFetch<GHForkREST[]>(`${API}/repos/${fullRepo}/forks?${params}`);
   const items: GHWatcherItem[] = forks.map((f) => {
     const owner = f.owner?.login ?? f.full_name.split("/")[0] ?? "github";
     return {
@@ -822,9 +739,7 @@ export async function fetchForks(
       author: {
         name: owner,
         handle: owner,
-        avatarUrl:
-          f.owner?.avatar_url ??
-          identiconUrl(owner),
+        avatarUrl: f.owner?.avatar_url ?? identiconUrl(owner),
       },
       content: `${owner} forked ${fullRepo}`,
       url: f.owner?.html_url ?? `https://github.com/${owner}`,
@@ -935,10 +850,7 @@ export async function fetchWorkflowRuns(
   const items: FeedItem<GHActionRunMeta>[] = filtered.map((r) => {
     const actor =
       r.actor?.login ?? r.triggering_actor?.login ?? r.head_commit?.author?.name ?? "github";
-    const avatarUrl =
-      r.actor?.avatar_url ??
-      r.triggering_actor?.avatar_url ??
-      identiconUrl(actor);
+    const avatarUrl = r.actor?.avatar_url ?? r.triggering_actor?.avatar_url ?? identiconUrl(actor);
     const startedAt = r.run_started_at ?? r.created_at;
     // The "completed" status carries an `updated_at` that reliably matches the
     // run-finished moment; for in-flight runs we leave duration undefined
@@ -949,10 +861,7 @@ export async function fetchWorkflowRuns(
         : undefined;
     const commitMessage = (r.head_commit?.message ?? "").split("\n")[0]?.trim();
     const title =
-      r.display_title?.trim() ||
-      commitMessage ||
-      r.name?.trim() ||
-      `Run #${r.run_number}`;
+      r.display_title?.trim() || commitMessage || r.name?.trim() || `Run #${r.run_number}`;
     const sha = r.head_sha ?? "";
     const shortSha = sha ? sha.slice(0, 7) : undefined;
     const workflowName = (r.name ?? "").trim() || (r.path?.split("/").pop() ?? "workflow");

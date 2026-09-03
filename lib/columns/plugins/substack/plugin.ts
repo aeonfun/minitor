@@ -18,8 +18,7 @@ export interface SubstackMeta {
 export const meta: PluginMeta<SubstackConfig, SubstackMeta> = {
   id: "substack",
   label: "Substack",
-  description:
-    "Watch Substack — give specific publications, or search all of Substack by keyword.",
+  description: "Watch Substack — give specific publications, or search all of Substack by keyword.",
   icon: BookOpen,
   accent: "#ff6719",
   category: "news",

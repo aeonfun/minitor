@@ -4,9 +4,7 @@ import type { PluginMeta } from "@/lib/columns/types";
 
 export const schema = z.object({
   query: z.string().default("javascript"),
-  mode: z
-    .enum(["popularity", "quality", "maintenance", "combined"])
-    .default("popularity"),
+  mode: z.enum(["popularity", "quality", "maintenance", "combined"]).default("popularity"),
 });
 
 export type NpmConfig = z.infer<typeof schema>;

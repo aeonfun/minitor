@@ -24,9 +24,7 @@ export interface WebhookPayload {
   timestamp: string;
 }
 
-export type WebhookValidation =
-  | { ok: true; url: string }
-  | { ok: false; reason: string };
+export type WebhookValidation = { ok: true; url: string } | { ok: false; reason: string };
 
 // Parse a dotted-quad IPv4 literal into its four octets, or null if `host`
 // isn't an IPv4 literal. (A hostname like "example.com" returns null and is
@@ -117,15 +115,8 @@ export function validateWebhookUrl(raw: string): WebhookValidation {
   // would defeat every IPv6 classifier below. Strip them so the bare address is
   // what gets checked.
   const rawHost = u.hostname.toLowerCase();
-  const host =
-    rawHost.startsWith("[") && rawHost.endsWith("]")
-      ? rawHost.slice(1, -1)
-      : rawHost;
-  if (
-    host === "localhost" ||
-    host.endsWith(".localhost") ||
-    host === "ip6-localhost"
-  ) {
+  const host = rawHost.startsWith("[") && rawHost.endsWith("]") ? rawHost.slice(1, -1) : rawHost;
+  if (host === "localhost" || host.endsWith(".localhost") || host === "ip6-localhost") {
     return { ok: false, reason: "localhost is not allowed" };
   }
   if (isPrivateIPv4(host) || isPrivateIPv6(host)) {
@@ -144,15 +135,10 @@ export function validateWebhookUrl(raw: string): WebhookValidation {
  * console only — no value is returned, so a caller can't probe endpoints by
  * inspecting responses. Re-validates the URL defensively before sending.
  */
-export async function sendColumnWebhook(
-  url: string,
-  payload: WebhookPayload,
-): Promise<void> {
+export async function sendColumnWebhook(url: string, payload: WebhookPayload): Promise<void> {
   const check = validateWebhookUrl(url);
   if (!check.ok) {
-    console.error(
-      `[minitor] webhook skipped for column ${payload.columnId}: ${check.reason}`,
-    );
+    console.error(`[minitor] webhook skipped for column ${payload.columnId}: ${check.reason}`);
     return;
   }
   const controller = new AbortController();
@@ -174,9 +160,7 @@ export async function sendColumnWebhook(
         `[minitor] webhook delivered for column ${payload.columnId} (${payload.matches.length} match${payload.matches.length === 1 ? "" : "es"})`,
       );
     } else {
-      console.error(
-        `[minitor] webhook for column ${payload.columnId} returned ${res.status}`,
-      );
+      console.error(`[minitor] webhook for column ${payload.columnId} returned ${res.status}`);
     }
   } catch (err) {
     console.error(

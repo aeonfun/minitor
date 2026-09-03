@@ -5,10 +5,7 @@ import "server-only";
 // without ever leaking to the client bundle. Receives a config that's already
 // been validated against `meta.schema` by the API route.
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { meta, type TemplateConfig, type TemplateMeta } from "./plugin";
 
 const fetch: ServerFetcher<TemplateConfig, TemplateMeta> = async (

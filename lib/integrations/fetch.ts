@@ -98,8 +98,7 @@ function backoffMs(attempt: number): number {
 function labelFor(input: string | URL, explicit?: string): string {
   if (explicit) return explicit;
   try {
-    return new URL(typeof input === "string" ? input : input.toString())
-      .hostname;
+    return new URL(typeof input === "string" ? input : input.toString()).hostname;
   } catch {
     return "upstream";
   }
@@ -142,9 +141,7 @@ export async function fetchUpstream(
   for (let attempt = 0; attempt <= retries; attempt++) {
     // A fresh timeout per attempt so a retry gets its own full budget.
     const timeoutSignal = AbortSignal.timeout(timeoutMs);
-    const signal = callerSignal
-      ? AbortSignal.any([callerSignal, timeoutSignal])
-      : timeoutSignal;
+    const signal = callerSignal ? AbortSignal.any([callerSignal, timeoutSignal]) : timeoutSignal;
 
     let res: Response;
     try {
@@ -160,9 +157,7 @@ export async function fetchUpstream(
       throw new UpstreamError(
         timedOut
           ? `${label} timed out after ${timeoutMs}ms`
-          : `${label} request failed: ${
-              err instanceof Error ? err.message : String(err)
-            }`,
+          : `${label} request failed: ${err instanceof Error ? err.message : String(err)}`,
         { isTimeout: timedOut },
       );
     }
@@ -173,8 +168,7 @@ export async function fetchUpstream(
       const retryAfterMs = parseRetryAfterMs(res.headers.get("retry-after"));
       const canRetry =
         attempt < retries &&
-        (retryAfterMs === undefined ||
-          retryAfterMs <= MAX_RETRY_AFTER_SLEEP_MS);
+        (retryAfterMs === undefined || retryAfterMs <= MAX_RETRY_AFTER_SLEEP_MS);
       if (canRetry) {
         // Discard the unconsumed body so the connection can be reused.
         await res.body?.cancel().catch(() => {});
@@ -182,14 +176,12 @@ export async function fetchUpstream(
         continue;
       }
       if (res.status === 429) {
-        const secs = Math.ceil(
-          (retryAfterMs ?? backoffMs(attempt)) / 1000,
-        );
+        const secs = Math.ceil((retryAfterMs ?? backoffMs(attempt)) / 1000);
         await res.body?.cancel().catch(() => {});
-        throw new UpstreamError(
-          `${label} is rate-limited — retry in ${secs}s`,
-          { status: 429, retryAfterMs },
-        );
+        throw new UpstreamError(`${label} is rate-limited — retry in ${secs}s`, {
+          status: 429,
+          retryAfterMs,
+        });
       }
     }
 

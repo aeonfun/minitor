@@ -32,12 +32,7 @@ export function GitHubWatcherItem({
     <article className="border-b border-border px-3.5 py-3">
       <div className="flex items-start gap-2.5">
         {item.author.avatarUrl && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0"
-          >
+          <a href={item.url} target="_blank" rel="noreferrer" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={item.author.avatarUrl}

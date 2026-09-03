@@ -104,9 +104,7 @@ export const PLUGIN_METAS = [
   aeon,
 ];
 
-export const REGISTERED_IDS: ReadonlySet<string> = new Set(
-  PLUGIN_METAS.map((m) => m.id),
-);
+export const REGISTERED_IDS: ReadonlySet<string> = new Set(PLUGIN_METAS.map((m) => m.id));
 
 if (PLUGIN_METAS.length !== REGISTERED_IDS.size) {
   const ids = PLUGIN_METAS.map((m) => m.id);

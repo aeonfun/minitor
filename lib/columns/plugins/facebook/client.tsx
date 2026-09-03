@@ -3,11 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type FacebookConfig, type FacebookMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<FacebookConfig>) {
@@ -21,8 +17,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<FacebookConfig>) {
         onChange={(e) => onChange({ query: e.target.value })}
       />
       <p className="text-xs text-muted-foreground">
-        Searches public facebook.com posts and pages for mentions. URLs and
-        keywords both work.
+        Searches public facebook.com posts and pages for mentions. URLs and keywords both work.
       </p>
     </div>
   );

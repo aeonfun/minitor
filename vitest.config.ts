@@ -2,9 +2,7 @@ import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
-const emptyModule = fileURLToPath(
-  new URL("./test/stubs/empty-module.ts", import.meta.url),
-);
+const emptyModule = fileURLToPath(new URL("./test/stubs/empty-module.ts", import.meta.url));
 
 export default defineConfig({
   resolve: {

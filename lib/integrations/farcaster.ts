@@ -79,10 +79,7 @@ function userKey(): string {
   return process.env.NEYNAR_API_KEY || DEMO_KEY;
 }
 
-async function neynar<T>(
-  path: string,
-  options?: { fallbackToDemoOn402?: boolean },
-): Promise<T> {
+async function neynar<T>(path: string, options?: { fallbackToDemoOn402?: boolean }): Promise<T> {
   const url = `${NEYNAR}${path}`;
   const res = await fetchUpstream(url, {
     headers: headersWith(userKey()),
@@ -96,9 +93,7 @@ async function neynar<T>(
     });
     if (!demoRes.ok) {
       const body = await demoRes.text().catch(() => "");
-      throw new Error(
-        `Neynar ${demoRes.status} (demo fallback): ${body.slice(0, 240)}`,
-      );
+      throw new Error(`Neynar ${demoRes.status} (demo fallback): ${body.slice(0, 240)}`);
     }
     return (await demoRes.json()) as T;
   }
@@ -169,36 +164,27 @@ async function resolveFid(usernameOrFid: string): Promise<number> {
   return fid;
 }
 
-export async function fetchFarcasterUser(
-  usernameOrFid: string,
-  limit = 12,
-): Promise<FeedItem[]> {
+export async function fetchFarcasterUser(usernameOrFid: string, limit = 12): Promise<FeedItem[]> {
   const fid = await resolveFid(usernameOrFid);
   const params = new URLSearchParams({
     fid: String(fid),
     limit: String(limit),
     include_replies: "false",
   });
-  const json = await neynar<NeynarCastsResponse>(
-    `/v2/farcaster/feed/user/casts?${params}`,
-  );
+  const json = await neynar<NeynarCastsResponse>(`/v2/farcaster/feed/user/casts?${params}`);
   const casts = json.casts ?? json.result?.casts ?? [];
   return mapCasts(casts, limit);
 }
 
-export async function fetchFarcasterSearch(
-  query: string,
-  limit = 12,
-): Promise<FeedItem[]> {
+export async function fetchFarcasterSearch(query: string, limit = 12): Promise<FeedItem[]> {
   const q = query.trim();
   if (!q) throw new Error("Query is required.");
   const params = new URLSearchParams({ q, limit: String(limit) });
   // Trailing slash on /search/ matters — that's what Neynar's docs use, and
   // the user's free tier only resolves that variant via demo-key fallback.
-  const json = await neynar<NeynarCastsResponse>(
-    `/v2/farcaster/cast/search/?${params}`,
-    { fallbackToDemoOn402: true },
-  );
+  const json = await neynar<NeynarCastsResponse>(`/v2/farcaster/cast/search/?${params}`, {
+    fallbackToDemoOn402: true,
+  });
   const casts = json.casts ?? json.result?.casts ?? [];
   return mapCasts(casts, limit);
 }

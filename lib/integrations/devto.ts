@@ -66,12 +66,7 @@ interface DevtoArticle {
   organization?: DevtoOrganization;
 }
 
-function endpointFor(
-  mode: DevtoMode,
-  tags: string[],
-  perPage: number,
-  page: number,
-): string {
+function endpointFor(mode: DevtoMode, tags: string[], perPage: number, page: number): string {
   const params = new URLSearchParams();
   params.set("per_page", String(Math.min(Math.max(perPage, 1), 100)));
   params.set("page", String(Math.max(page, 0) + 1));
@@ -113,9 +108,7 @@ function tagListOf(a: DevtoArticle): string[] {
       : typeof a.tags === "string"
         ? a.tags.split(",")
         : [];
-  const all = [...fromList, ...fromString]
-    .map((t) => t.trim().toLowerCase())
-    .filter(Boolean);
+  const all = [...fromList, ...fromString].map((t) => t.trim().toLowerCase()).filter(Boolean);
   return Array.from(new Set(all));
 }
 
@@ -148,8 +141,7 @@ function mapArticle(a: DevtoArticle): FeedItem<DevtoMeta> | null {
   if (!a.id || !a.title || !a.url) return null;
 
   const author = authorOf(a);
-  const reactions =
-    a.public_reactions_count ?? a.positive_reactions_count ?? 0;
+  const reactions = a.public_reactions_count ?? a.positive_reactions_count ?? 0;
   const comments = a.comments_count ?? 0;
   const readingTimeMinutes = a.reading_time_minutes ?? 0;
   const tags = tagListOf(a);
@@ -191,9 +183,7 @@ export async function fetchDevtoPage(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `DEV.to ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`DEV.to ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
   const json = (await res.json()) as DevtoArticle[] | { error?: string };
@@ -204,9 +194,7 @@ export async function fetchDevtoPage(
     return { items: [], hasMore: false };
   }
 
-  const mapped = json
-    .map(mapArticle)
-    .filter((a): a is FeedItem<DevtoMeta> => a !== null);
+  const mapped = json.map(mapArticle).filter((a): a is FeedItem<DevtoMeta> => a !== null);
 
   // The /articles endpoint returns `per_page` items on a full page; fewer
   // means we've hit the tail of the slice. Per_page is requested at >= limit

@@ -12,11 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type DefillamaConfig, type DefillamaMeta } from "./plugin";
 
@@ -29,9 +25,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as DefillamaConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as DefillamaConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -43,10 +37,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Top</strong> is the protocol leaderboard sorted by TVL.{" "}
-          <strong>Gainers</strong> re-sorts by 24h TVL change with absolute
-          TVL as tiebreaker. <strong>Chains</strong> aggregates TVL per chain
-          instead of per protocol.
+          <strong>Top</strong> is the protocol leaderboard sorted by TVL. <strong>Gainers</strong>{" "}
+          re-sorts by 24h TVL change with absolute TVL as tiebreaker. <strong>Chains</strong>{" "}
+          aggregates TVL per chain instead of per protocol.
         </p>
       </div>
       {!chainsMode && (
@@ -59,10 +52,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
             onChange={(e) => onChange({ ...value, category: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Substring match against DeFiLlama&apos;s category names (e.g.{" "}
-            <code>lending</code> matches both <code>Lending</code> and{" "}
-            <code>Cross-Chain Lending</code>). Leave empty to see every
-            category.
+            Substring match against DeFiLlama&apos;s category names (e.g. <code>lending</code>{" "}
+            matches both <code>Lending</code> and <code>Cross-Chain Lending</code>). Leave empty to
+            see every category.
           </p>
         </div>
       )}
@@ -86,11 +78,10 @@ function ConfigForm({ value, onChange }: ConfigFormProps<DefillamaConfig>) {
             }}
           />
           <p className="text-xs text-muted-foreground">
-            Drops protocols below this TVL before sorting — without a floor, a
-            $500 microcap that doubled overnight reads as +100% and outranks a
-            $1B protocol that grew 5%. Default <code>$1M</code> mirrors
-            DeFiLlama&apos;s own gainers page. Set <code>0</code> to include
-            every protocol.
+            Drops protocols below this TVL before sorting — without a floor, a $500 microcap that
+            doubled overnight reads as +100% and outranks a $1B protocol that grew 5%. Default{" "}
+            <code>$1M</code> mirrors DeFiLlama&apos;s own gainers page. Set <code>0</code> to
+            include every protocol.
           </p>
         </div>
       )}
@@ -136,12 +127,7 @@ function ItemRenderer({ item }: ItemRendererProps<DefillamaMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 flex items-center gap-2"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-2">
         {imageUrl && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -163,9 +149,7 @@ function ItemRenderer({ item }: ItemRendererProps<DefillamaMeta>) {
         </h3>
       </a>
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted-foreground">
-        <span className="tabular-nums text-foreground/90">
-          TVL ${formatCompactCount(tvl)}
-        </span>
+        <span className="tabular-nums text-foreground/90">TVL ${formatCompactCount(tvl)}</span>
         {!isChain && <PctChangePill value={pct} />}
         {!isChain && typeof pct7d === "number" && (
           <>
@@ -180,8 +164,7 @@ function ItemRenderer({ item }: ItemRendererProps<DefillamaMeta>) {
           <>
             <span className="text-muted-foreground/50">·</span>
             <span>
-              MC{" "}
-              <span className="tabular-nums">${formatCompactCount(mcap)}</span>
+              MC <span className="tabular-nums">${formatCompactCount(mcap)}</span>
             </span>
           </>
         )}

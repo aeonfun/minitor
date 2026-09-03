@@ -9,11 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { AggregatorItem } from "@/lib/columns/shared/aggregator-item";
 import { meta, type LobstersConfig, type LobstersMeta } from "./plugin";
 
@@ -24,9 +20,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<LobstersConfig>) {
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as LobstersConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as LobstersConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />

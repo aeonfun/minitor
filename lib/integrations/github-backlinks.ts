@@ -72,11 +72,7 @@ function canonicalize(url: string): string {
   }
 }
 
-function tag(
-  items: FeedItem[],
-  source: BacklinkSource,
-  canonicalUrl: string,
-): FeedItem[] {
+function tag(items: FeedItem[], source: BacklinkSource, canonicalUrl: string): FeedItem[] {
   return items.map((it) => ({
     ...it,
     id: `${source}-${it.id}`,
@@ -84,9 +80,7 @@ function tag(
   }));
 }
 
-export async function fetchBacklinks(
-  config: BacklinksConfig,
-): Promise<FeedItem[]> {
+export async function fetchBacklinks(config: BacklinksConfig): Promise<FeedItem[]> {
   const { ownerRepo, canonicalUrl } = normalizeRepo(config.repo);
   const limit = config.limitPerSource ?? 8;
 
@@ -94,17 +88,11 @@ export async function fetchBacklinks(
 
   // Algolia indexes HN submissions by URL — full URL query matches against the url field.
   tasks.push(
-    fetchHackerNews("query", canonicalUrl, limit).then((items) =>
-      tag(items, "hn", canonicalUrl),
-    ),
+    fetchHackerNews("query", canonicalUrl, limit).then((items) => tag(items, "hn", canonicalUrl)),
   );
 
   // Reddit search — returns posts whose body or link URL matches.
-  tasks.push(
-    searchReddit(canonicalUrl, limit).then((items) =>
-      tag(items, "reddit", canonicalUrl),
-    ),
-  );
+  tasks.push(searchReddit(canonicalUrl, limit).then((items) => tag(items, "reddit", canonicalUrl)));
 
   // Google News + Bing News scoped to canonical URL OR owner/repo phrase.
   const newsQuery = `"${canonicalUrl}" OR "${ownerRepo}"`;
@@ -113,14 +101,8 @@ export async function fetchBacklinks(
       tag(items, "google-news", canonicalUrl),
     ),
   );
-  const bingUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(
-    newsQuery,
-  )}&format=rss`;
-  tasks.push(
-    fetchFeed(bingUrl, limit).then((items) =>
-      tag(items, "bing-news", canonicalUrl),
-    ),
-  );
+  const bingUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(newsQuery)}&format=rss`;
+  tasks.push(fetchFeed(bingUrl, limit).then((items) => tag(items, "bing-news", canonicalUrl)));
 
   // GitHub issues/PRs across the rest of GitHub that mention this repo URL.
   // -repo:owner/name strips out the repo's own self-references.
@@ -140,9 +122,7 @@ export async function fetchBacklinks(
     if (r.status === "fulfilled") {
       all.push(...r.value);
     } else {
-      errors.push(
-        r.reason instanceof Error ? r.reason.message : String(r.reason),
-      );
+      errors.push(r.reason instanceof Error ? r.reason.message : String(r.reason));
     }
   }
 

@@ -32,8 +32,7 @@ export const ENV_KEYS: EnvKeySpec[] = [
     label: "YouTube Data API",
     description:
       "Only needed for YouTube Search mode. Channel and Playlist modes use free public Atom feeds and need no key.",
-    signupUrl:
-      "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
+    signupUrl: "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
     required: false,
   },
   {

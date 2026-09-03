@@ -52,9 +52,7 @@ export const meta: PluginMeta<DexscreenerConfig, DexscreenerMeta> = {
         .split(/[\s,;]+/)
         .map((s) => s.trim())
         .find(Boolean);
-      return first
-        ? `Dexscreener · ${first.slice(0, 10)}…`
-        : "Dexscreener · Watchlist";
+      return first ? `Dexscreener · ${first.slice(0, 10)}…` : "Dexscreener · Watchlist";
     }
     const q = c.query.trim();
     return q ? `Dexscreener · ${q}` : `Dexscreener · ${MODE_LABELS[c.mode]}`;

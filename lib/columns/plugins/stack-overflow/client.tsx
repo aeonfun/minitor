@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowBigUp,
-  BadgeCheck,
-  Eye,
-  MessageSquareText,
-} from "lucide-react";
+import { ArrowBigUp, BadgeCheck, Eye, MessageSquareText } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,31 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
-import {
-  meta,
-  type StackOverflowConfig,
-  type StackOverflowMeta,
-} from "./plugin";
+import { meta, type StackOverflowConfig, type StackOverflowMeta } from "./plugin";
 
-function ConfigForm({
-  value,
-  onChange,
-}: ConfigFormProps<StackOverflowConfig>) {
+function ConfigForm({ value, onChange }: ConfigFormProps<StackOverflowConfig>) {
   return (
     <div className="grid gap-3">
       <div className="grid gap-1.5">
         <Label>Mode</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as StackOverflowConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as StackOverflowConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -63,8 +45,8 @@ function ConfigForm({
           onChange={(e) => onChange({ ...value, tag: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Up to five tags, comma- or space-separated. Multiple tags AND-match
-          (returns questions that have <em>all</em> of them). See{" "}
+          Up to five tags, comma- or space-separated. Multiple tags AND-match (returns questions
+          that have <em>all</em> of them). See{" "}
           <a
             href="https://stackoverflow.com/tags"
             target="_blank"
@@ -104,10 +86,7 @@ function ItemRenderer({ item }: ItemRendererProps<StackOverflowMeta>) {
           Stack Overflow
         </span>
         <span className="text-muted-foreground/80">
-          by{" "}
-          <span className="text-foreground/90">
-            {item.author.handle ?? item.author.name}
-          </span>
+          by <span className="text-foreground/90">{item.author.handle ?? item.author.name}</span>
         </span>
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">
@@ -127,12 +106,7 @@ function ItemRenderer({ item }: ItemRendererProps<StackOverflowMeta>) {
           </>
         )}
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-serif text-[16px] leading-[1.3] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em", fontFeatureSettings: '"cswh" 1' }}

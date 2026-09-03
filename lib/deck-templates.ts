@@ -37,10 +37,7 @@ export const DECK_TEMPLATE_VERSION = 1;
 // A template column is an export column WITHOUT `notifyWebhookUrl` — a webhook
 // URL is install-private (often embeds a secret) and a shared starter template
 // has no business shipping one, so it's omitted from the authored shape.
-export type DeckTemplateColumn = Omit<
-  DeckExport["columns"][number],
-  "notifyWebhookUrl"
->;
+export type DeckTemplateColumn = Omit<DeckExport["columns"][number], "notifyWebhookUrl">;
 
 // A template payload is a DeckExport WITHOUT the runtime-only `exportedAt`
 // timestamp (stamped on at import in `templateAsImportJson`) and with the
@@ -261,12 +258,7 @@ const startupTracker: DeckTemplate = {
   },
 };
 
-export const TEMPLATES: DeckTemplate[] = [
-  aiResearch,
-  baseEcosystem,
-  cryptoDefi,
-  startupTracker,
-];
+export const TEMPLATES: DeckTemplate[] = [aiResearch, baseEcosystem, cryptoDefi, startupTracker];
 
 /**
  * Serialize a template's payload as a JSON string compatible with the

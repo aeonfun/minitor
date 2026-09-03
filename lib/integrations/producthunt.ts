@@ -150,8 +150,7 @@ export async function fetchProductHuntPage(
   const raw = await fetchFeed(FEED_URL, Math.max(limit, 50));
   const tagged = raw.map(tagWithProductHunt);
   const needles = parseTopicFilter(topic);
-  const filtered = needles.length === 0
-    ? tagged
-    : tagged.filter((item) => matchesTopic(item, needles));
+  const filtered =
+    needles.length === 0 ? tagged : tagged.filter((item) => matchesTopic(item, needles));
   return filtered.slice(0, limit);
 }

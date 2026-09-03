@@ -44,10 +44,7 @@ export function AggregatorItem({
           {badge.label}
         </span>
         <span className="text-muted-foreground/80">
-          by{" "}
-          <span className="text-foreground/90">
-            {item.author.handle ?? item.author.name}
-          </span>
+          by <span className="text-foreground/90">{item.author.handle ?? item.author.name}</span>
         </span>
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">

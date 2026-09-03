@@ -32,12 +32,7 @@ interface AlgoliaResponse {
   nbPages?: number;
 }
 
-function endpointFor(
-  mode: HNMode,
-  query: string,
-  limit: number,
-  page: number,
-): string {
+function endpointFor(mode: HNMode, query: string, limit: number, page: number): string {
   const params = new URLSearchParams({
     hitsPerPage: String(limit),
     page: String(page),
@@ -123,11 +118,7 @@ export async function fetchHackerNewsPage(
   return { items: hits.slice(0, limit).map(mapHit), hasMore };
 }
 
-export async function fetchHackerNews(
-  mode: HNMode,
-  query = "",
-  limit = 12,
-): Promise<FeedItem[]> {
+export async function fetchHackerNews(mode: HNMode, query = "", limit = 12): Promise<FeedItem[]> {
   const { items } = await fetchHackerNewsPage(mode, query, limit, 0);
   return items;
 }

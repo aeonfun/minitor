@@ -51,9 +51,7 @@ export const deckSnapshots = pgTable(
       .notNull()
       .references(() => decks.id, { onDelete: "cascade" }),
     snapshotJson: text("snapshot_json").notNull(),
-    capturedAt: timestamp("captured_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("deck_snapshots_deck_captured_idx").on(t.deckId, t.capturedAt)],
 );

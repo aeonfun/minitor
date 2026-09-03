@@ -11,15 +11,10 @@ import { grokWebSearch } from "./xai";
 // RapidAPI), replace the body of `fetchInstagram` and update the plugin's
 // `capabilities.requiresEnv`. The signature is the seam — callers don't care
 // which backend produced the items.
-export async function fetchInstagram(
-  query: string,
-  limit = 10,
-): Promise<FeedItem[]> {
+export async function fetchInstagram(query: string, limit = 10): Promise<FeedItem[]> {
   const q = query.trim();
   if (!q) return [];
   const isUrl = /^https?:\/\//i.test(q);
-  const filter = isUrl
-    ? `site:instagram.com ${JSON.stringify(q)}`
-    : `site:instagram.com ${q}`;
+  const filter = isUrl ? `site:instagram.com ${JSON.stringify(q)}` : `site:instagram.com ${q}`;
   return grokWebSearch(filter, limit);
 }

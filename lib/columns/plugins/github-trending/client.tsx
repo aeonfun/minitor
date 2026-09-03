@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type GHTrendingConfig, type GHTrendingMeta } from "./plugin";
 
@@ -35,9 +31,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHTrendingConfig>) {
         <Label>Window</Label>
         <Select
           value={value.period}
-          onValueChange={(v) =>
-            onChange({ ...value, period: v as GHTrendingConfig["period"] })
-          }
+          onValueChange={(v) => onChange({ ...value, period: v as GHTrendingConfig["period"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -104,9 +98,7 @@ function ItemRenderer({ item }: ItemRendererProps<GHTrendingMeta>) {
           <GitBranch className="size-3.5" />
           <span className="tabular-nums">{formatCompactCount(forks)}</span>
         </span>
-        {language && (
-          <span className="truncate text-foreground/70">{language}</span>
-        )}
+        {language && <span className="truncate text-foreground/70">{language}</span>}
       </div>
     </a>
   );

@@ -29,12 +29,7 @@ export type { CratesMeta };
 // keyword search inside a query is the better discovery affordance.
 const BASE = "https://crates.io/api/v1";
 
-export type CratesSort =
-  | "recent-downloads"
-  | "downloads"
-  | "recent-updates"
-  | "new"
-  | "alpha";
+export type CratesSort = "recent-downloads" | "downloads" | "recent-updates" | "new" | "alpha";
 
 interface CratesApiCrate {
   id?: string;
@@ -63,12 +58,7 @@ function permalinkFor(name: string): string {
   return `https://crates.io/crates/${encodeURIComponent(name)}`;
 }
 
-function endpointFor(
-  query: string,
-  sort: CratesSort,
-  perPage: number,
-  page: number,
-): string {
+function endpointFor(query: string, sort: CratesSort, perPage: number, page: number): string {
   const params = new URLSearchParams();
   params.set("sort", sort);
   // crates.io caps per_page at 100; clamp defensively so a misconfigured
@@ -119,9 +109,10 @@ function mapCrate(c: CratesApiCrate): FeedItem<CratesMeta> | null {
       version,
       totalDownloads: Math.max(0, c.downloads ?? 0),
       recentDownloads: Math.max(0, c.recent_downloads ?? 0),
-      keywords: Array.from(
-        new Set((c.keywords ?? []).map((k) => k.trim()).filter(Boolean)),
-      ).slice(0, 8),
+      keywords: Array.from(new Set((c.keywords ?? []).map((k) => k.trim()).filter(Boolean))).slice(
+        0,
+        8,
+      ),
       description,
       homepage: c.homepage ?? undefined,
       documentation: c.documentation ?? undefined,
@@ -153,9 +144,7 @@ export async function fetchCratesPage(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `crates.io ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`crates.io ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
   const json = (await res.json()) as CratesApiResponse;

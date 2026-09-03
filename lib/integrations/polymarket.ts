@@ -216,9 +216,7 @@ export async function fetchPolymarketPage(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `Polymarket ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`Polymarket ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
 
   const json = (await res.json()) as GammaMarket[];

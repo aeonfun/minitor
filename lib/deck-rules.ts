@@ -20,9 +20,7 @@ export type RefreshIntervalSeconds = (typeof REFRESH_INTERVAL_OPTIONS)[number];
 
 const REFRESH_INTERVAL_SET = new Set<number>(REFRESH_INTERVAL_OPTIONS);
 
-export function isAllowedRefreshInterval(
-  value: unknown,
-): value is RefreshIntervalSeconds {
+export function isAllowedRefreshInterval(value: unknown): value is RefreshIntervalSeconds {
   return typeof value === "number" && REFRESH_INTERVAL_SET.has(value);
 }
 
@@ -82,13 +80,13 @@ export function normalizeColumnColor(raw: string | null | undefined): string | n
  */
 export const COLOR_SWATCHES: { value: string; label: string }[] = [
   { value: "#f97316", label: "Orange" }, // DeFi / on-chain default
-  { value: "#22c55e", label: "Green" },  // markets / portfolio
-  { value: "#3b82f6", label: "Blue" },   // dev / GitHub
+  { value: "#22c55e", label: "Green" }, // markets / portfolio
+  { value: "#3b82f6", label: "Blue" }, // dev / GitHub
   { value: "#a855f7", label: "Purple" }, // social
-  { value: "#ec4899", label: "Pink" },   // creators / video
+  { value: "#ec4899", label: "Pink" }, // creators / video
   { value: "#eab308", label: "Yellow" }, // news / alerts-adjacent
-  { value: "#06b6d4", label: "Cyan" },   // research / AI
-  { value: "#94a3b8", label: "Slate" },  // archival / low-priority
+  { value: "#06b6d4", label: "Cyan" }, // research / AI
+  { value: "#94a3b8", label: "Slate" }, // archival / low-priority
 ];
 
 /** Schema version stamped into every exported deck payload. */

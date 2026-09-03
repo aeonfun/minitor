@@ -4,10 +4,7 @@ import "server-only";
 // API (substack.com/api/v1/post/search) returns empty results without auth, so
 // the user picks one or more handles and we filter their feeds in-memory.
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import {
   parseHandles,
   searchSubstackByKeyword,
@@ -16,10 +13,7 @@ import {
 import { sliceForPage } from "@/lib/columns/paginate";
 import { meta, type SubstackConfig, type SubstackMeta } from "./plugin";
 
-const fetch: ServerFetcher<SubstackConfig, SubstackMeta> = async (
-  config,
-  cursor,
-) => {
+const fetch: ServerFetcher<SubstackConfig, SubstackMeta> = async (config, cursor) => {
   const handles = parseHandles(config.handles);
   const query = config.query.trim();
 
@@ -31,12 +25,7 @@ const fetch: ServerFetcher<SubstackConfig, SubstackMeta> = async (
     return sliceForPage(items, cursor);
   }
 
-  const items = await searchSubstackPublications(
-    handles,
-    config.query,
-    20,
-    100,
-  );
+  const items = await searchSubstackPublications(handles, config.query, 20, 100);
   return sliceForPage(items, cursor);
 };
 

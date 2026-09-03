@@ -4,12 +4,7 @@ import { useEffect, useState } from "react";
 import { History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RelativeTime } from "@/components/relative-time";
 import { useDeckStore } from "@/lib/store/use-deck-store";
@@ -22,9 +17,7 @@ interface Props {
 }
 
 export function VersionHistoryDialog({ deckId, open, onOpenChange }: Props) {
-  const deckName = useDeckStore((s) =>
-    deckId ? (s.decks[deckId]?.name ?? "") : "",
-  );
+  const deckName = useDeckStore((s) => (deckId ? (s.decks[deckId]?.name ?? "") : ""));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,17 +27,14 @@ export function VersionHistoryDialog({ deckId, open, onOpenChange }: Props) {
             <History className="size-4" />
             Version history
             {deckName ? (
-              <span className="truncate font-normal text-muted-foreground">
-                · {deckName}
-              </span>
+              <span className="truncate font-normal text-muted-foreground">· {deckName}</span>
             ) : null}
           </DialogTitle>
         </DialogHeader>
 
         <p className="text-xs text-muted-foreground">
-          Snapshots are captured automatically before you add, remove, or
-          reorder columns. Restoring creates a new deck with “(restored)”
-          appended — your current deck isn’t touched.
+          Snapshots are captured automatically before you add, remove, or reorder columns. Restoring
+          creates a new deck with “(restored)” appended — your current deck isn’t touched.
         </p>
 
         {/*
@@ -60,24 +50,14 @@ export function VersionHistoryDialog({ deckId, open, onOpenChange }: Props) {
           is belt-and-braces — DialogContent already gates this subtree.
         */}
         {open && deckId ? (
-          <SnapshotList
-            key={deckId}
-            deckId={deckId}
-            onRestored={() => onOpenChange(false)}
-          />
+          <SnapshotList key={deckId} deckId={deckId} onRestored={() => onOpenChange(false)} />
         ) : null}
       </DialogContent>
     </Dialog>
   );
 }
 
-function SnapshotList({
-  deckId,
-  onRestored,
-}: {
-  deckId: string;
-  onRestored: () => void;
-}) {
+function SnapshotList({ deckId, onRestored }: { deckId: string; onRestored: () => void }) {
   const loadDeckSnapshots = useDeckStore((s) => s.loadDeckSnapshots);
   const restoreDeckSnapshot = useDeckStore((s) => s.restoreDeckSnapshot);
 
@@ -122,13 +102,10 @@ function SnapshotList({
   return (
     <div className="grid gap-1.5">
       {snapshots === null ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">
-          Loading…
-        </p>
+        <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>
       ) : snapshots.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">
-          No version history yet. Make a change to this deck and a snapshot will
-          appear here.
+          No version history yet. Make a change to this deck and a snapshot will appear here.
         </p>
       ) : (
         snapshots.map((snap) => (

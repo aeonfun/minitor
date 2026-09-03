@@ -1,10 +1,7 @@
 "use client";
 
 import { Newspaper } from "lucide-react";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps } from "@/lib/columns/types";
 import {
   makeNewsNowItemRenderer,
   NewsNowConfigHint,
@@ -13,7 +10,9 @@ import { meta, type ToutiaoConfig, type ToutiaoMeta } from "./plugin";
 
 function ConfigForm(_: ConfigFormProps<ToutiaoConfig>) {
   return (
-    <NewsNowConfigHint description={`Live Toutiao ("Today's Headlines") feed — algorithmic news aggregator from ByteDance.`} />
+    <NewsNowConfigHint
+      description={`Live Toutiao ("Today's Headlines") feed — algorithmic news aggregator from ByteDance.`}
+    />
   );
 }
 

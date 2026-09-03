@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type CratesConfig, type CratesMeta } from "./plugin";
 
@@ -31,25 +27,21 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CratesConfig>) {
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Optional — leave empty for the global stream ranked by the selected
-          axis. Substring match across crate name, description, and keywords.
+          Optional — leave empty for the global stream ranked by the selected axis. Substring match
+          across crate name, description, and keywords.
         </p>
       </div>
       <div className="grid gap-1.5">
         <Label>Sort</Label>
         <Select
           value={value.sort}
-          onValueChange={(v) =>
-            onChange({ ...value, sort: v as CratesConfig["sort"] })
-          }
+          onValueChange={(v) => onChange({ ...value, sort: v as CratesConfig["sort"] })}
         >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="recent-downloads">
-              Trending (90d downloads)
-            </SelectItem>
+            <SelectItem value="recent-downloads">Trending (90d downloads)</SelectItem>
             <SelectItem value="downloads">All-time downloads</SelectItem>
             <SelectItem value="recent-updates">Recently updated</SelectItem>
             <SelectItem value="new">Newest</SelectItem>
@@ -57,10 +49,9 @@ function ConfigForm({ value, onChange }: ConfigFormProps<CratesConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          <strong>Trending</strong> tracks the last 90 days of downloads — the
-          best signal for &ldquo;what&rsquo;s hot right now.&rdquo;{" "}
-          <strong>Recently updated</strong> surfaces crates with active
-          maintenance.
+          <strong>Trending</strong> tracks the last 90 days of downloads — the best signal for
+          &ldquo;what&rsquo;s hot right now.&rdquo; <strong>Recently updated</strong> surfaces
+          crates with active maintenance.
         </p>
       </div>
     </div>
@@ -95,9 +86,7 @@ function ItemRenderer({ item }: ItemRendererProps<CratesMeta>) {
         {version && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="tabular-nums text-muted-foreground/90">
-              v{version}
-            </span>
+            <span className="tabular-nums text-muted-foreground/90">v{version}</span>
           </>
         )}
         <span className="text-muted-foreground/50">·</span>
@@ -105,12 +94,7 @@ function ItemRenderer({ item }: ItemRendererProps<CratesMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-mono text-[14px] leading-[1.25] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em" }}

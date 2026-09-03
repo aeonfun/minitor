@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type NpmConfig, type NpmMeta } from "./plugin";
 
@@ -31,18 +27,16 @@ function ConfigForm({ value, onChange }: ConfigFormProps<NpmConfig>) {
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          npm&rsquo;s search endpoint requires a query; leave as <code>javascript</code>
-          {" "}for a broad popularity stream, or scope to a keyword (single word
-          for substring match across name/description/keywords).
+          npm&rsquo;s search endpoint requires a query; leave as <code>javascript</code> for a broad
+          popularity stream, or scope to a keyword (single word for substring match across
+          name/description/keywords).
         </p>
       </div>
       <div className="grid gap-1.5">
         <Label>Sort</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as NpmConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as NpmConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -55,21 +49,15 @@ function ConfigForm({ value, onChange }: ConfigFormProps<NpmConfig>) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Heavy-weights the chosen axis to 0.8; <strong>Combined</strong>{" "}
-          mirrors npm&rsquo;s default ranking blend.
+          Heavy-weights the chosen axis to 0.8; <strong>Combined</strong> mirrors npm&rsquo;s
+          default ranking blend.
         </p>
       </div>
     </div>
   );
 }
 
-function ScorePill({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function ScorePill({ label, value }: { label: string; value: number }) {
   // Score values are in [0, 1]; render as integer percent. Round to nearest,
   // floor at 0, cap at 100 — npm sometimes returns 1.0000000002 from the
   // ranking model, which would round to 100 anyway but the cap is defensive.
@@ -112,9 +100,7 @@ function ItemRenderer({ item }: ItemRendererProps<NpmMeta>) {
         {version && (
           <>
             <span className="text-muted-foreground/50">·</span>
-            <span className="tabular-nums text-muted-foreground/90">
-              v{version}
-            </span>
+            <span className="tabular-nums text-muted-foreground/90">v{version}</span>
           </>
         )}
         {deprecated && (
@@ -131,12 +117,7 @@ function ItemRenderer({ item }: ItemRendererProps<NpmMeta>) {
           <RelativeTime date={item.createdAt} addSuffix />
         </span>
       </div>
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-1 block"
-      >
+      <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 block">
         <h3
           className="font-mono text-[14px] leading-[1.25] text-foreground break-words transition-colors group-hover/item:text-[color:var(--brand)]"
           style={{ letterSpacing: "-0.005em" }}
@@ -164,17 +145,13 @@ function ItemRenderer({ item }: ItemRendererProps<NpmMeta>) {
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-muted-foreground">
         <span className="flex items-center gap-1">
           <Download className="size-3.5" />
-          <span className="tabular-nums">
-            {formatCompactCount(weeklyDownloads)}
-          </span>
+          <span className="tabular-nums">{formatCompactCount(weeklyDownloads)}</span>
           <span className="text-muted-foreground/70">/wk</span>
         </span>
         {score > 0 && (
           <span className="flex items-center gap-1">
             <Sparkles className="size-3.5" />
-            <span className="tabular-nums text-foreground/90">
-              {Math.round(score * 100)}
-            </span>
+            <span className="tabular-nums text-foreground/90">{Math.round(score * 100)}</span>
           </span>
         )}
         {detail && (

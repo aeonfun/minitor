@@ -79,9 +79,7 @@ export function ColumnCard({ column }: { column: Column }) {
   const setFocusedColumn = useDeckStore((s) => s.setFocusedColumn);
   const pendingSearchOpen = useDeckStore((s) => s.pendingSearchOpen);
   const clearPendingSearchOpen = useDeckStore((s) => s.clearPendingSearchOpen);
-  const isPendingRefresh = useDeckStore((s) =>
-    s.pendingRefreshIds.has(column.id),
-  );
+  const isPendingRefresh = useDeckStore((s) => s.pendingRefreshIds.has(column.id));
   const clearPendingRefresh = useDeckStore((s) => s.clearPendingRefresh);
   const searchActive = searchQuery.trim().length > 0;
   // Seeded from the query rather than hardcoded false: a column that mounts
@@ -100,15 +98,14 @@ export function ColumnCard({ column }: { column: Column }) {
   // undefined = unknown (initial state, never fetched OR no pagination support)
   // string = ready to load that page
   // null = exhausted
-  const [nextCursor, setNextCursor] = useState<string | null | undefined>(
-    undefined,
-  );
+  const [nextCursor, setNextCursor] = useState<string | null | undefined>(undefined);
   const [configureOpen, setConfigureOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: column.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: column.id,
+  });
 
   const paginated = type?.capabilities?.paginated === true;
 
@@ -134,10 +131,8 @@ export function ColumnCard({ column }: { column: Column }) {
   const filteredItems = useMemo(() => {
     if (!filtersActive) return column.items;
     return column.items.filter((it) => {
-      if (includeTerms.length > 0 && !itemMatchesAlertKeywords(it, includeTerms))
-        return false;
-      if (excludeTerms.length > 0 && itemMatchesAlertKeywords(it, excludeTerms))
-        return false;
+      if (includeTerms.length > 0 && !itemMatchesAlertKeywords(it, includeTerms)) return false;
+      if (excludeTerms.length > 0 && itemMatchesAlertKeywords(it, excludeTerms)) return false;
       return true;
     });
   }, [filtersActive, column.items, includeTerms, excludeTerms]);
@@ -220,27 +215,18 @@ export function ColumnCard({ column }: { column: Column }) {
       // Pause while the tab is hidden so background tabs don't burn upstream
       // rate limits. Re-checked each tick rather than via visibilitychange
       // listener so the check stays colocated with the fetch decision.
-      if (
-        typeof document !== "undefined" &&
-        document.visibilityState !== "visible"
-      ) {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
         return;
       }
       if (inFlight) return;
       inFlight = true;
       try {
-        const { items } = await callColumnApi(
-          typeIdRef.current,
-          configRef.current,
-        );
+        const { items } = await callColumnApi(typeIdRef.current, configRef.current);
         await applyFetchedItems(column.id, items);
       } catch (err) {
         // Silent on auto-refresh so a flaky upstream doesn't spam toasts; the
         // operator already has the manual refresh button to surface errors.
-        console.warn(
-          `[minitor] auto-refresh failed for column ${column.id}`,
-          err,
-        );
+        console.warn(`[minitor] auto-refresh failed for column ${column.id}`, err);
       } finally {
         inFlight = false;
       }
@@ -254,10 +240,7 @@ export function ColumnCard({ column }: { column: Column }) {
     if (!type) return;
     setIsFetching(true);
     try {
-      const { items, nextCursor: cursor } = await callColumnApi(
-        type.id,
-        column.config,
-      );
+      const { items, nextCursor: cursor } = await callColumnApi(type.id, column.config);
       const count = await applyFetchedItems(column.id, items);
       // Reset pagination cursor on a fresh refresh.
       setNextCursor(paginated ? (cursor ?? null) : undefined);
@@ -353,8 +336,7 @@ export function ColumnCard({ column }: { column: Column }) {
       // a cursor. Discover the cursor via a refresh-style call — items are
       // already cached so dedup hides the visual repaint — then fetch the
       // next page in the same click.
-      let cursor: string | undefined =
-        typeof nextCursor === "string" ? nextCursor : undefined;
+      let cursor: string | undefined = typeof nextCursor === "string" ? nextCursor : undefined;
       if (!cursor) {
         const first = await callColumnApi(type.id, column.config);
         await applyFetchedItems(column.id, first.items);
@@ -471,10 +453,7 @@ export function ColumnCard({ column }: { column: Column }) {
             />
           )}
           {beamActive && (
-            <Loader2
-              aria-label="Fetching"
-              className="size-3 animate-spin text-muted-foreground"
-            />
+            <Loader2 aria-label="Fetching" className="size-3 animate-spin text-muted-foreground" />
           )}
           {searchActive && (
             <Search
@@ -517,112 +496,108 @@ export function ColumnCard({ column }: { column: Column }) {
         onClick={() => setFocusedColumn(column.id)}
       >
         <div
-          className={cn(
-            "group/col flex h-full w-full shrink-0 flex-col overflow-hidden bg-card",
-          )}
+          className={cn("group/col flex h-full w-full shrink-0 flex-col overflow-hidden bg-card")}
         >
-        <div className="relative flex items-center gap-2 border-b border-border bg-surface/50 px-3 py-2.5">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
-            style={{ background: `linear-gradient(90deg, transparent, ${column.color ?? type.accent}, transparent)` }}
-          />
-          <button
-            type="button"
-            aria-label="Drag column"
-            className="shrink-0 cursor-grab touch-none text-muted-foreground/50 opacity-0 transition-opacity group-hover/col:opacity-100 hover:text-foreground active:cursor-grabbing"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="size-4" />
-          </button>
-          <div
-            className="flex size-7 shrink-0 items-center justify-center rounded-md ring-1 ring-black/5"
-            style={{ backgroundColor: `${type.accent}33`, color: type.accent }}
-          >
-            <Icon className="size-4" strokeWidth={2.25} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div
-              className="flex items-center gap-1.5 truncate text-[13px] font-medium leading-tight text-foreground"
-              style={{ letterSpacing: "-0.01em" }}
+          <div className="relative flex items-center gap-2 border-b border-border bg-surface/50 px-3 py-2.5">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${column.color ?? type.accent}, transparent)`,
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Drag column"
+              className="shrink-0 cursor-grab touch-none text-muted-foreground/50 opacity-0 transition-opacity group-hover/col:opacity-100 hover:text-foreground active:cursor-grabbing"
+              {...attributes}
+              {...listeners}
             >
-              {column.color && (
-                <span
-                  aria-label="Column color label"
-                  title={`Color label ${column.color}`}
-                  className="size-2.5 shrink-0 rounded-full ring-1 ring-black/10"
-                  style={{ backgroundColor: column.color }}
-                />
-              )}
-              <span className="truncate">{column.title}</span>
+              <GripVertical className="size-4" />
+            </button>
+            <div
+              className="flex size-7 shrink-0 items-center justify-center rounded-md ring-1 ring-black/5"
+              style={{ backgroundColor: `${type.accent}33`, color: type.accent }}
+            >
+              <Icon className="size-4" strokeWidth={2.25} />
             </div>
-            <div className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
-              <span className="truncate">{type.label}</span>
-              {column.lastFetchedAt && (
-                <>
-                  <span className="text-muted-foreground/50">·</span>
-                  <span className="truncate">
-                    <RelativeTime date={column.lastFetchedAt} addSuffix />
+            <div className="min-w-0 flex-1">
+              <div
+                className="flex items-center gap-1.5 truncate text-[13px] font-medium leading-tight text-foreground"
+                style={{ letterSpacing: "-0.01em" }}
+              >
+                {column.color && (
+                  <span
+                    aria-label="Column color label"
+                    title={`Color label ${column.color}`}
+                    className="size-2.5 shrink-0 rounded-full ring-1 ring-black/10"
+                    style={{ backgroundColor: column.color }}
+                  />
+                )}
+                <span className="truncate">{column.title}</span>
+              </div>
+              <div className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                <span className="truncate">{type.label}</span>
+                {column.lastFetchedAt && (
+                  <>
+                    <span className="text-muted-foreground/50">·</span>
+                    <span className="truncate">
+                      <RelativeTime date={column.lastFetchedAt} addSuffix />
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            {matchCount > 0 && (
+              <Tooltip>
+                <TooltipTrigger
+                  aria-label={`${matchCount} item${matchCount === 1 ? "" : "s"} matched alert keywords`}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-yellow-400/15 px-2 py-0.5 text-[11px] font-medium text-yellow-700 ring-1 ring-yellow-400/40 dark:text-yellow-300"
+                >
+                  <Bell className="size-3" strokeWidth={2.5} />
+                  <span className="tabular-nums">{matchCount}</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {matchCount} match{matchCount === 1 ? "" : "es"} for: {alertTerms.join(", ")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {filtersActive && (
+              <Tooltip>
+                <TooltipTrigger
+                  aria-label={`Filtered: showing ${filteredItems.length} of ${column.items.length} items`}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-400/15 px-2 py-0.5 text-[11px] font-medium text-sky-700 ring-1 ring-sky-400/40 dark:text-sky-300"
+                >
+                  <Filter className="size-3" strokeWidth={2.5} />
+                  <span className="tabular-nums">
+                    {filteredItems.length}/{column.items.length}
                   </span>
-                </>
-              )}
-            </div>
-          </div>
-          {matchCount > 0 && (
-            <Tooltip>
-              <TooltipTrigger
-                aria-label={`${matchCount} item${matchCount === 1 ? "" : "s"} matched alert keywords`}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-yellow-400/15 px-2 py-0.5 text-[11px] font-medium text-yellow-700 ring-1 ring-yellow-400/40 dark:text-yellow-300"
-              >
-                <Bell className="size-3" strokeWidth={2.5} />
-                <span className="tabular-nums">{matchCount}</span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {matchCount} match{matchCount === 1 ? "" : "es"} for: {alertTerms.join(", ")}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {filtersActive && (
-            <Tooltip>
-              <TooltipTrigger
-                aria-label={`Filtered: showing ${filteredItems.length} of ${column.items.length} items`}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-400/15 px-2 py-0.5 text-[11px] font-medium text-sky-700 ring-1 ring-sky-400/40 dark:text-sky-300"
-              >
-                <Filter className="size-3" strokeWidth={2.5} />
-                <span className="tabular-nums">
-                  {filteredItems.length}/{column.items.length}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                Showing {filteredItems.length} of {column.items.length}
-                {includeTerms.length > 0 && (
-                  <> · only: {includeTerms.join(", ")}</>
-                )}
-                {excludeTerms.length > 0 && (
-                  <> · hiding: {excludeTerms.join(", ")}</>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {searchActive && (
-            <Tooltip>
-              <TooltipTrigger
-                aria-label={`Search: ${visibleItems.length} of ${filteredItems.length} match "${searchQuery}"`}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-400/40 dark:text-emerald-300"
-              >
-                <Search className="size-3" strokeWidth={2.5} />
-                <span className="tabular-nums">
-                  {visibleItems.length}/{filteredItems.length}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {visibleItems.length} match{visibleItems.length === 1 ? "" : "es"} for &ldquo;{searchQuery}&rdquo;
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {column.refreshIntervalSeconds !== undefined &&
-            column.refreshIntervalSeconds > 0 && (
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  Showing {filteredItems.length} of {column.items.length}
+                  {includeTerms.length > 0 && <> · only: {includeTerms.join(", ")}</>}
+                  {excludeTerms.length > 0 && <> · hiding: {excludeTerms.join(", ")}</>}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {searchActive && (
+              <Tooltip>
+                <TooltipTrigger
+                  aria-label={`Search: ${visibleItems.length} of ${filteredItems.length} match "${searchQuery}"`}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-400/40 dark:text-emerald-300"
+                >
+                  <Search className="size-3" strokeWidth={2.5} />
+                  <span className="tabular-nums">
+                    {visibleItems.length}/{filteredItems.length}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {visibleItems.length} match{visibleItems.length === 1 ? "" : "es"} for &ldquo;
+                  {searchQuery}&rdquo;
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {column.refreshIntervalSeconds !== undefined && column.refreshIntervalSeconds > 0 && (
               <Tooltip>
                 <TooltipTrigger
                   aria-label={`Auto-refreshing every ${formatRefreshLabel(column.refreshIntervalSeconds)}`}
@@ -634,267 +609,256 @@ export function ColumnCard({ column }: { column: Column }) {
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  Auto-refreshes every{" "}
-                  {formatRefreshLabel(column.refreshIntervalSeconds)} while the
+                  Auto-refreshes every {formatRefreshLabel(column.refreshIntervalSeconds)} while the
                   tab is visible
                 </TooltipContent>
               </Tooltip>
             )}
-          {column.pinned && (
+            {column.pinned && (
+              <Tooltip>
+                <TooltipTrigger
+                  aria-label="Pinned to the front of the deck"
+                  className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--brand)]/10 text-[color:var(--brand)] ring-1 ring-[color:var(--brand)]/30"
+                >
+                  <Pin className="size-3" strokeWidth={2.5} />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  Pinned to the front · stays visible on every tab
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger
-                aria-label="Pinned to the front of the deck"
-                className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--brand)]/10 text-[color:var(--brand)] ring-1 ring-[color:var(--brand)]/30"
+                onClick={() => {
+                  setSearchOpen((open) => {
+                    const next = !open;
+                    if (next) {
+                      // Focus on next tick so the input mounts before we ask
+                      // for focus. requestAnimationFrame is the cheapest hook
+                      // for "after this render commits".
+                      requestAnimationFrame(() => searchInputRef.current?.focus());
+                    }
+                    return next;
+                  });
+                }}
+                title="Search items"
+                aria-label={searchOpen ? "Close search" : "Search items"}
+                aria-pressed={searchOpen}
+                className={cn(
+                  "inline-flex size-8 items-center justify-center rounded-full transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]",
+                  searchActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground",
+                )}
               >
-                <Pin className="size-3" strokeWidth={2.5} />
+                <Search className="size-4" />
               </TooltipTrigger>
-              <TooltipContent side="bottom">
-                Pinned to the front · stays visible on every tab
-              </TooltipContent>
+              <TooltipContent side="bottom">Search items</TooltipContent>
             </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger
-              onClick={() => {
-                setSearchOpen((open) => {
-                  const next = !open;
-                  if (next) {
-                    // Focus on next tick so the input mounts before we ask
-                    // for focus. requestAnimationFrame is the cheapest hook
-                    // for "after this render commits".
-                    requestAnimationFrame(() => searchInputRef.current?.focus());
-                  }
-                  return next;
-                });
-              }}
-              title="Search items"
-              aria-label={searchOpen ? "Close search" : "Search items"}
-              aria-pressed={searchOpen}
-              className={cn(
-                "inline-flex size-8 items-center justify-center rounded-full transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]",
-                searchActive
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-muted-foreground",
-              )}
-            >
-              <Search className="size-4" />
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Search items</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger
-              onClick={() => onRefresh()}
-              disabled={isFetching}
-              title="Refresh"
-              aria-label="Refresh"
-              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)] disabled:pointer-events-none disabled:opacity-50"
-            >
-              {isFetching ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <RefreshCw className="size-4" />
-              )}
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Refresh</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger
-              onClick={() => toggleColumnCollapsed(column.id)}
-              title="Collapse"
-              aria-label="Collapse column"
-              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]"
-            >
-              <ChevronLeft className="size-4" />
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Collapse</TooltipContent>
-          </Tooltip>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              aria-label="Column options"
-              className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]"
-            >
-              <MoreHorizontal className="size-4" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem onClick={() => setConfigureOpen(true)}>
-                <Settings2 className="mr-2 size-4" /> Configure
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setRenameOpen(true)}>
-                <Pencil className="mr-2 size-4" /> Rename
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  const result = duplicateColumn(column.id);
-                  if (result) {
-                    toast.success("Column duplicated", {
-                      description: `${column.title} (copy)`,
-                    });
-                  }
-                }}
+            <Tooltip>
+              <TooltipTrigger
+                onClick={() => onRefresh()}
+                disabled={isFetching}
+                title="Refresh"
+                aria-label="Refresh"
+                className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)] disabled:pointer-events-none disabled:opacity-50"
               >
-                <Copy className="mr-2 size-4" /> Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                disabled={!hasItems}
-                onClick={() => {
-                  const n = downloadColumnItems(column.id);
-                  if (n > 0) {
-                    toast.success(
-                      `Exported ${n} item${n === 1 ? "" : "s"}`,
-                      { description: column.title },
-                    );
-                  }
-                }}
-              >
-                <Download className="mr-2 size-4" />{" "}
-                {hasItems ? "Download items (JSON)" : "No items loaded yet"}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setColumnWidth(column.id, "narrow")}>
-                <Minimize2 className="mr-2 size-4" />
-                <span className="flex-1">Narrow width</span>
-                {columnWidth === "narrow" && (
-                  <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setColumnWidth(column.id, null)}>
-                <span className="mr-2 inline-block size-4" aria-hidden />
-                <span className="flex-1">Normal width</span>
-                {columnWidth === null && (
-                  <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setColumnWidth(column.id, "wide")}>
-                <Maximize2 className="mr-2 size-4" />
-                <span className="flex-1">Wide width</span>
-                {columnWidth === "wide" && (
-                  <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2 className="mr-2 size-4" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {searchOpen && (
-          <div className="flex items-center gap-1.5 border-b border-border bg-surface/40 px-2 py-1.5">
-            <Search className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setColumnSearch(column.id, e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  e.preventDefault();
-                  setColumnSearch(column.id, "");
-                  setSearchOpen(false);
-                }
-              }}
-              placeholder="Find in column…"
-              aria-label="Search items in this column"
-              maxLength={256}
-              className="flex-1 min-w-0 bg-transparent text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none"
-            />
-            {searchActive && (
-              <button
-                type="button"
-                onClick={() => {
-                  setColumnSearch(column.id, "");
-                  searchInputRef.current?.focus();
-                }}
-                aria-label="Clear search"
-                className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
-              >
-                <X className="size-3" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setSearchOpen(false)}
-              aria-label="Close search"
-              className="inline-flex shrink-0 items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
-            >
-              Esc
-            </button>
-          </div>
-        )}
-
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          {column.items.length === 0 ? (
-            isFetching || isAutoFetching ? (
-              <LoadingSkeleton />
-            ) : (
-              <EmptyState isFetching={isFetching} onRefresh={onRefresh} />
-            )
-          ) : (
-            <div>
-              {visibleItems.length === 0 ? (
-                searchActive ? (
-                  <SearchEmptyState
-                    query={searchQuery}
-                    onClear={() => {
-                      setColumnSearch(column.id, "");
-                      searchInputRef.current?.focus();
-                    }}
-                  />
+                {isFetching ? (
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <FilteredEmptyState totalCount={column.items.length} />
-                )
-              ) : (
-                visibleItems.map((item) =>
-                  matchedItemIds.has(item.id) ? (
-                    <div
-                      key={item.id}
-                      data-alert-match="true"
-                      className="relative bg-yellow-50/40 ring-1 ring-inset ring-yellow-400/50 dark:bg-yellow-400/[0.06]"
-                    >
-                      <ItemRenderer item={item} />
-                    </div>
-                  ) : (
-                    <ItemRenderer key={item.id} item={item} />
-                  ),
-                )
-              )}
-              {paginated && nextCursor !== null && (
+                  <RefreshCw className="size-4" />
+                )}
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Refresh</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                onClick={() => toggleColumnCollapsed(column.id)}
+                title="Collapse"
+                aria-label="Collapse column"
+                className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]"
+              >
+                <ChevronLeft className="size-4" />
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Collapse</TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="Column options"
+                className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-[color:var(--brand-hover)]"
+              >
+                <MoreHorizontal className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => setConfigureOpen(true)}>
+                  <Settings2 className="mr-2 size-4" /> Configure
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setRenameOpen(true)}>
+                  <Pencil className="mr-2 size-4" /> Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    const result = duplicateColumn(column.id);
+                    if (result) {
+                      toast.success("Column duplicated", {
+                        description: `${column.title} (copy)`,
+                      });
+                    }
+                  }}
+                >
+                  <Copy className="mr-2 size-4" /> Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={!hasItems}
+                  onClick={() => {
+                    const n = downloadColumnItems(column.id);
+                    if (n > 0) {
+                      toast.success(`Exported ${n} item${n === 1 ? "" : "s"}`, {
+                        description: column.title,
+                      });
+                    }
+                  }}
+                >
+                  <Download className="mr-2 size-4" />{" "}
+                  {hasItems ? "Download items (JSON)" : "No items loaded yet"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setColumnWidth(column.id, "narrow")}>
+                  <Minimize2 className="mr-2 size-4" />
+                  <span className="flex-1">Narrow width</span>
+                  {columnWidth === "narrow" && (
+                    <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setColumnWidth(column.id, null)}>
+                  <span className="mr-2 inline-block size-4" aria-hidden />
+                  <span className="flex-1">Normal width</span>
+                  {columnWidth === null && (
+                    <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setColumnWidth(column.id, "wide")}>
+                  <Maximize2 className="mr-2 size-4" />
+                  <span className="flex-1">Wide width</span>
+                  {columnWidth === "wide" && (
+                    <Check className="ml-2 size-3.5 text-[color:var(--brand)]" aria-hidden />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={() => setDeleteOpen(true)}>
+                  <Trash2 className="mr-2 size-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {searchOpen && (
+            <div className="flex items-center gap-1.5 border-b border-border bg-surface/40 px-2 py-1.5">
+              <Search className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setColumnSearch(column.id, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    setColumnSearch(column.id, "");
+                    setSearchOpen(false);
+                  }
+                }}
+                placeholder="Find in column…"
+                aria-label="Search items in this column"
+                maxLength={256}
+                className="flex-1 min-w-0 bg-transparent text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+              {searchActive && (
                 <button
                   type="button"
-                  onClick={onLoadMore}
-                  disabled={isLoadingMore}
-                  className="flex w-full items-center justify-center gap-2 px-3.5 py-3 text-[12.5px] font-medium text-muted-foreground transition-colors hover:bg-surface/60 hover:text-foreground disabled:opacity-60"
+                  onClick={() => {
+                    setColumnSearch(column.id, "");
+                    searchInputRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
                 >
-                  {isLoadingMore ? (
-                    <>
-                      <Loader2 className="size-3.5 animate-spin" />
-                      Loading…
-                    </>
-                  ) : (
-                    "Load more"
-                  )}
+                  <X className="size-3" />
                 </button>
               )}
-              {paginated && nextCursor === null && (
-                <div className="px-3.5 py-3 text-center text-[11.5px] text-muted-foreground/70">
-                  End of results
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                aria-label="Close search"
+                className="inline-flex shrink-0 items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+              >
+                Esc
+              </button>
             </div>
           )}
-        </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+            {column.items.length === 0 ? (
+              isFetching || isAutoFetching ? (
+                <LoadingSkeleton />
+              ) : (
+                <EmptyState isFetching={isFetching} onRefresh={onRefresh} />
+              )
+            ) : (
+              <div>
+                {visibleItems.length === 0 ? (
+                  searchActive ? (
+                    <SearchEmptyState
+                      query={searchQuery}
+                      onClear={() => {
+                        setColumnSearch(column.id, "");
+                        searchInputRef.current?.focus();
+                      }}
+                    />
+                  ) : (
+                    <FilteredEmptyState totalCount={column.items.length} />
+                  )
+                ) : (
+                  visibleItems.map((item) =>
+                    matchedItemIds.has(item.id) ? (
+                      <div
+                        key={item.id}
+                        data-alert-match="true"
+                        className="relative bg-yellow-50/40 ring-1 ring-inset ring-yellow-400/50 dark:bg-yellow-400/[0.06]"
+                      >
+                        <ItemRenderer item={item} />
+                      </div>
+                    ) : (
+                      <ItemRenderer key={item.id} item={item} />
+                    ),
+                  )
+                )}
+                {paginated && nextCursor !== null && (
+                  <button
+                    type="button"
+                    onClick={onLoadMore}
+                    disabled={isLoadingMore}
+                    className="flex w-full items-center justify-center gap-2 px-3.5 py-3 text-[12.5px] font-medium text-muted-foreground transition-colors hover:bg-surface/60 hover:text-foreground disabled:opacity-60"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <Loader2 className="size-3.5 animate-spin" />
+                        Loading…
+                      </>
+                    ) : (
+                      "Load more"
+                    )}
+                  </button>
+                )}
+                {paginated && nextCursor === null && (
+                  <div className="px-3.5 py-3 text-center text-[11.5px] text-muted-foreground/70">
+                    End of results
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <ConfigureColumnDialog
-        open={configureOpen}
-        onOpenChange={setConfigureOpen}
-        column={column}
-      />
+      <ConfigureColumnDialog open={configureOpen} onOpenChange={setConfigureOpen} column={column} />
       <RenameDialog
         open={renameOpen}
         onOpenChange={setRenameOpen}
@@ -914,19 +878,11 @@ export function ColumnCard({ column }: { column: Column }) {
   );
 }
 
-function EmptyState({
-  isFetching,
-  onRefresh,
-}: {
-  isFetching: boolean;
-  onRefresh: () => void;
-}) {
+function EmptyState({ isFetching, onRefresh }: { isFetching: boolean; onRefresh: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
       <div className="text-sm font-medium">No items yet</div>
-      <div className="text-xs text-muted-foreground">
-        Click refresh to fetch the latest.
-      </div>
+      <div className="text-xs text-muted-foreground">Click refresh to fetch the latest.</div>
       <Button size="sm" variant="outline" onClick={onRefresh} disabled={isFetching}>
         {isFetching ? (
           <Loader2 className="mr-2 size-4 animate-spin" />
@@ -945,20 +901,14 @@ function FilteredEmptyState({ totalCount }: { totalCount: number }) {
       <Filter className="size-5 text-muted-foreground/60" />
       <div className="text-sm font-medium">No items match the filter</div>
       <div className="text-xs text-muted-foreground">
-        {totalCount} item{totalCount === 1 ? "" : "s"} hidden. Adjust the
-        column&rsquo;s filters in Configure.
+        {totalCount} item{totalCount === 1 ? "" : "s"} hidden. Adjust the column&rsquo;s filters in
+        Configure.
       </div>
     </div>
   );
 }
 
-function SearchEmptyState({
-  query,
-  onClear,
-}: {
-  query: string;
-  onClear: () => void;
-}) {
+function SearchEmptyState({ query, onClear }: { query: string; onClear: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
       <Search className="size-5 text-muted-foreground/60" />
@@ -1017,23 +967,11 @@ function SkeletonRow({ delay }: { delay: number }) {
       />
       <div className="min-w-0 flex-1 space-y-2">
         <div className="flex items-center gap-2">
-          <div
-            className="h-3 w-24 animate-pulse rounded bg-foreground/[0.06]"
-            style={style}
-          />
-          <div
-            className="h-3 w-12 animate-pulse rounded bg-foreground/[0.04]"
-            style={style}
-          />
+          <div className="h-3 w-24 animate-pulse rounded bg-foreground/[0.06]" style={style} />
+          <div className="h-3 w-12 animate-pulse rounded bg-foreground/[0.04]" style={style} />
         </div>
-        <div
-          className="h-3.5 w-full animate-pulse rounded bg-foreground/[0.06]"
-          style={style}
-        />
-        <div
-          className="h-3.5 w-4/5 animate-pulse rounded bg-foreground/[0.06]"
-          style={style}
-        />
+        <div className="h-3.5 w-full animate-pulse rounded bg-foreground/[0.06]" style={style} />
+        <div className="h-3.5 w-4/5 animate-pulse rounded bg-foreground/[0.06]" style={style} />
       </div>
     </div>
   );

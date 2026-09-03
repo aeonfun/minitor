@@ -19,14 +19,7 @@ const METAS = PLUGIN_METAS as unknown as ReadonlyArray<
 // fail loudly the moment a new (or edited) plugin ships a schema whose defaults
 // don't validate, or a `defaultTitle` that throws.
 
-const CATEGORIES = new Set([
-  "ai",
-  "social",
-  "news",
-  "video",
-  "blockchain",
-  "other",
-]);
+const CATEGORIES = new Set(["ai", "social", "news", "video", "blockchain", "other"]);
 
 describe("plugin contract", () => {
   it("registers at least the documented set of plugins", () => {
@@ -49,18 +42,14 @@ describe("plugin contract", () => {
         expect(meta.label.trim().length).toBeGreaterThan(0);
         expect(meta.description.trim().length).toBeGreaterThan(0);
         expect(CATEGORIES.has(meta.category)).toBe(true);
-        expect(meta.accent, "accent must be a 6-digit hex color").toMatch(
-          /^#[0-9a-fA-F]{6}$/,
-        );
+        expect(meta.accent, "accent must be a 6-digit hex color").toMatch(/^#[0-9a-fA-F]{6}$/);
         expect(meta.icon, "icon must be defined").toBeTruthy();
       });
 
       it("declares a defaultConfig that satisfies its own schema", () => {
         const parsed = meta.schema.safeParse(meta.defaultConfig);
         if (!parsed.success) {
-          throw new Error(
-            `defaultConfig fails schema: ${JSON.stringify(parsed.error.issues)}`,
-          );
+          throw new Error(`defaultConfig fails schema: ${JSON.stringify(parsed.error.issues)}`);
         }
         expect(parsed.success).toBe(true);
       });

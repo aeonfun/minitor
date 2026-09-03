@@ -50,11 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }}
       />
       {activeDeckId && (
-        <AddColumnDialog
-          open={addColOpen}
-          onOpenChange={setAddColOpen}
-          deckId={activeDeckId}
-        />
+        <AddColumnDialog open={addColOpen} onOpenChange={setAddColOpen} deckId={activeDeckId} />
       )}
       <ImportDeckDialog open={importDeckOpen} onOpenChange={setImportDeckOpen} />
       <TemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} />

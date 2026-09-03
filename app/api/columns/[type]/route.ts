@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerEntry } from "@/lib/columns/server-registry";
-import {
-  cacheKeyFor,
-  cachedColumnFetch,
-  ttlForMeta,
-} from "@/lib/columns/fetch-cache";
+import { cacheKeyFor, cachedColumnFetch, ttlForMeta } from "@/lib/columns/fetch-cache";
 
 // Grok calls are slow and expensive — don't cache, always fresh on refresh.
 export const dynamic = "force-dynamic";
@@ -16,10 +12,7 @@ export async function POST(req: Request, context: RouteContext) {
   const { type } = await context.params;
   const entry = getServerEntry(type);
   if (!entry) {
-    return NextResponse.json(
-      { error: `Unknown column type: ${type}` },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: `Unknown column type: ${type}` }, { status: 404 });
   }
 
   const body = await req.json().catch(() => ({}));

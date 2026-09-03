@@ -2,17 +2,9 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
-import {
-  meta,
-  type GoogleNewsConfig,
-  type GoogleNewsMeta,
-} from "./plugin";
+import { meta, type GoogleNewsConfig, type GoogleNewsMeta } from "./plugin";
 
 function ConfigForm({ value, onChange }: ConfigFormProps<GoogleNewsConfig>) {
   return (
@@ -26,8 +18,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GoogleNewsConfig>) {
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          Google News search syntax — quotes, <code>-exclude</code>,{" "}
-          <code>site:</code>, etc.
+          Google News search syntax — quotes, <code>-exclude</code>, <code>site:</code>, etc.
         </p>
       </div>
       <div className="grid grid-cols-2 gap-3">

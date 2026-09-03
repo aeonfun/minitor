@@ -20,7 +20,6 @@ export const meta: PluginMeta<NewsSearchConfig, NewsSearchMeta> = {
   category: "news",
   schema,
   defaultConfig: schema.parse({}),
-  defaultTitle: (c) =>
-    c.query.trim() ? `News · ${c.query.trim()}` : "News · Topic",
+  defaultTitle: (c) => (c.query.trim() ? `News · ${c.query.trim()}` : "News · Topic"),
   capabilities: { paginated: true, requiresEnv: ["XAI_API_KEY"] },
 };

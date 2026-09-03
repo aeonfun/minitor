@@ -2,11 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { AvatarPostItem } from "@/lib/columns/shared/avatar-post-item";
 import { meta, type FCConfig, type FCMeta } from "./plugin";
 
@@ -24,16 +20,14 @@ function ConfigForm({ value, onChange }: ConfigFormProps<FCConfig>) {
         <p>How to use:</p>
         <ul className="list-disc space-y-0.5 pl-4">
           <li>
-            <code>@dwr</code> or <code>from:dwr</code> — that user&apos;s
-            latest casts
+            <code>@dwr</code> or <code>from:dwr</code> — that user&apos;s latest casts
           </li>
           <li>
             <code>claude code</code> — keyword search across Farcaster
           </li>
         </ul>
         <p>
-          Falls back to Neynar&apos;s public demo key when no{" "}
-          <code>NEYNAR_API_KEY</code> is set.
+          Falls back to Neynar&apos;s public demo key when no <code>NEYNAR_API_KEY</code> is set.
         </p>
       </div>
     </div>

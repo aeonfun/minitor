@@ -21,11 +21,7 @@ import { cn } from "@/lib/utils";
 import { listColumnTypes, getColumnType } from "@/lib/columns/registry";
 import { useDeckStore } from "@/lib/store/use-deck-store";
 import type { AnyColumnUI } from "@/lib/columns/types";
-import {
-  TEMPLATES,
-  templateAsImportJson,
-  type DeckTemplate,
-} from "@/lib/deck-templates";
+import { TEMPLATES, templateAsImportJson, type DeckTemplate } from "@/lib/deck-templates";
 
 const TEMPLATE_ICONS: Record<DeckTemplate["iconName"], LucideIcon> = {
   Sparkles,
@@ -93,9 +89,7 @@ export function Onboarding() {
   // Pre-select the first two suggestions — both are keyless so onboarding
   // works out of the box.
   const [picked, setPicked] = useState<Set<number>>(() => new Set([0, 1]));
-  const [templateLoadingId, setTemplateLoadingId] = useState<string | null>(
-    null,
-  );
+  const [templateLoadingId, setTemplateLoadingId] = useState<string | null>(null);
 
   const types = useMemo(() => {
     const m = new Map<string, AnyColumnUI>();
@@ -193,35 +187,27 @@ export function Onboarding() {
           Welcome. Let&apos;s set up your first deck.
         </h1>
         <p className="mt-2 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-          Start from a template below, or build a deck manually by picking
-          sources one by one.
+          Start from a template below, or build a deck manually by picking sources one by one.
         </p>
 
         <section className="mt-6 rounded-lg border border-border bg-card p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <LayoutTemplate className="size-4 text-foreground/70" />
-              <Label className="text-[13px] font-medium">
-                Start from a template
-              </Label>
+              <Label className="text-[13px] font-medium">Start from a template</Label>
             </div>
             <span className="text-[11px] text-muted-foreground tabular-nums">
               {TEMPLATES.length} templates
             </span>
           </div>
           <p className="mt-1 text-[11.5px] text-muted-foreground">
-            One click to import a pre-built deck. You can rename, edit, or
-            delete it after.
+            One click to import a pre-built deck. You can rename, edit, or delete it after.
           </p>
-          <ul
-            role="list"
-            className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
-          >
+          <ul role="list" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {TEMPLATES.map((template) => {
               const Icon = TEMPLATE_ICONS[template.iconName];
               const loading = templateLoadingId === template.id;
-              const disabled =
-                templateLoadingId !== null && templateLoadingId !== template.id;
+              const disabled = templateLoadingId !== null && templateLoadingId !== template.id;
               return (
                 <li key={template.id}>
                   <button
@@ -299,9 +285,7 @@ export function Onboarding() {
                 <div className="flex size-7 items-center justify-center rounded-full bg-foreground text-[12px] font-semibold text-primary-foreground">
                   2
                 </div>
-                <Label className="text-[13px] font-medium">
-                  Pick a few columns
-                </Label>
+                <Label className="text-[13px] font-medium">Pick a few columns</Label>
               </div>
               <span className="text-[11px] text-muted-foreground tabular-nums">
                 {picked.size} selected
@@ -345,9 +329,7 @@ export function Onboarding() {
                         >
                           {s.title}
                         </div>
-                        <div className="truncate text-[11px] text-muted-foreground">
-                          {s.hint}
-                        </div>
+                        <div className="truncate text-[11px] text-muted-foreground">{s.hint}</div>
                       </div>
                       <div className="flex w-8 shrink-0 items-center justify-center">
                         <span
@@ -367,17 +349,12 @@ export function Onboarding() {
               })}
             </ul>
             <p className="mt-3 pl-10 text-[11px] text-muted-foreground">
-              Don&apos;t worry — you can add, remove, and reorder columns any time
-              after setup.
+              Don&apos;t worry — you can add, remove, and reorder columns any time after setup.
             </p>
           </section>
 
           <div className="flex justify-end">
-            <Button
-              onClick={start}
-              disabled={!canContinue}
-              className="gap-1.5"
-            >
+            <Button onClick={start} disabled={!canContinue} className="gap-1.5">
               Create deck
               <ArrowRight className="size-4" />
             </Button>

@@ -3,11 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { LinkItem } from "@/lib/columns/shared/link-renderer";
 import { meta, type SubstackConfig, type SubstackMeta } from "./plugin";
 
@@ -24,12 +20,11 @@ function ConfigForm({ value, onChange }: ConfigFormProps<SubstackConfig>) {
           rows={3}
         />
         <p className="text-xs text-muted-foreground">
-          One per line, or comma-separated. Use the handle (
-          <code>mattyglesias</code>), the full Substack URL (
-          <code>slowboring.substack.com</code>), or a custom-domain Substack (
-          <code>pluralistic.net</code>, <code>astralcodexten.com</code>) —
-          anything that exposes <code>/feed</code>. Per-publication RSS is
-          keyless. Leave empty to search all of Substack via xAI web search.
+          One per line, or comma-separated. Use the handle (<code>mattyglesias</code>), the full
+          Substack URL (<code>slowboring.substack.com</code>), or a custom-domain Substack (
+          <code>pluralistic.net</code>, <code>astralcodexten.com</code>) — anything that exposes{" "}
+          <code>/feed</code>. Per-publication RSS is keyless. Leave empty to search all of Substack
+          via xAI web search.
         </p>
       </div>
       <div className="grid gap-1.5">
@@ -41,8 +36,8 @@ function ConfigForm({ value, onChange }: ConfigFormProps<SubstackConfig>) {
           onChange={(e) => onChange({ ...value, query: e.target.value })}
         />
         <p className="text-xs text-muted-foreground">
-          With publications: optional — leave blank for every recent post.
-          Without publications: required — drives a global Substack search.
+          With publications: optional — leave blank for every recent post. Without publications:
+          required — drives a global Substack search.
         </p>
       </div>
     </div>

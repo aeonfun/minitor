@@ -12,10 +12,7 @@ import type { AppReviewMeta } from "@/lib/integrations/app-reviews";
 export function Stars({ rating }: { rating: number }) {
   const clamped = Math.max(0, Math.min(5, Math.round(rating)));
   return (
-    <span
-      className="inline-flex items-center gap-0.5"
-      aria-label={`${clamped} of 5 stars`}
-    >
+    <span className="inline-flex items-center gap-0.5" aria-label={`${clamped} of 5 stars`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}

@@ -17,11 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { formatCompactCount } from "@/lib/utils";
 import { meta, type GHPRConfig, type GHPRMeta } from "./plugin";
 
@@ -44,9 +40,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHPRConfig>) {
         <Label>State</Label>
         <Select
           value={value.state}
-          onValueChange={(v) =>
-            onChange({ ...value, state: v as GHPRConfig["state"] })
-          }
+          onValueChange={(v) => onChange({ ...value, state: v as GHPRConfig["state"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -62,9 +56,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<GHPRConfig>) {
         <Label>Sort</Label>
         <Select
           value={value.sort}
-          onValueChange={(v) =>
-            onChange({ ...value, sort: v as GHPRConfig["sort"] })
-          }
+          onValueChange={(v) => onChange({ ...value, sort: v as GHPRConfig["sort"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -142,17 +134,10 @@ function ItemRenderer({ item }: ItemRendererProps<GHPRMeta>) {
         {m && <StateBadge meta={m} />}
         {avatarUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={avatarUrl}
-            alt=""
-            className="size-4 rounded-full"
-            loading="lazy"
-          />
+          <img src={avatarUrl} alt="" className="size-4 rounded-full" loading="lazy" />
         )}
         <span className="truncate text-foreground/80">{handle}</span>
-        {m && (
-          <span className="tabular-nums text-foreground/70">#{m.number}</span>
-        )}
+        {m && <span className="tabular-nums text-foreground/70">#{m.number}</span>}
         <span className="text-muted-foreground/50">·</span>
         <span className="tabular-nums">
           <RelativeTime date={item.createdAt} addSuffix />

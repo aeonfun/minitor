@@ -1,10 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type FeedItem,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type FeedItem, type ServerFetcher } from "@/lib/columns/types";
 import {
   fetchYouTube,
   fetchSearchPage as fetchYouTubeSearchPage,
@@ -15,12 +11,7 @@ import { meta, type YTConfig, type YTMeta } from "./plugin";
 const fetch: ServerFetcher<YTConfig, YTMeta> = async (config, cursor) => {
   if (config.mode === "search") {
     if (!config.query.trim()) throw new Error("Search query is required.");
-    const r = await fetchYouTubeSearchPage(
-      config.query,
-      config.order,
-      PAGE_SIZE,
-      cursor,
-    );
+    const r = await fetchYouTubeSearchPage(config.query, config.order, PAGE_SIZE, cursor);
     return {
       items: r.items as FeedItem<YTMeta>[],
       nextCursor: r.nextPageToken,

@@ -75,14 +75,12 @@ function mapStory(s: LobstersStory): FeedItem<LobstersMeta> | null {
   if (!s.short_id || !s.title) return null;
 
   const author = unwrapAuthor(s);
-  const commentsUrl =
-    s.comments_url ?? s.short_id_url ?? `${BASE}/s/${s.short_id}`;
+  const commentsUrl = s.comments_url ?? s.short_id_url ?? `${BASE}/s/${s.short_id}`;
   const externalUrl = s.url || undefined;
   const createdMs = s.created_at ? Date.parse(s.created_at) : Date.now();
 
   const description =
-    s.description_plain?.trim() ||
-    (s.description ? stripHtml(s.description) : "");
+    s.description_plain?.trim() || (s.description ? stripHtml(s.description) : "");
 
   const content = description ? `${s.title}\n\n${description}` : s.title;
 
@@ -124,17 +122,13 @@ export async function fetchLobstersPage(
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(
-      `Lobsters ${res.status}: ${(await res.text()).slice(0, 200)}`,
-    );
+    throw new Error(`Lobsters ${res.status}: ${(await res.text()).slice(0, 200)}`);
   }
   const json = (await res.json()) as LobstersStory[];
   if (!Array.isArray(json)) {
     return { items: [], hasMore: false };
   }
-  const mapped = json
-    .map(mapStory)
-    .filter((s): s is FeedItem<LobstersMeta> => s !== null);
+  const mapped = json.map(mapStory).filter((s): s is FeedItem<LobstersMeta> => s !== null);
   // Lobsters serves 25 stories per page on a full page — fewer means we've
   // reached the tail. Clamp the visible slice to `limit` independently of
   // whether the underlying response was full, so paging is determined by

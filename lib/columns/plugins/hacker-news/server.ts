@@ -1,10 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type FeedItem,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type FeedItem, type ServerFetcher } from "@/lib/columns/types";
 import { fetchHackerNewsPage } from "@/lib/integrations/hackernews";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type HNConfig, type HNMeta } from "./plugin";

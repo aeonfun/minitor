@@ -3,11 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Layers, Rocket, Sparkles, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import {
-  DECK_TEMPLATE_VERSION,
-  TEMPLATES,
-  type DeckTemplate,
-} from "@/lib/deck-templates";
+import { DECK_TEMPLATE_VERSION, TEMPLATES, type DeckTemplate } from "@/lib/deck-templates";
 import { DECK_SHARE_HASH_KEY, encodeDeckShareHash } from "@/lib/deck-share";
 import { getColumnType } from "@/lib/columns/registry";
 
@@ -51,9 +47,7 @@ export default function GalleryPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 sm:py-14">
       <header className="flex flex-col gap-3">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-          Minitor
-        </p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">Minitor</p>
         <h1
           className="font-serif text-4xl italic text-foreground sm:text-5xl"
           style={{ letterSpacing: "-0.015em" }}
@@ -61,9 +55,8 @@ export default function GalleryPage() {
           Deck Gallery
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-          One-click starter decks. Pick a template — Minitor imports it as a new
-          deck the moment you land on the dashboard. Your existing decks aren&apos;t
-          touched.
+          One-click starter decks. Pick a template — Minitor imports it as a new deck the moment you
+          land on the dashboard. Your existing decks aren&apos;t touched.
         </p>
         <div className="mt-1 flex flex-wrap gap-2 text-xs">
           <Link
@@ -87,9 +80,8 @@ export default function GalleryPage() {
 
       <footer className="mt-auto border-t border-border pt-6 text-xs text-muted-foreground">
         <p>
-          Templates use the same import path as JSON-paste and share-link
-          imports. Each one lands as a brand-new deck with{" "}
-          <span className="font-mono">(imported)</span> appended to the name.
+          Templates use the same import path as JSON-paste and share-link imports. Each one lands as
+          a brand-new deck with <span className="font-mono">(imported)</span> appended to the name.
         </p>
       </footer>
     </main>
@@ -119,15 +111,11 @@ function GalleryCard({ template }: { template: DeckTemplate }) {
           >
             {template.name}
           </h2>
-          <p className="truncate text-xs text-muted-foreground">
-            {template.tagline}
-          </p>
+          <p className="truncate text-xs text-muted-foreground">{template.tagline}</p>
         </div>
       </div>
 
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        {template.description}
-      </p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{template.description}</p>
 
       <GalleryColumnPills template={template} />
 
@@ -162,9 +150,7 @@ function GalleryColumnPills({ template }: { template: DeckTemplate }) {
             title={col.title}
           >
             {PillIcon ? <PillIcon className="size-3" strokeWidth={2.5} /> : null}
-            <span className="max-w-[12rem] truncate">
-              {type?.label ?? col.typeId}
-            </span>
+            <span className="max-w-[12rem] truncate">{type?.label ?? col.typeId}</span>
           </span>
         );
       })}

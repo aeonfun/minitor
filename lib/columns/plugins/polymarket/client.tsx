@@ -10,11 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  defineColumnUI,
-  type ConfigFormProps,
-  type ItemRendererProps,
-} from "@/lib/columns/types";
+import { defineColumnUI, type ConfigFormProps, type ItemRendererProps } from "@/lib/columns/types";
 import { meta, type PolymarketConfig, type PolymarketMeta } from "./plugin";
 
 function formatUsd(n: number): string {
@@ -56,9 +52,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PolymarketConfig>) {
         <Label>Sort</Label>
         <Select
           value={value.mode}
-          onValueChange={(v) =>
-            onChange({ ...value, mode: v as PolymarketConfig["mode"] })
-          }
+          onValueChange={(v) => onChange({ ...value, mode: v as PolymarketConfig["mode"] })}
         >
           <SelectTrigger>
             <SelectValue />
@@ -90,8 +84,7 @@ function ConfigForm({ value, onChange }: ConfigFormProps<PolymarketConfig>) {
             >
               polymarket.com
             </a>{" "}
-            category pages for the canonical list. Empty falls back to
-            Trending.
+            category pages for the canonical list. Empty falls back to Trending.
           </p>
         </div>
       )}

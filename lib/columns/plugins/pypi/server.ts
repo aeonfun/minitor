@@ -1,9 +1,6 @@
 import "server-only";
 
-import {
-  defineColumnServer,
-  type ServerFetcher,
-} from "@/lib/columns/types";
+import { defineColumnServer, type ServerFetcher } from "@/lib/columns/types";
 import { fetchPypiPage } from "@/lib/integrations/pypi";
 import { PAGE_SIZE } from "@/lib/columns/constants";
 import { meta, type PypiConfig, type PypiMeta } from "./plugin";
