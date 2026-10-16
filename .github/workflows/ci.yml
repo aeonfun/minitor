@@ -20,7 +20,7 @@ jobs:
   # duplicated install costs little.
   check:
     name: Lint & Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -46,7 +46,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
