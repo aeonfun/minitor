@@ -28,11 +28,11 @@ Please include what you can:
 
 **Response targets** — best effort; these are small projects:
 
-| Stage | Target |
-|-------|--------|
-| Acknowledge the report | within 7 days |
-| Initial assessment / severity | within 14 days |
-| Fix or mitigation | as fast as the severity warrants |
+| Stage                         | Target                           |
+| ----------------------------- | -------------------------------- |
+| Acknowledge the report        | within 7 days                    |
+| Initial assessment / severity | within 14 days                   |
+| Fix or mitigation             | as fast as the severity warrants |
 
 We follow **coordinated disclosure**: please give us a reasonable window to ship a
 fix before you disclose publicly. We'll credit you in the advisory unless you'd
