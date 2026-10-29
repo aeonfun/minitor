@@ -35,7 +35,7 @@ client bundle and vice versa.
    wrap with `defineColumnUI({ ...meta, ConfigForm, ItemRenderer })`.
 4. **Edit `server.ts`** — implement the `ServerFetcher`. The `config` you
    receive has already been validated against your Zod schema, so `config.foo`
-   is fully typed and present. Note that *present* is not *non-empty*: a field
+   is fully typed and present. Note that _present_ is not _non-empty_: a field
    declared `z.string().default("")` always exists but can arrive as `""`. If
    your column needs a value to do anything, guard it before the network call
    (see the "Validate required inputs" convention below).

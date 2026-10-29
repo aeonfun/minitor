@@ -17,15 +17,15 @@ Most columns are **keyless** and work immediately. The keyed ones degrade gracef
 
 ## Project layout
 
-| Path | What lives there |
-|------|------------------|
-| `lib/columns/plugins/<id>/` | One folder per column type — `plugin.ts` (metadata + Zod schema), `client.tsx` (UI), `server.ts` (fetcher) |
-| `lib/columns/plugins/manifest.ts` | Canonical list of which column ids exist — the single source of truth |
-| `lib/columns/registry.ts` | Client-UI registry (one import per plugin) |
-| `lib/columns/server-registry.ts` | Server-fetcher registry + the init-time parity check |
-| `lib/integrations/<source>.ts` | Upstream HTTP clients — the network details a `server.ts` calls into |
-| `lib/db/` | Drizzle client (PGlite / node-postgres / Neon) and schema |
-| `app/` | Next.js App Router — the deck UI and the shared `api/columns/[type]` route |
+| Path                              | What lives there                                                                                           |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `lib/columns/plugins/<id>/`       | One folder per column type — `plugin.ts` (metadata + Zod schema), `client.tsx` (UI), `server.ts` (fetcher) |
+| `lib/columns/plugins/manifest.ts` | Canonical list of which column ids exist — the single source of truth                                      |
+| `lib/columns/registry.ts`         | Client-UI registry (one import per plugin)                                                                 |
+| `lib/columns/server-registry.ts`  | Server-fetcher registry + the init-time parity check                                                       |
+| `lib/integrations/<source>.ts`    | Upstream HTTP clients — the network details a `server.ts` calls into                                       |
+| `lib/db/`                         | Drizzle client (PGlite / node-postgres / Neon) and schema                                                  |
+| `app/`                            | Next.js App Router — the deck UI and the shared `api/columns/[type]` route                                 |
 
 ## Adding a column type
 

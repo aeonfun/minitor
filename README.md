@@ -65,32 +65,32 @@ For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https:
 
 ### Column types
 
-| Category | Columns |
-|----------|---------|
-| **Social — X / Reddit / HN / Farcaster / Mastodon** (6) | `x-search`, `x-trending`, `reddit`, `hacker-news`, `farcaster`, `mastodon` |
-| **GitHub** (11) | `github-trending`, `github-releases`, `github-issues`, `github-prs`, `github-commits`, `github-stars`, `github-forks`, `github-search`, `github-backlinks`, `github-actions`, `github-discussions` |
-| **News & web** (10) | `google-news`, `news-search`, `rss`, `lobsters`, `stack-overflow`, `devto`, `npm`, `pypi`, `crates`, `producthunt` |
-| **AI / ML** (2) | `huggingface` (trending models, datasets, spaces), `arxiv` (CS / stat / math.OC papers) |
-| **Long-form & video** (3) | `substack`, `youtube`, `linkedin` |
-| **Mention monitors** (2) | `facebook`, `instagram` |
-| **Apps & on-chain** (7) | `apple-reviews`, `play-reviews`, `wallet-tx`, `polymarket`, `coingecko`, `defillama`, `dexscreener` |
-| **China hot boards** (6) | `weibo-hot`, `zhihu-hot`, `douyin-hot`, `bilibili-hot`, `toutiao`, `baidu-hot` |
+| Category                                                | Columns                                                                                                                                                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Social — X / Reddit / HN / Farcaster / Mastodon** (6) | `x-search`, `x-trending`, `reddit`, `hacker-news`, `farcaster`, `mastodon`                                                                                                                         |
+| **GitHub** (11)                                         | `github-trending`, `github-releases`, `github-issues`, `github-prs`, `github-commits`, `github-stars`, `github-forks`, `github-search`, `github-backlinks`, `github-actions`, `github-discussions` |
+| **News & web** (10)                                     | `google-news`, `news-search`, `rss`, `lobsters`, `stack-overflow`, `devto`, `npm`, `pypi`, `crates`, `producthunt`                                                                                 |
+| **AI / ML** (2)                                         | `huggingface` (trending models, datasets, spaces), `arxiv` (CS / stat / math.OC papers)                                                                                                            |
+| **Long-form & video** (3)                               | `substack`, `youtube`, `linkedin`                                                                                                                                                                  |
+| **Mention monitors** (2)                                | `facebook`, `instagram`                                                                                                                                                                            |
+| **Apps & on-chain** (7)                                 | `apple-reviews`, `play-reviews`, `wallet-tx`, `polymarket`, `coingecko`, `defillama`, `dexscreener`                                                                                                |
+| **China hot boards** (6)                                | `weibo-hot`, `zhihu-hot`, `douyin-hot`, `bilibili-hot`, `toutiao`, `baidu-hot`                                                                                                                     |
 
 Full plugin manifest: [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/manifest.ts). Add a new source by copying [`lib/columns/plugins/_template/`](lib/columns/plugins/_template/) — see [`lib/columns/README.md`](lib/columns/README.md) for the full contract.
 
-**Keys:** `XAI_API_KEY` for `x-*`, `news-search`, `linkedin`, `facebook`, `instagram` (and Substack's keyword-only mode). Optional `NEYNAR_API_KEY` for Farcaster (demo-key fallback works), optional `YOUTUBE_API_KEY` for YouTube *search* (channel / playlist Atom feeds are keyless), optional `GITHUB_TOKEN` for every `github-*` column (60 req/hr keyless → 5000 req/hr with a token; `github-discussions` follows the same rule), optional `COINGECKO_DEMO_API_KEY` for higher CoinGecko rate limits (keyless mode works fine for low-traffic decks). Everything else runs without keys.
+**Keys:** `XAI_API_KEY` for `x-*`, `news-search`, `linkedin`, `facebook`, `instagram` (and Substack's keyword-only mode). Optional `NEYNAR_API_KEY` for Farcaster (demo-key fallback works), optional `YOUTUBE_API_KEY` for YouTube _search_ (channel / playlist Atom feeds are keyless), optional `GITHUB_TOKEN` for every `github-*` column (60 req/hr keyless → 5000 req/hr with a token; `github-discussions` follows the same rule), optional `COINGECKO_DEMO_API_KEY` for higher CoinGecko rate limits (keyless mode works fine for low-traffic decks). Everything else runs without keys.
 
 ### Features
 
-| Category | Highlights |
-|----------|-----------|
-| **Launcher** (6) | `./minitor` (dev), `./minitor build`, `./minitor start`, `./minitor migrate`, `./minitor doctor`, `./minitor reset` — auto-detects npm / pnpm / yarn / bun, idempotent re-runs |
-| **Plugin system** (4) | 3-file folders (`plugin.ts`, `client.tsx`, `server.ts`), Zod-validated configs, init-time parity check across 3 registries, copy-paste `_template/` to add a source |
-| **Pagination** (3) | Cursor-based `{ items, nextCursor? }` everywhere, 10 items per page, Load more + End of results states; slice helper at `lib/columns/paginate.ts` for non-cursor sources |
-| **Database** (4) | PGlite default (zero install), node-postgres for self-hosted, `@neondatabase/serverless` HTTP driver for Neon, runtime selector by `DATABASE_URL` |
-| **UI** (7) | ⌘K command palette, `@dnd-kit` drag-reorder, conic-gradient refresh beam (CSS-only), live-ticking timestamps (1Hz `useSyncExternalStore`), onboarding flow, missing-key dimming on Add column, full-column loading skeleton |
-| **State** (3) | zustand + server-action writes, optimistic mutations, no localStorage (every device sees the same state) |
-| **Deck portability** (5) | Export (copy JSON), import (paste JSON), share link (`#deck=…` URL fragment), starter templates, and version history — auto-captured snapshots (last 5 per deck) restorable as a new deck from the deck menu |
+| Category                 | Highlights                                                                                                                                                                                                                  |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Launcher** (6)         | `./minitor` (dev), `./minitor build`, `./minitor start`, `./minitor migrate`, `./minitor doctor`, `./minitor reset` — auto-detects npm / pnpm / yarn / bun, idempotent re-runs                                              |
+| **Plugin system** (4)    | 3-file folders (`plugin.ts`, `client.tsx`, `server.ts`), Zod-validated configs, init-time parity check across 3 registries, copy-paste `_template/` to add a source                                                         |
+| **Pagination** (3)       | Cursor-based `{ items, nextCursor? }` everywhere, 10 items per page, Load more + End of results states; slice helper at `lib/columns/paginate.ts` for non-cursor sources                                                    |
+| **Database** (4)         | PGlite default (zero install), node-postgres for self-hosted, `@neondatabase/serverless` HTTP driver for Neon, runtime selector by `DATABASE_URL`                                                                           |
+| **UI** (7)               | ⌘K command palette, `@dnd-kit` drag-reorder, conic-gradient refresh beam (CSS-only), live-ticking timestamps (1Hz `useSyncExternalStore`), onboarding flow, missing-key dimming on Add column, full-column loading skeleton |
+| **State** (3)            | zustand + server-action writes, optimistic mutations, no localStorage (every device sees the same state)                                                                                                                    |
+| **Deck portability** (5) | Export (copy JSON), import (paste JSON), share link (`#deck=…` URL fragment), starter templates, and version history — auto-captured snapshots (last 5 per deck) restorable as a new deck from the deck menu                |
 
 ### Use cases
 
@@ -116,12 +116,12 @@ Full plugin manifest: [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/ma
 
 Set `DATABASE_URL` in `.env.local`:
 
-| URL form | Driver picked |
-|---|---|
-| *unset* / `pglite:` / `file:` | PGlite, persisted to `.minitor/pgdata/` (default) |
-| `memory:` | PGlite, ephemeral in-memory — nothing persists (used by the test suite) |
-| `postgres://user:pass@localhost/minitor` | node-postgres |
-| `postgresql://…@…neon.tech/…?sslmode=require` | `@neondatabase/serverless` HTTP |
+| URL form                                      | Driver picked                                                           |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| _unset_ / `pglite:` / `file:`                 | PGlite, persisted to `.minitor/pgdata/` (default)                       |
+| `memory:`                                     | PGlite, ephemeral in-memory — nothing persists (used by the test suite) |
+| `postgres://user:pass@localhost/minitor`      | node-postgres                                                           |
+| `postgresql://…@…neon.tech/…?sslmode=require` | `@neondatabase/serverless` HTTP                                         |
 
 `./minitor migrate` and the runtime client honor the same selector (`lib/db/client.ts:resolveDatabaseConfig`).
 
@@ -147,25 +147,25 @@ Brings up Postgres + Minitor, migrates automatically, serves at `http://localhos
 
 **Hosting env vars:**
 
-| Var | Purpose |
-|---|---|
-| `DATABASE_URL` | `postgres://…` (compose/Railway) or a Neon URL. Required in hosted mode — `memory:`/PGlite is ephemeral. |
-| `MINITOR_PASSWORD` | The login password. Gates the whole app behind a `/login` page (signed session cookie). **Required when hosted** — unset in hosted mode fails closed with a lock screen. Unset locally = open (dev default). |
-| `MINITOR_HOSTED` | Baked to `1` in the image. Disables the in-app key editor; keys come from env vars. |
-| `XAI_API_KEY`, `GITHUB_TOKEN`, … | Column [API keys](#column-types), read from the host environment. |
+| Var                              | Purpose                                                                                                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`                   | `postgres://…` (compose/Railway) or a Neon URL. Required in hosted mode — `memory:`/PGlite is ephemeral.                                                                                                     |
+| `MINITOR_PASSWORD`               | The login password. Gates the whole app behind a `/login` page (signed session cookie). **Required when hosted** — unset in hosted mode fails closed with a lock screen. Unset locally = open (dev default). |
+| `MINITOR_HOSTED`                 | Baked to `1` in the image. Disables the in-app key editor; keys come from env vars.                                                                                                                          |
+| `XAI_API_KEY`, `GITHUB_TOKEN`, … | Column [API keys](#column-types), read from the host environment.                                                                                                                                            |
 
 The image bakes `MINITOR_HOSTED=1`, so the Settings dialog is read-only and `setEnvKeys` is refused server-side — provide keys as environment variables instead. `GET /api/health` is an unauthenticated liveness probe (excluded from the password gate).
 
 ### Documentation
 
-| | |
-|---|---|
-| [Plugin contract](lib/columns/README.md) | The 3-file plugin pattern + how to add a new column type |
-| [`lib/columns/types.ts`](lib/columns/types.ts) | `ColumnUI`, `ColumnServer`, `PluginMeta`, `FeedItem`, `PageResult`, `Capabilities` |
-| [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/manifest.ts) | Canonical plugin id list — single source of truth |
-| [`lib/columns/paginate.ts`](lib/columns/paginate.ts) | Slice-based cursor pagination helper for non-cursor sources |
-| [`lib/db/client.ts`](lib/db/client.ts) | Multi-driver Drizzle client (PGlite / pg / Neon HTTP) |
-| [`scripts/db-migrate.mjs`](scripts/db-migrate.mjs) | The migration runner used by `./minitor migrate` |
+|                                                                      |                                                                                    |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [Plugin contract](lib/columns/README.md)                             | The 3-file plugin pattern + how to add a new column type                           |
+| [`lib/columns/types.ts`](lib/columns/types.ts)                       | `ColumnUI`, `ColumnServer`, `PluginMeta`, `FeedItem`, `PageResult`, `Capabilities` |
+| [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/manifest.ts) | Canonical plugin id list — single source of truth                                  |
+| [`lib/columns/paginate.ts`](lib/columns/paginate.ts)                 | Slice-based cursor pagination helper for non-cursor sources                        |
+| [`lib/db/client.ts`](lib/db/client.ts)                               | Multi-driver Drizzle client (PGlite / pg / Neon HTTP)                              |
+| [`scripts/db-migrate.mjs`](scripts/db-migrate.mjs)                   | The migration runner used by `./minitor migrate`                                   |
 
 ### Deployment
 
@@ -177,7 +177,7 @@ The image bakes `MINITOR_HOSTED=1`, so the Settings dialog is read-only and `set
 
 - `.env.local` is gitignored — only `.env.example` ships.
 - Server actions call xAI / Neynar / GitHub server-side; API keys never reach the client.
-- The add-column dialog asks the server which env keys are *present* (boolean only, values never leave the server) to grey out plugins you can't use.
+- The add-column dialog asks the server which env keys are _present_ (boolean only, values never leave the server) to grey out plugins you can't use.
 - No auth layer: every browser hitting your deployment sees the same decks. To partition per user, add a `user_id` column to each table and filter in the server actions.
 
 ## License
