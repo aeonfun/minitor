@@ -3,8 +3,13 @@ on:
   push:
     branches: [main]
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   biome:
+    timeout-minutes: 5
     runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
