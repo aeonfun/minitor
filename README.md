@@ -50,7 +50,7 @@ git clone https://github.com/aeonfun/minitor.git && cd minitor
 
 The launcher checks Node, picks the right package manager (npm / pnpm / yarn / bun based on lockfile), installs deps, copies `.env.example` → `.env.local` if missing, runs DB migrations against PGlite, and starts the dev server at `http://localhost:3000`. Re-running it just starts the server.
 
-For X columns, paste a **[TwitterAPI.io](https://twitterapi.io/?ref=wa6is4im)** key into `TWITTER_API_KEY` in `.env.local` (preferred: structured tweets, exact engagement). Grok / News / Web / Farcaster still take an **[xAI API key](https://console.x.ai/)** in `XAI_API_KEY` - X columns fall back to it when TwitterAPI.io is unset. Keyless columns (Reddit, HN, Lobsters, Stack Overflow, DEV.to, Product Hunt, npm, PyPI, crates.io, Hugging Face, arXiv, Mastodon, RSS, Google News, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions, Polymarket, CoinGecko, DeFiLlama, Dexscreener) work out of the box with no keys.
+For X columns, paste a **[TwitterAPI.io](https://twitterapi.io)** key into `TWITTER_API_KEY` in `.env.local` (preferred: structured tweets, exact engagement). Grok / News / Web / Farcaster still take an **[xAI API key](https://console.x.ai/)** in `XAI_API_KEY` - X columns fall back to it when TwitterAPI.io is unset. Keyless columns (Reddit, HN, Lobsters, Stack Overflow, DEV.to, Product Hunt, npm, PyPI, crates.io, Hugging Face, arXiv, Mastodon, RSS, Google News, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions, Polymarket, CoinGecko, DeFiLlama, Dexscreener) work out of the box with no keys.
 
 **Other launcher subcommands:**
 
@@ -191,5 +191,3 @@ MIT.
 ---
 
 Built by [Aaron Elijah Mars](https://aaronjmars.com), founder of Aeon and MiroShark · [@aaronjmars](https://github.com/aaronjmars)
-
-X columns read tweets through [TwitterAPI.io](https://twitterapi.io/?ref=wa6is4im). This project uses TwitterAPI.io; if you sign up through the link, the author may receive API credits.

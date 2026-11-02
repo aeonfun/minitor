@@ -24,7 +24,7 @@ export const ENV_KEYS: EnvKeySpec[] = [
     label: "TwitterAPI.io",
     description:
       "Preferred source for X · Search and X · Trending. Structured tweets with exact engagement counts. Falls back to XAI_API_KEY when unset.",
-    signupUrl: "https://twitterapi.io/?ref=wa6is4im",
+    signupUrl: "https://twitterapi.io",
     required: false,
   },
   {
