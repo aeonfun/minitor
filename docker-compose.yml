@@ -34,6 +34,7 @@ services:
       # API keys are read from the host env here (the in-app editor is disabled
       # in hosted mode). Leave unset to run keyless columns only.
       XAI_API_KEY: ${XAI_API_KEY:-}
+      TWITTER_API_KEY: ${TWITTER_API_KEY:-}
       NEYNAR_API_KEY: ${NEYNAR_API_KEY:-}
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}

@@ -50,7 +50,7 @@ git clone https://github.com/aeonfun/minitor.git && cd minitor
 
 The launcher checks Node, picks the right package manager (npm / pnpm / yarn / bun based on lockfile), installs deps, copies `.env.example` → `.env.local` if missing, runs DB migrations against PGlite, and starts the dev server at `http://localhost:3000`. Re-running it just starts the server.
 
-For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https://console.x.ai/)** into `XAI_API_KEY` in `.env.local`. Keyless columns (Reddit, HN, Lobsters, Stack Overflow, DEV.to, Product Hunt, npm, PyPI, crates.io, Hugging Face, arXiv, Mastodon, RSS, Google News, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions, Polymarket, CoinGecko, DeFiLlama, Dexscreener) work out of the box with no keys.
+For X columns, paste a **[TwitterAPI.io](https://twitterapi.io/?ref=wa6is4im)** key into `TWITTER_API_KEY` in `.env.local` (preferred: structured tweets, exact engagement). Grok / News / Web / Farcaster still take an **[xAI API key](https://console.x.ai/)** in `XAI_API_KEY` - X columns fall back to it when TwitterAPI.io is unset. Keyless columns (Reddit, HN, Lobsters, Stack Overflow, DEV.to, Product Hunt, npm, PyPI, crates.io, Hugging Face, arXiv, Mastodon, RSS, Google News, GitHub, China Hot, YouTube channel/playlist, app reviews, wallet transactions, Polymarket, CoinGecko, DeFiLlama, Dexscreener) work out of the box with no keys.
 
 **Other launcher subcommands:**
 
@@ -78,7 +78,7 @@ For Grok / X / News / Web / Farcaster columns, paste your **[xAI API key](https:
 
 Full plugin manifest: [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/manifest.ts). Add a new source by copying [`lib/columns/plugins/_template/`](lib/columns/plugins/_template/) — see [`lib/columns/README.md`](lib/columns/README.md) for the full contract.
 
-**Keys:** `XAI_API_KEY` for `x-*`, `news-search`, `linkedin`, `facebook`, `instagram` (and Substack's keyword-only mode). Optional `NEYNAR_API_KEY` for Farcaster (demo-key fallback works), optional `YOUTUBE_API_KEY` for YouTube _search_ (channel / playlist Atom feeds are keyless), optional `GITHUB_TOKEN` for every `github-*` column (60 req/hr keyless → 5000 req/hr with a token; `github-discussions` follows the same rule), optional `COINGECKO_DEMO_API_KEY` for higher CoinGecko rate limits (keyless mode works fine for low-traffic decks). Everything else runs without keys.
+**Keys:** `TWITTER_API_KEY` for `x-search` / `x-trending` (TwitterAPI.io, preferred). `XAI_API_KEY` for those same X columns as fallback, plus `news-search`, `linkedin`, `facebook`, `instagram` (and Substack's keyword-only mode). Optional `NEYNAR_API_KEY` for Farcaster (demo-key fallback works), optional `YOUTUBE_API_KEY` for YouTube _search_ (channel / playlist Atom feeds are keyless), optional `GITHUB_TOKEN` for every `github-*` column (60 req/hr keyless → 5000 req/hr with a token; `github-discussions` follows the same rule), optional `COINGECKO_DEMO_API_KEY` for higher CoinGecko rate limits (keyless mode works fine for low-traffic decks). Everything else runs without keys.
 
 ### Features
 
@@ -107,7 +107,7 @@ Full plugin manifest: [`lib/columns/plugins/manifest.ts`](lib/columns/plugins/ma
 - **Next.js 16** (App Router, Turbopack) + **React 19** + **TypeScript**
 - **Tailwind v4** + **shadcn/ui** (`base-nova` style on `@base-ui/react`)
 - **Drizzle ORM** with three runtime drivers (PGlite default / node-postgres / `@neondatabase/serverless`)
-- **xAI Agent Tools API** (`/v1/responses` with `x_search` + `web_search`) — Grok-powered search backbone
+- **TwitterAPI.io** (`/twitter/tweet/advanced_search`) for X columns, with **xAI Agent Tools** (`x_search` + `web_search`) as the Grok fallback and for News / Web
 - **zustand** for client state with server-action writes
 - **@dnd-kit** for sortable decks + columns
 - **sonner** toasts, **cmdk** command palette, **Instrument Serif** + Geist fonts
@@ -176,7 +176,7 @@ The image bakes `MINITOR_HOSTED=1`, so the Settings dialog is read-only and `set
 ### Security
 
 - `.env.local` is gitignored — only `.env.example` ships.
-- Server actions call xAI / Neynar / GitHub server-side; API keys never reach the client.
+- Server actions call TwitterAPI.io / xAI / Neynar / GitHub server-side; API keys never reach the client.
 - The add-column dialog asks the server which env keys are _present_ (boolean only, values never leave the server) to grey out plugins you can't use.
 - No auth layer: every browser hitting your deployment sees the same decks. To partition per user, add a `user_id` column to each table and filter in the server actions.
 
@@ -191,3 +191,5 @@ MIT.
 ---
 
 Built by [Aaron Elijah Mars](https://aaronjmars.com), founder of Aeon and MiroShark · [@aaronjmars](https://github.com/aaronjmars)
+
+X columns read tweets through [TwitterAPI.io](https://twitterapi.io/?ref=wa6is4im). This project uses TwitterAPI.io; if you sign up through the link, the author may receive API credits.
