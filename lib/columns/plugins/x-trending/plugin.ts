@@ -19,5 +19,9 @@ export const meta: PluginMeta<XTrendingConfig, TweetMeta> = {
   schema,
   defaultConfig: schema.parse({}),
   defaultTitle: (c) => (c.topic.trim() ? `Trending · ${c.topic.trim()}` : "X · Trending"),
-  capabilities: { paginated: true, requiresEnv: ["XAI_API_KEY"] },
+  capabilities: {
+    paginated: true,
+    rateLimitHint:
+      "Uses TWITTER_API_KEY (TwitterAPI.io) when set; otherwise XAI_API_KEY (Grok x_search).",
+  },
 };

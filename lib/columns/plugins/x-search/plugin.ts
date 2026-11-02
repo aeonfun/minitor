@@ -22,5 +22,9 @@ export const meta: PluginMeta<XSearchConfig, TweetMeta> = {
   schema,
   defaultConfig: schema.parse({}),
   defaultTitle: (c) => (c.query.trim() ? `X · ${c.query.trim()}` : "X · Search"),
-  capabilities: { paginated: true, requiresEnv: ["XAI_API_KEY"] },
+  capabilities: {
+    paginated: true,
+    rateLimitHint:
+      "Uses TWITTER_API_KEY (TwitterAPI.io) when set; otherwise XAI_API_KEY (Grok x_search).",
+  },
 };
