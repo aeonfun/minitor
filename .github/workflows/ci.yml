@@ -16,15 +16,22 @@ permissions:
   contents: read
 
 jobs:
-  # Split from Build so a lint or test failure reports in ~1min instead of
-  # waiting on the full Next production bundle. Both jobs share one
-  # node_modules cache, so on a hit neither runs npm ci.
+  # One job for format, lint, tests and the production build, cheapest signal
+  # first. It replaces Format (biome) + Lint & Test + Build: each was billed by
+  # the rounded minute and the two CI jobs each restored node_modules.
   check:
-    name: Lint & Test
+    name: Lint, Test & Build
     timeout-minutes: 15
     runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Format check first (fails in ~2s). Standalone Biome binary, version read
+      # from package-lock.json, so it needs no npm install. Same command as
+      # `npm run format:check`.
+      - uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
+      - name: Format
+        run: biome ci .
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -48,8 +55,8 @@ jobs:
         run: npm ci
 
       # `eslint` with no args lints the whole project under the flat config.
-      # `--max-warnings=0` keeps the tree at zero warnings now that it is
-      # clean — a new warning is a failure rather than scrollback noise.
+      # `--max-warnings=0` keeps the tree at zero warnings: a new warning is a
+      # failure rather than scrollback noise.
       - name: Lint
         run: npm run lint -- --max-warnings=0
 
@@ -58,37 +65,6 @@ jobs:
       - name: Test
         run: npm test
 
-  build:
-    name: Build
-    timeout-minutes: 15
-    runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          # Matches the Dockerfile's node:22-alpine, so CI builds what ships.
-          node-version: 22
-          # package.json's packageManager field would turn the npm cache on by
-          # default; it is a wasted restore when node_modules comes from cache.
-          package-manager-cache: false
-
-      # Reuse node_modules when the lockfile is unchanged and skip npm ci
-      # (~40-50s). The key holds the Node major so a Node bump reinstalls.
-      - name: Cache node_modules
-        id: node-modules
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node22-nm-${{ hashFiles('package-lock.json') }}
-
-      - name: Install dependencies
-        if: steps.node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
-      # `next build` runs the TypeScript compiler and produces the production
-      # bundle. No secrets needed: with DATABASE_URL unset the app falls back to
-      # the bundled PGlite driver (see lib/db/client.ts:resolveDatabaseConfig).
       # Next's incremental build cache. Without it every build logs "No build
       # cache found" and compiles cold. Restored on every run, saved from main
       # only (a PR's cache is visible to that PR alone).
@@ -101,6 +77,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
 
+      # `next build` runs the TypeScript compiler and produces the production
+      # bundle. No secrets needed: with DATABASE_URL unset the app falls back to
+      # the bundled PGlite driver (see lib/db/client.ts:resolveDatabaseConfig).
       - name: Build
         run: npm run build
 
