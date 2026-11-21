@@ -5,10 +5,11 @@ on:
     branches: [main]
   pull_request:
 
-# Cancel superseded runs on the same ref so only the latest commit's build matters.
+# Cancel a superseded PR run when a newer commit lands on the same branch.
+# Pushes to main always run to the end, so every main commit gets checked.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Read-only token is all this build needs (checkout); least-privilege by default.
 permissions:
@@ -16,10 +17,11 @@ permissions:
 
 jobs:
   # Split from Build so a lint or test failure reports in ~1min instead of
-  # waiting on the full Next production bundle. The npm cache is shared, so the
-  # duplicated install costs little.
+  # waiting on the full Next production bundle. Both jobs share one
+  # node_modules cache, so on a hit neither runs npm ci.
   check:
     name: Lint & Test
+    timeout-minutes: 15
     runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,9 +30,21 @@ jobs:
         with:
           # Matches the Dockerfile's node:22-alpine, so CI checks what ships.
           node-version: 22
-          cache: npm
+          # package.json's packageManager field would turn the npm cache on by
+          # default; it is a wasted restore when node_modules comes from cache.
+          package-manager-cache: false
+
+      # Reuse node_modules when the lockfile is unchanged and skip npm ci
+      # (~40-50s). The key holds the Node major so a Node bump reinstalls.
+      - name: Cache node_modules
+        id: node-modules
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node22-nm-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       # `eslint` with no args lints the whole project under the flat config.
@@ -46,6 +60,7 @@ jobs:
 
   build:
     name: Build
+    timeout-minutes: 15
     runs-on: ${{ github.repository_owner == 'aeonfun' && 'blacksmith-2vcpu-ubuntu-2404' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -54,13 +69,44 @@ jobs:
         with:
           # Matches the Dockerfile's node:22-alpine, so CI builds what ships.
           node-version: 22
-          cache: npm
+          # package.json's packageManager field would turn the npm cache on by
+          # default; it is a wasted restore when node_modules comes from cache.
+          package-manager-cache: false
+
+      # Reuse node_modules when the lockfile is unchanged and skip npm ci
+      # (~40-50s). The key holds the Node major so a Node bump reinstalls.
+      - name: Cache node_modules
+        id: node-modules
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node22-nm-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       # `next build` runs the TypeScript compiler and produces the production
       # bundle. No secrets needed: with DATABASE_URL unset the app falls back to
       # the bundled PGlite driver (see lib/db/client.ts:resolveDatabaseConfig).
+      # Next's incremental build cache. Without it every build logs "No build
+      # cache found" and compiles cold. Restored on every run, saved from main
+      # only (a PR's cache is visible to that PR alone).
+      - name: Restore Next.js build cache
+        id: next-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('app/**', 'components/**', 'lib/**', 'hooks/**', 'public/**', '*.ts', '*.mjs', '*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+
       - name: Build
         run: npm run build
+
+      - name: Save Next.js build cache
+        if: github.ref == 'refs/heads/main' && steps.next-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: ${{ steps.next-cache.outputs.cache-primary-key }}
