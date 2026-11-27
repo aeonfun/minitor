@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/assets/hero-animated.svg" alt="Minitor — monitor the current thing. Your dashboard for the internet: 47 column types (X, Reddit, Hacker News, GitHub, Hugging Face, arXiv, on-chain, prediction markets, and more) on one deck, local-first with zero infra." width="100%" />
+  <img src="./docs/assets/readme-hero.jpg" alt="Minitor - monitor the current thing. Your dashboard for the internet: 47 column types (X, Reddit, Hacker News, GitHub, Hugging Face, arXiv, on-chain, prediction markets, and more) on one deck, local-first with zero infra." width="100%" />
 </p>
 
 <p align="center">
@@ -7,12 +7,12 @@
   <a href="https://github.com/aeonfun/minitor/stargazers"><img src="./docs/assets/btn-star.svg" alt="Star Minitor on GitHub" height="34" align="absmiddle"></a>&nbsp;&nbsp;
   <a href="#deploy--self-host"><img src="./docs/assets/btn-deploy.svg" alt="Deploy Minitor" height="34" align="absmiddle"></a>&nbsp;&nbsp;
   <a href="https://x.com/aeonframework"><img src="./docs/assets/btn-x.svg" alt="@aeonframework on X" height="34" align="absmiddle"></a>&nbsp;&nbsp;
-  <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="./docs/assets/btn-bankr.svg" alt="$aeon on Bankr" height="34" align="absmiddle"></a>
+  <a href="https://bankr.bot/discover/0xbf8e8f0e8866a7052f948c16508644347c57aba3"><img src="./docs/assets/btn-bankr.svg" alt="$AEON on Bankr" height="34" align="absmiddle"></a>
 </p>
 
 <p align="center">
   <strong>Monitor the current thing. Your dashboard for the internet.</strong><br/>
-  Build a deck, pack it with columns, refresh on demand — 47 plugin column types across social, news, GitHub, Hugging Face, arXiv, on-chain, prediction markets, prices, and the Chinese hot boards.
+  Build a deck, pack it with columns, refresh on demand - 47 plugin column types across social, news, GitHub, Hugging Face, arXiv, on-chain, prediction markets, prices, and the Chinese hot boards.
 </p>
 
 <div align="center">
