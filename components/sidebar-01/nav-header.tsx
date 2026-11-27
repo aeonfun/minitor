@@ -150,12 +150,12 @@ export function NavHeader({ onAddDeck, onAddColumn, onImportDeck, onBrowseTempla
             >
               <Image
                 src="/aeon.jpg"
-                alt="aeon"
+                alt="Aeon"
                 width={12}
                 height={12}
                 className="size-3 rounded-full ring-1 ring-black/10"
               />
-              <span>aeon</span>
+              <span>Aeon</span>
             </a>
           </div>
         </div>
